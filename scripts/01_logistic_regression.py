@@ -32,7 +32,7 @@ scaler = MinMaxScaler()
 scaled_features = scaler.fit_transform(features_df)
 
 # Split data sets into Training, Validation and Test sets
-X_train_val, X_test, Y_train_val, Y_test = train_test_split(features, dummy_target,
+X_train_val, X_test, Y_train_val, Y_test = train_test_split(scaled_features, dummy_target,
                                                             test_size=0.33, random_state=42)
 X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.2, random_state=42)
 
