@@ -34,19 +34,18 @@ scaled_features = scaler.fit_transform(features_df)
 # Split data sets into Training, Validation and Test sets
 X_train_val, X_test, Y_train_val, Y_test = train_test_split(scaled_features, dummy_target,
                                                             test_size=0.33, random_state=42)
-X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.2, random_state=42)
-
-# Get list of indices in the training set
-idx = list(range(X_train.shape[0]))
+X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.33, random_state=42)
 
 # Logistic Regression Graph Construction ===============================================================================
 # Hyperparameters
 X_FEATURES = X_train.shape[1]
 Y_FEATURES = Y_train.shape[1]
-LEARNING_RATE = 0.05
 BATCH_SIZE = 10
+LEARNING_RATE = 0.05
 EPOCHS = 1000
 
+# Get list of indices in the training set
+idx = list(range(X_train.shape[0]))
 # Determine total number of batches
 n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
 
@@ -56,17 +55,15 @@ tf.reset_default_graph()
 # Define inputs to the model
 with tf.variable_scope('inputs'):
     # placeholder for input features
-    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name='x')
+    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name='predictors')
     # placeholder for true values
-    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='y_true')
+    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='target')
 
-# Define logistic regression
+# Define logistic regression model
 with tf.name_scope('logistic_regression'):
     # Predictions are performed by Y_FEATURES neurons in the output layer
     logits = tf.layers.dense(inputs=x, units=Y_FEATURES, name="prediction")
-
-# Define loss and training
-with tf.name_scope('loss'):
+    # Define loss and training
     # Cost function of the model is cross-entropy loss
     loss = tf.losses.softmax_cross_entropy(onehot_labels=y_true, logits=logits)
     # Current training is preformed using Adam optimiser which minimizes the loss function as each step
@@ -75,8 +72,8 @@ with tf.name_scope('loss'):
 
 # Define metric ops
 with tf.name_scope('metrics'):
-    predictions = tf.argmax(logits, 1)
-    labels = tf.argmax(y_true, 1)
+    predictions = tf.argmax(input=logits, axis=1)
+    labels = tf.argmax(input=y_true, axis=1)
     _, accuracy = tf.metrics.accuracy(labels=labels, predictions=predictions)
     _, auc = tf.metrics.auc(labels=labels, predictions=predictions, curve='ROC', name='auc')
     _, precision = tf.metrics.precision(labels=labels, predictions=predictions)

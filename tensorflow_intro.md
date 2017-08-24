@@ -12,7 +12,7 @@ TensorFlow is an open-source software library from Google for numerical computat
 In addition, it has a large community and many projects are already using TensorFlow.
 
 TensorFlow has simplified interfaces, TensorFlow Estimator  ([tf.estimator](https://www.tensorflow.org/api_docs/python/tf/estimator)) and
-TensorFlow Learn ([tf.contrib.learn](https://www.tensorflow.org/api_guides/python/contrib.learn)), that provide readily available models that users can simply call. This was purposely created to mimic scikit-learn for deep learning “to smooth the transition" from the scikit-learn world of one-liner machine learning into the more open world of building different shapes of machine learning models.
+TensorFlow Learn ([tf.contrib.learn](https://www.tensorflow.org/api_guides/python/contrib.learn)), that provide readily available models that users can simply call. This was purposely created to mimic `scikit-learn` for deep learning “to smooth the transition" from the `scikit-learn` world of one-liner machine learning into the more open world of building different shapes of machine learning models.
 
 Both TensorFlow Estimator and TensorFlow Learn allows you to load in data, construct a model, fit your model using the training data, evaluate the accuracy, just using a single line of code. Some models that you can call using one line are  *LinearClassifier, LinearRegressor* and  *DNNClassifier*.
 
@@ -59,6 +59,7 @@ matrix2 = tf.constant([[3.], [4.]])
 # multiplication. Output is a matrix of shape 1x1.
 product = tf.matmul(matrix1, matrix2)
 ```
+> Note: `tf` in all scripts that follow stands for **tensorflow**. 
 
 The default graph now has three nodes: two `tf.constant()` *ops* and one `tf.matmul()` *op*, it can be visualised as:
 

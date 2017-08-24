@@ -11,13 +11,13 @@ This tutorial consists of the following sections:
  * [*Python environment set-up*](environment.md) chapter is a guide to a user on how to install all necessary tools in order to run the provided scripts
 (feel free to skip this if you know about **conda** and **yml** files).
  * [*Introduction to TensorFlow*](tensorflow_intro.md) - gives a description of basic building blocks and concepts that are utilised for the model building in TensorFlow.
- * [*Logistic Regression*](logistic_regression.md) - we use the MNIST data set and find which picture belongs to which number/category.
+ * [*Logistic Regression*](logistic_regression.md) - we use the *MNIST* data set and find which picture belongs to which number/category.
 (Bonus, we build a classifier that tells if given picture is a cat or not.)
- * [*Linear Regression*]() - we show how to fit a straight line to a data.
+ * [*Linear Regression*](linear_regression.md) - we show how to fit a straight line to a data.
  * [*Nonlinear Regression*]() - we fit a nonlinear equation to a data
  * [*Brief introduction to Recurrent Neural Network*]() chapter gives a very brief explanation why we might need to use the Recurrent Neural Networks and what options are available in TensorFlow out of the box.
  * [*Static or Dynamic Recurrent Neural Network*]() - gives a high-level overview of differences between two types of networks and the ways how to use them.
- * [*PhasedLSTM vs. Vanilla LSTM*]() - describes what is a PhasedLSTM and how it can be used.
+ * [*PhasedLSTM vs. Vanilla LSTM*]() - describes what is a *PhasedLSTM* and how it can be used.
  * [*Deep Architecture Networks*]() - shows how multiple layers of different types can be combined together.  
 
 So, if you still feel positive and want to continue, let's begin. :-)
