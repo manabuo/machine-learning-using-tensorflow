@@ -1,133 +1,139 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
-# ======================================================================================================================
-# Resets the graph
-tf.reset_default_graph()
-# ======================================================================================================================
-# Hyperparameters
-TEST_SIZE = 0.33
-LEARNING_RATE = 1e-2
-BATCH_SIZE = 120
-N_ITERATIONS = 10000
-# ======================================================================================================================
+# Data Preparation =====================================================================================================
 # Synthetic Data
-X = np.linspace(start=-5, stop=10, num=2000)
-noise = np.random.normal(scale=1, size=X.size)
-Y = 2.0 * X + 3.0 + noise
+# Define on-dimensional feature vector
+feature = np.linspace(start=-5, stop=10, num=2000)
+# Add additional dimension in order to avoid 0-rank array
+feature = np.expand_dims(feature, axis=1)
+# Creates random noise with amplitude 0.1, which we add to the target values
+noise = 0.1 * np.random.normal(scale=1, size=feature.shape)
+# Defines two-dimensional target array
+target_1 = 2.0 * feature + 3.0 + noise
+target_2 = -1.2 * feature / 6.0 + 1.01 + noise
+target = np.concatenate((target_1, target_2), axis=1)
 
-# plt.plot(X, Y)
-# ======================================================================================================================
-# Split data
-data = list(map(lambda a: np.expand_dims(a, axis=1), [X, Y]))
-x_train_val, x_test, y_train_val, y_test = train_test_split(data[0], data[1], test_size=TEST_SIZE)
-x_train, x_val, y_train, y_val = train_test_split(x_train_val, y_train_val, test_size=TEST_SIZE)
+# Split data sets into Training, Validation and Test sets
+X_train_val, X_test, Y_train_val, Y_test = train_test_split(feature, target,
+                                                            test_size=0.33, random_state=42)
+X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.33, random_state=42)
 
-print('Shape of Training dataset is: {train}, Validation: {val}, Test: {test}'.format(train=x_train.shape,
-                                                                                      val=x_val.shape,
-                                                                                      test=x_test.shape))
-# ======================================================================================================================
-# Define model
+# Logistic Regression Graph Construction ===============================================================================
+# Hyperparameters
+X_FEATURES = X_train.shape[1]
+Y_FEATURES = Y_train.shape[1]
+BATCH_SIZE = 100
+LEARNING_RATE = 0.01
+EPOCHS = 100
 
-# Input is of shape [BATCH_COUNT, FEATURES]
-FEATURES = x_train.shape[1]
-x = tf.placeholder(tf.float32, shape=[None, FEATURES], name='X')
+# Get list of indices in the training set
+idx = list(range(X_train.shape[0]))
+# Determine total number of batches
+n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
 
-# Define Dense bit
-with tf.variable_scope('LR'):
-    prediction = tf.layers.dense(inputs=x, units=FEATURES, name='PREDICTION')
+# Resets default graph
+tf.reset_default_graph()
 
-# Define loss
-y_true = tf.placeholder(dtype=tf.float32, shape=[None, FEATURES], name='TRUTH')
-loss = tf.reduce_mean(input_tensor=tf.square(x=tf.subtract(x=prediction, y=y_true)))
-train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
+# Define inputs to the model
+with tf.variable_scope('inputs'):
+    # placeholder for input features
+    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name='predictors')
+    # placeholder for true values
+    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='target')
 
-# ======================================================================================================================
-# Train model
+# Define logistic regression model
+with tf.name_scope('logistic_regression'):
+    # Predictions are performed by Y_FEATURES neurons in the output layer
+    prediction = tf.layers.dense(inputs=x, units=Y_FEATURES, name="prediction")
+    # Define loss function as root square mean (RMSE) and record its value
+    loss = tf.losses.mean_squared_error(labels=y_true, predictions=prediction)
+    train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
+
+# Define metric ops
+with tf.name_scope('metrics'):
+    _, rmse = tf.metrics.root_mean_squared_error(labels=y_true, predictions=prediction)
+
+    # sse = tf.reduce_sum(input_tensor=tf.square(x=tf.subtract(x=y_true, y=prediction)))
+    # tss = tf.reduce_sum(input_tensor=tf.square(x=tf.subtract(x=y_true, y=tf.reduce_mean(input_tensor=prediction))))
+    # r_squared = tf.subtract(x=1.0, y=tf.divide(x=sse, y=tss))
+
+# Model Training =======================================================================================================
+# Attaches graph to session
 sess = tf.InteractiveSession()
+# Initialises valuables in the graph
 sess.run(fetches=tf.global_variables_initializer())
+sess.run(fetches=tf.local_variables_initializer())
 
-input_size = len(y_train)
-for s in range(N_ITERATIONS):
-    ind_n = np.random.choice(a=input_size, size=BATCH_SIZE, replace=False)
-    x_batch = x_train[ind_n]
-    y_batch = y_train[ind_n]
+for e in range(EPOCHS + 1):
+    # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
+    # input data order.
+    np.random.shuffle(idx)
+    # Creates a batch generator.
+    batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
+    # Loops through batches.
+    for j in range(n_batches):
+        # Gets a batch of row indices.
+        id_batch = next(batch_generator)
+        # Defines input dictionary
+        feed = {x: X_train[id_batch], y_true: Y_train[id_batch]}
+        # Executes the graph
+        sess.run(fetches=train_step, feed_dict=feed)
 
-    feed_dict = {x: x_batch, y_true: y_batch}
-    sess.run(fetches=train_step, feed_dict=feed_dict)
-
-    if s % 1000 == 0:
-        train_loss = loss.eval(feed_dict={x: x_train, y_true: y_train})
-        val_loss = loss.eval(feed_dict={x: x_val, y_true: y_val})
-
-        msg = "step: {e}/{steps}, loss: {tr_e}, val_loss: {ts_e} ".format(e=s, steps=N_ITERATIONS,
-                                                                          tr_e=train_loss, ts_e=val_loss)
+    if e % 10 == 0:
+        # Evaluate metrics on training and validation data sets
+        train_loss = loss.eval(feed_dict={x: X_train, y_true: Y_train})
+        val_loss = loss.eval(feed_dict={x: X_val, y_true: Y_val})
+        # Prints the loss to the console
+        msg = ("Epoch: {e}/{epochs}; ".format(e=e, epochs=EPOCHS) +
+               "Train MSE: {tr_ls}; ".format(tr_ls=train_loss) +
+               "Validation MSE: {val_ls}; ".format(val_ls=train_loss))
         print(msg)
 
-# ======================================================================================================================
-y_predictions_train, w, b = prediction.eval(feed_dict={x: x_train})
+# Model Testing ========================================================================================================
+# Evaluate loss (MSE), RMSE and R2 on test data
+test_loss = loss.eval(feed_dict={x: X_test, y_true: Y_test})
+rmse = rmse.eval(feed_dict={x: X_test, y_true: Y_test})
+# r_squared = r_squared.eval(feed_dict={x: X_test, y_true: Y_test})
+r_squared = None
 
-y_predictions_val = prediction.eval(feed_dict={x: x_val})
+msg = "\nTest MSE: {test_loss}, RMSE: {rmse} and R2: {r2}".format(test_loss=test_loss, rmse=rmse, r2=r_squared)
+print(msg)
 
+# Evaluate prediction on Test data
+y_pred = prediction.eval(feed_dict={x: X_test})
+# Calculates RMSE and R2 metrics using sklearn
+sk_rmse = np.sqrt(mean_squared_error(y_true=Y_test, y_pred=y_pred))
+sk_r2 = r2_score(y_true=Y_test, y_pred=y_pred)
+print('Test sklearn RMSE: {rmse} and R2: {r2}'.format(rmse=sk_rmse, r2=sk_r2))
 
-# ======================================================================================================================
-def flatten_sort(sort_by, b):
-    if len(sort_by.shape) > 0:
-        sort_by = sort_by.flatten()
-    ind = np.argsort(sort_by)
-    return np.array([sort_by.flatten()[i] for i in ind]), np.array([b.flatten()[i] for i in ind])
-
-
-marker_size = 3
-plt.figure()
-
-plt.scatter(x_train, y_train,
-            color='red',
-            label='train-true',
-            s=marker_size)
-
-input_train, output_train = flatten_sort(sort_by=x_train, b=y_predictions_train)
-plt.plot(input_train, output_train,
-         color='orange',
-         label='train-predictions',
-         linewidth=4)
-
-plt.scatter(x_val, y_val,
-            color='blue',
-            label='val-true',
-            s=marker_size)
-
-input_val, output_val = flatten_sort(sort_by=x_val, b=y_predictions_val)
-plt.plot(input_val, output_val,
-         color='black',
-         label='val-predictions')
-
-plt.xlabel("x")
-plt.ylabel("y")
-plt.grid()
+# Comparison ===========================================================================================================
+# Create figure
+fig = plt.figure()
+fig.suptitle('Prediction vs. Ground truth', fontsize=14, fontweight='bold')
+# Plot comparison of predicted to ground truth values in the fist column
+plt.subplot(211)
+plt.plot(X_test, y_pred[:, 0], color='orange', linewidth=2, label='prediction')
+plt.scatter(x=X_test, y=Y_test[:, 0], c='black', s=1, label='ground truth')
 plt.legend()
-# ======================================================================================================================
-# Test
-test_loss = loss.eval(feed_dict={x: x_test, y_true: y_test})
-print("Test loss is: {loss}".format(loss=test_loss))
-y_predictions_test = prediction.eval(feed_dict={x: x_test})
-plt.figure()
-
-plt.scatter(x_test, y_test,
-            color='black',
-            label='test-true',
-            s=marker_size)
-
-input_test, output_test = flatten_sort(sort_by=x_test, b=y_predictions_test)
-plt.plot(input_test, output_test,
-         color='orange',
-         label='test-predictions')
-
-plt.xlabel("x")
-plt.ylabel("y")
-plt.grid()
+plt.ylabel('target 1')
+# Plot comparison of predicted to ground truth values in the second column
+plt.subplot(212)
+plt.plot(X_test, y_pred[:, 1], color='orange', linewidth=2, label='prediction')
+plt.scatter(x=X_test, y=Y_test[:, 1], c='black', s=1, label='ground truth')
 plt.legend()
-plt.show()
-# ======================================================================================================================
+plt.xlabel('feature')
+plt.ylabel('target 2')
+fig.show()
+
+
+
+
+
+
+
+
+
