@@ -97,11 +97,12 @@ for e in range(EPOCHS + 1):
 test_loss = loss.eval(feed_dict={x: X_test, y_true: Y_test})
 rmse = rmse.eval(feed_dict={x: X_test, y_true: Y_test})
 r_squared = r_squared.eval(feed_dict={x: X_test, y_true: Y_test})
+# Evaluate prediction on Test data
+y_pred = prediction.eval(feed_dict={x: X_test})
+# Print Test loss (MSE), total RMSE and R2 in console
 msg = "\nTest MSE: {test_loss}, RMSE: {rmse} and R2: {r2}".format(test_loss=test_loss, rmse=rmse, r2=r_squared)
 print(msg)
 
-# Evaluate prediction on Test data
-y_pred = prediction.eval(feed_dict={x: X_test})
 # Calculates RMSE and R2 metrics using sklearn
 sk_rmse = np.sqrt(mean_squared_error(y_true=Y_test, y_pred=y_pred))
 sk_r2 = r2_score(y_true=Y_test, y_pred=y_pred)
