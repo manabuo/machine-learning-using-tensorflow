@@ -37,8 +37,8 @@ In general, when we create placeholders for dense neural networks, the shape par
 
 You might noticed the following command before the input definition, [`tf.reset_default_graph()`](https://www.tensorflow.org/api_docs/python/tf/reset_default_graph). This function, as the name suggests, clears the default graph stack and resets the global default graph, meaning that before we construct our graph we ensure that all previously attached elements to the graph are discarded.
 
-#### Logistic Regression Model
-Further, we create the model, and as we can see apart from scope name change, only loss function has been changed, when compared with the logistic regression example. In this situation, we use the [mean square error](https://en.wikipedia.org/wiki/Mean_squared_error) as the cost function.
+#### Linear Regression Model
+Further, we create the model, and as we can see apart from the scope name change, only loss function has been changed, when compared with the logistic regression example. In this situation, we use the [mean square error](https://en.wikipedia.org/wiki/Mean_squared_error) as the cost function.
 
 ```python
 # Define logistic regression model

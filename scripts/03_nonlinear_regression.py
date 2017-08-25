@@ -4,16 +4,35 @@ import tensorflow as tf
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
+
+def hidden_dense_network(in_tensor, neurons_per_layer, activation_fn):
+    """
+    Function stacks fully connected layers
+
+    :param in_tensor: Input Tensor
+    :type in_tensor: Tensor
+    :param neurons_per_layer: List of neurons per layer
+    :type neurons_per_layer: list(int)
+    :param activation_fn: Activation operator
+    :type activation_fn: function
+    :return: graph of densely connected layers
+    :rtype: Tensor
+    """
+    h_input = in_tensor
+    for n in neurons_per_layer:
+        h_input = tf.layers.dense(inputs=h_input, units=n, activation=activation_fn)
+    return h_input
+
+
 # Data Preparation =====================================================================================================
-# Synthetic Data
 # Define one-dimensional feature vector
 feature = 5.0 * np.random.random(size=(500, 1)) - 1
 # Creates random noise with amplitude 0.1, which we add to the target values
-noise = 0.1 * np.random.normal(scale=1, size=feature.shape)
+noise = 0.01 * np.random.normal(scale=1, size=feature.shape)
 # Defines two-dimensional target array
 target_1 = 2.0 * feature + 3.0 + noise
 target_2 = -1.2 * feature / 6.0 + 1.01 + noise
-target = np.concatenate((target_1, target_2), axis=1)
+target = np.multiply(target_1, target_2)
 
 # Split data sets into Training, Validation and Test sets
 X_train_val, X_test, Y_train_val, Y_test = train_test_split(feature, target, test_size=0.33, random_state=42)
@@ -23,9 +42,11 @@ X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test
 # Hyperparameters
 X_FEATURES = X_train.shape[1]
 Y_FEATURES = Y_train.shape[1]
-BATCH_SIZE = 10
+BATCH_SIZE = 100
 LEARNING_RATE = 0.01
-EPOCHS = 100
+EPOCHS = 1000
+
+NEURONS_IN_LAYER = [15, 8]
 
 # Get list of indices in the training set
 idx = list(range(X_train.shape[0]))
@@ -43,16 +64,18 @@ with tf.variable_scope('inputs'):
     y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='target')
 
 # Define logistic regression model
-with tf.variable_scope('linear_regression'):
+with tf.variable_scope('nonlinear_regression'):
+    # Constructs hidden fully connected layer network
+    h = hidden_dense_network(in_tensor=x, neurons_per_layer=NEURONS_IN_LAYER, activation_fn=tf.nn.relu)
     # Predictions are performed by Y_FEATURES neurons in the output layer
-    prediction = tf.layers.dense(inputs=x, units=Y_FEATURES, name="prediction")
+    prediction = tf.layers.dense(inputs=h, units=Y_FEATURES, name="prediction")
     # Define loss function as root square mean (RMSE) and record its value
     loss = tf.losses.mean_squared_error(labels=y_true, predictions=prediction)
-    train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
+    train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 
 # Define metric ops
 with tf.variable_scope('metrics'):
-    # Determin total RMSE
+    # Determine total RMSE
     _, rmse = tf.metrics.root_mean_squared_error(labels=y_true, predictions=prediction)
     # Define total r_squared score as 1 - Residual sum of squares (rss) /  Total sum of squares (tss)
     y_true_bar = tf.reduce_mean(input_tensor=y_true, axis=0)
@@ -112,18 +135,9 @@ print('Test sklearn RMSE: {rmse} and R2: {r2}'.format(rmse=sk_rmse, r2=sk_r2))
 dpoints = np.asarray(a=sorted(np.concatenate([X_test, y_pred], axis=1), key=lambda s: s[0]))
 # Create figure
 fig = plt.figure()
-fig.suptitle(t='Prediction vs. Ground truth', fontsize=14, fontweight='bold')
-# Plot comparison of predicted to ground truth values in the fist column
-plt.subplot(211)
+fig.suptitle('Prediction vs. Ground truth', fontsize=14, fontweight='bold')
+# Plot comparison of predicted to ground truth values
 plt.plot(dpoints[:, 0], dpoints[:, 1], color='orange', linewidth=2, label='prediction')
-plt.scatter(x=X_test, y=Y_test[:, 0], c='black', s=2, label='ground truth')
+plt.scatter(x=X_test, y=Y_test, c='black', s=2, label='ground truth')
 plt.legend()
-plt.ylabel(s='target 1')
-# Plot comparison of predicted to ground truth values in the second column
-plt.subplot(212)
-plt.plot(dpoints[:, 0], dpoints[:, 2], color='orange', linewidth=2, label='prediction')
-plt.scatter(x=X_test, y=Y_test[:, 1], c='black', s=2, label='ground truth')
-plt.legend()
-plt.xlabel(s='feature')
-plt.ylabel(s='target 2')
-fig.show()
+plt.ylabel('target')
