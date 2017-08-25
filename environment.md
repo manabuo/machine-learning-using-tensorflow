@@ -27,17 +27,17 @@ activate tf_tutorial
 Here **tf_tutorial** is a default environment name that is given in `environment.yml` file in the repository, thus if you have replaced it, replace it also in the commands above.
 
 While in the environment, you can run any python script and it will use only packages that are available in it. This tutorial is using the following packages:
-* [python](https://www.python.org/)
-* [matplotlib](https://matplotlib.org/)
-* [scikit-learn](http://scikit-learn.org/stable/)
-* [numpy](http://www.numpy.org/)
-* [pandas](http://pandas.pydata.org/)
-* [pip](https://pip.pypa.io/en/stable/)
-* [tensorflow](https://www.tensorflow.org/)
-
-If you encounter any errors during the setup, just Google it or ask someone. :-)
++ [python](https://www.python.org/)
++ [matplotlib](https://matplotlib.org/)
++ [scikit-learn](http://scikit-learn.org/stable/)
++ [numpy](http://www.numpy.org/)
++ [pandas](http://pandas.pydata.org/)
++ [pip](https://pip.pypa.io/en/stable/)
++ [tensorflow](https://www.tensorflow.org/)
 
 > Note:  It is advisable to create a separate environment and `environment.yml` files for each project. For more information on conda environment management see [here](https://conda.io/docs/commands.html#conda-environment-commands).
 
+[Next chapter](tensorflow_intro.md)  is going give a very brief introduction into TensorFlow, if you wish to return to previous chapter press [here](introduction.md).
+
 ### Code
- * [environment.yml](scripts/environment.yml)
++ [environment.yml](scripts/environment.yml)

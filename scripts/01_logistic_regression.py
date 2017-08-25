@@ -12,11 +12,12 @@ from sklearn.preprocessing import MinMaxScaler
 # Name: Breast Cancer Wisconsin (Diagnostic) Data Set (wdbc.data, wdbc.names)
 # Source: http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
 
-# Data Preparation =====================================================================================================
+# Data Location ========================================================================================================
 # Define input data set location
-data_dir = 'scripts/data'
+data_dir = os.path.join('scripts', 'data')
 data_path = os.path.join(data_dir, 'wdbc.data')
 
+# Data Preparation =====================================================================================================
 # Read in the data
 df = pd.read_csv(filepath_or_buffer=data_path, names=['ID', 'diagnosis'] + ['rv_{i}'.format(i=i) for i in range(30)])
 
@@ -92,7 +93,7 @@ for e in range(EPOCHS + 1):
     # Creates a batch generator.
     batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
     # Loops through batches.
-    for j in range(n_batches):
+    for _ in range(n_batches):
         # Gets a batch of row indices.
         id_batch = next(batch_generator)
         # Defines input dictionary

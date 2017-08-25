@@ -74,7 +74,7 @@ for e in range(EPOCHS + 1):
     # Creates a batch generator.
     batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
     # Loops through batches.
-    for j in range(n_batches):
+    for _ in range(n_batches):
         # Gets a batch of row indices.
         id_batch = next(batch_generator)
         # Defines input dictionary

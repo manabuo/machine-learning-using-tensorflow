@@ -1,13 +1,12 @@
 ## Introduction to TensorFlow
-
 In this chapter, we introduce and give a very brief description of basic building blocks and concepts that are used in building models. Here we also provide with an overview on how the models should be structured.
 
 ### Why TensorFlow?
 TensorFlow is an open-source software library from Google for numerical computation using data flow graphs. It is the library that allows us to
-* use variety of programming languages to build deep learning models, as it has Python, C++, Java and Go APIs,
-* deploy computation to one or more CPUs or GPUs in a desktop, server, or mobile device with a single API,
-* visualise learning, embeddings, graphs and histograms [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard),
-* forget about taking derivatives by hand (Auto-differentiation).
++ use variety of programming languages to build deep learning models, as it has Python, C++, Java and Go APIs,
++ deploy computation to one or more CPUs or GPUs in a desktop, server, or mobile device with a single API,
++ visualise learning, embeddings, graphs and histograms [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard),
++ forget about taking derivatives by hand (Auto-differentiation).
 
 In addition, it has a large community and many projects are already using TensorFlow.
 
@@ -20,7 +19,7 @@ Google has some good tutorial on how to build model using [TensorFlow Estimator]
 
 > Note: TensorFlow Learn was originally an independent project called Scikit Flow (SKFlow).
 
-> Note: TensorFlow Contrib module, what TensorFlow Learn is part of, contains volatile or experimental code.
+> Note: TensorFlow Contrib module, which TensorFlow Learn is part of, contains volatile or experimental code.
 
 Another notable addition to the TensorFlow is the implementation of the [Keras](https://keras.io/) API, that significantly reduces the number of lines and improves readability of the code. See [TensorFlow Contrib Keras](https://www.tensorflow.org/api_docs/python/tf/contrib/keras).
 
@@ -36,7 +35,6 @@ A computational graph is a series of TensorFlow operations arranged into a graph
 For example, in the case of the patient records *Tensor* is a 3-D array with dimensions **[patients, record_lengh, features]** or in case of images it is a 4-D array where dimensions are **[images, height, width, channels]**.
 
 ### How does TensorFlow works?
-
 As the example, to build a graph we start with *ops* that do not need any input, such as `Constant`, and pass their output to other *ops* that do a computation.
 
 The *ops* constructors in the Python library return objects that stand for the output of the constructed *ops*. You can pass these to other *ops* constructors to use as inputs.
@@ -107,14 +105,15 @@ You sometimes see `InteractiveSession` instead of `Session`. The only difference
 ### Data Types in TensorFlow
 TensorFlow takes in Python native types such as Python boolean values, numeric values (integers, floats), and strings. Single values will be converted to 0-d tensors (or scalars), lists of values will be converted to 1-d tensors (vectors), lists of lists of values will be converted to 2-d tensors (matrices), and so on. However, TensorFlow also has its own data types, such as, `tf.int32`, `tf.float32`, for more detailed description see [here](https://www.tensorflow.org/programmers_guide/dims_types). These types are actually based on those of NumPy and thus, in most cases, they can be used interchangeably.
 
+[Next chapter](logistic_regression.md) will show how to implement logistic regression in TensorFlow, if you wish to return to previous chapter press [here](environment.md).
 
 ### Code
- * [00_first_step.py](scripts/00_first_step.py)
++ [00_first_step.py](scripts/00_first_step.py)
 
 ### References
-1. [colah's blog](http://colah.github.io/)
-2. [CS 20SI: Tensorflow for Deep Learning Research](http://web.stanford.edu/class/cs20si/index.html)
-3. [Danijar Hafner](http://danijar.com/)
-4. [Keras](https://keras.io/)
-5. [LearningTensorFlow.com](https://learningtensorflow.com/)
-6. [TensorFlow](/www.tensorflow.org)
++ [colah's blog](http://colah.github.io/)
++ [CS 20SI: Tensorflow for Deep Learning Research](http://web.stanford.edu/class/cs20si/index.html)
++ [Danijar Hafner](http://danijar.com/)
++ [Keras](https://keras.io/)
++ [LearningTensorFlow.com](https://learningtensorflow.com/)
++ [TensorFlow](/www.tensorflow.org)

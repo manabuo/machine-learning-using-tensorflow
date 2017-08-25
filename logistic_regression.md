@@ -1,5 +1,4 @@
 ## Logistic Regression
-
 This chapter presents the first fully fledged example of Logistic Regression that uses commonly utilised TensorFlow structures.
 
 ### Data set
@@ -101,11 +100,11 @@ Next, `minimize(loss)` takes care of both computing the gradients and applying t
 
 ##### Hyperparameters
 This model has five parameters that have to be supplied to the graph during construction and as the result, they influence the behaviour of the model:
-* `X_FEATURES` - number of input features,
-* `BATCH_SIZE` - length of input array,
-* `Y_FEATURES` - number of output classes or number of "neurons" in the output layer,
-* `LEARNING_RATE` that is a value that corresponds to a step size in gradient descent algorithm,
-* `EPOCHS` - a number of times the model is going to see the whole data set.
++ `X_FEATURES` - number of input features,
++ `BATCH_SIZE` - length of input array,
++ `Y_FEATURES` - number of output classes or number of "neurons" in the output layer,
++ `LEARNING_RATE` that is a value that corresponds to a step size in gradient descent algorithm,
++ `EPOCHS` - a number of times the model is going to see the whole data set.
 
 #### Metrics
 This section is optional and is presented here as an example, showcasing TensorFlow's build in functions.  
@@ -144,7 +143,7 @@ for e in range(EPOCHS + 1):
     # Creates a batch generator.
     batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
     # Loops through batches.
-    for j in range(n_batches):
+    for _ in range(n_batches):
         # Gets a batch of row indices.
         id_batch = next(batch_generator)
         # Defines input dictionary
@@ -213,16 +212,15 @@ plt.xticks(tick_marks, ['B', 'M'])
 plt.yticks(tick_marks, ['B', 'M'])
 ```
 
-This concludes the description of how to build and train Logistic Regression model, and in the following example, we will see how to modify our existing code in order to perform Linear Regression model. We will also see how to extend the code presented here to fully connected dense neural network for classification tasks.  
+This concludes the description of the Logistic Regression and in the [example that follows](linear_regression.md) we will see how to modify our existing code in order to perform the Linear Regression. However, if you wish to return to the previous chapter press [here](tensorflow_intro.md).
 
 ### Code
- * [01_logistic_regression.py](scripts/01_logistic_regression.py)
-
++ [01_logistic_regression.py](scripts/01_logistic_regression.py)
 
 ### References
-* [Learn Python Programming](https://www.programiz.com/python-programming)
-* [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)
-* [The Python Wiki](https://wiki.python.org/)
-* [TensorFlow Python API](https://www.tensorflow.org/api_docs/python/)
-* [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php)
-* [Wikipedia article on Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent)
++ [Learn Python Programming](https://www.programiz.com/python-programming)
++ [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)
++ [The Python Wiki](https://wiki.python.org/)
++ [TensorFlow Python API](https://www.tensorflow.org/api_docs/python/)
++ [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php)
++ Wikipedia article on [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent)

@@ -112,11 +112,13 @@ print('Test sklearn RMSE: {rmse} and R2: {r2}'.format(rmse=sk_rmse, r2=sk_r2))
 
 To complete the comparison we visualize both target values by plotting them and overlaying corresponding predictions.  
 
+In the [next chapter](nonlinear_regression.md) we will also see how to extend the code presented here to fully connected neural network for the regression task.
+However, if you wish to return to the previous chapter press [here](logistic_regression.md).
 ### Code
- * [02_linear_regression.py](scripts/02_linear_regression.py)
++ [02_linear_regression.py](scripts/02_linear_regression.py)
 
 ### References
-* [Artificial Inteligence GitBook](https://www.gitbook.com/book/leonardoaraujosantos/artificial-inteligence/details)
-* [Numpy Manual](https://docs.scipy.org/doc/numpy/index.html)
-* [Sebastian Ruder blog](http://ruder.io/#open)
-* Wikipedia articles on [Mean Square Error](https://en.wikipedia.org/wiki/Mean_squared_error), [Coefficient of Determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) and [Root Mean Squared Error](https://en.wikipedia.org/wiki/Root-mean-square_deviation)
++ [Artificial Inteligence GitBook](https://www.gitbook.com/book/leonardoaraujosantos/artificial-inteligence/details)
++ [Numpy Manual](https://docs.scipy.org/doc/numpy/index.html)
++ [Sebastian Ruder blog](http://ruder.io/#open)
++ Wikipedia articles on [Mean Square Error](https://en.wikipedia.org/wiki/Mean_squared_error), [Coefficient of Determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) and [Root Mean Squared Error](https://en.wikipedia.org/wiki/Root-mean-square_deviation)

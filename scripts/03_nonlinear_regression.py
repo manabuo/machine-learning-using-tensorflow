@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
@@ -24,6 +26,14 @@ def hidden_dense_network(in_tensor, neurons_per_layer, activation_fn):
     return h_input
 
 
+# Data Location ========================================================================================================
+data_dir = os.path.join('scripts', 'data')
+# Sets location for model checkpoints
+model_path = os.path.join(data_dir, '03_model')
+checkpoint_path = os.path.join(model_path, 'model')
+# Sets location for graphs
+graph_path = os.path.join(data_dir, 'graph')
+
 # Data Preparation =====================================================================================================
 # Define one-dimensional feature vector
 feature = 5.0 * np.random.random(size=(500, 1)) - 1
@@ -43,7 +53,7 @@ X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test
 X_FEATURES = X_train.shape[1]
 Y_FEATURES = Y_train.shape[1]
 BATCH_SIZE = 100
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.001
 EPOCHS = 1000
 
 NEURONS_IN_LAYER = [15, 8]
@@ -84,53 +94,103 @@ with tf.variable_scope('metrics'):
     r_squared = tf.reduce_mean(tf.subtract(x=1.0, y=tf.divide(x=rss, y=tss)))
 
 # Model Training =======================================================================================================
-# Attaches graph to session
-sess = tf.InteractiveSession()
-# Initialises valuables in the graph
-sess.run(fetches=tf.global_variables_initializer())
-sess.run(fetches=tf.local_variables_initializer())
+EPOCHS_IN_SESSION_1 = range(0, EPOCHS // 3)
+EPOCHS_IN_SESSION_2 = range(EPOCHS // 3, EPOCHS + 1)
 
-for e in range(EPOCHS + 1):
-    # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
-    # input data order.
-    np.random.shuffle(idx)
-    # Creates a batch generator.
-    batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
-    # Loops through batches.
-    for j in range(n_batches):
-        # Gets a batch of row indices.
-        id_batch = next(batch_generator)
-        # Defines input dictionary
-        feed = {x: X_train[id_batch], y_true: Y_train[id_batch]}
-        # Executes the graph
-        sess.run(fetches=train_step, feed_dict=feed)
+# Initializing the variables
+init_global = tf.global_variables_initializer()
+init_local = tf.local_variables_initializer()
 
-    if e % 10 == 0:
-        # Evaluate metrics on training and validation data sets
-        train_loss = loss.eval(feed_dict={x: X_train, y_true: Y_train})
-        val_loss = loss.eval(feed_dict={x: X_val, y_true: Y_val})
-        # Prints the loss to the console
-        msg = ("Epoch: {e}/{epochs}; ".format(e=e, epochs=EPOCHS) +
-               "Train MSE: {tr_ls}; ".format(tr_ls=train_loss) +
-               "Validation MSE: {val_ls}; ".format(val_ls=val_loss))
-        print(msg)
+# 'Saver' op to save and restore all the variables
+saver = tf.train.Saver()
 
-# Model Testing ========================================================================================================
-# Evaluate loss (MSE), total RMSE and R2 on test data
-test_loss = loss.eval(feed_dict={x: X_test, y_true: Y_test})
-rmse = rmse.eval(feed_dict={x: X_test, y_true: Y_test})
-r_squared = r_squared.eval(feed_dict={x: X_test, y_true: Y_test})
+# Running first session ================================================================================================
+print("Starting 1st session...")
+with tf.Session() as sess:
+    # Initialize variables
+    sess.run(fetches=[init_global, init_local])
+    # Training cycle
+    for e in EPOCHS_IN_SESSION_1:
+        # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
+        # input data order.
+        np.random.shuffle(idx)
+        # Creates a batch generator.
+        batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
+        # Loops through batches.
+        for _ in range(n_batches):
+            # Gets a batch of row indices.
+            id_batch = next(batch_generator)
+            # Defines input dictionary
+            feed = {x: X_train[id_batch], y_true: Y_train[id_batch]}
+            # Executes the graph
+            sess.run(fetches=train_step, feed_dict=feed)
+
+        if e % 100 == 0:
+            # Evaluate metrics on training and validation data sets
+            train_loss = loss.eval(feed_dict={x: X_train, y_true: Y_train})
+            val_loss = loss.eval(feed_dict={x: X_val, y_true: Y_val})
+            # Prints the loss to the console
+            msg = ("Epoch: {e}/{epochs}; ".format(e=e, epochs=EPOCHS) +
+                   "Train MSE: {tr_ls}; ".format(tr_ls=train_loss) +
+                   "Validation MSE: {val_ls}; ".format(val_ls=val_loss))
+            print(msg)
+
+    # Save model to disk
+    save_path = saver.save(sess=sess, save_path=checkpoint_path)
+    print("Model saved in file: {path}".format(path=save_path))
+
+# Running a new session ================================================================================================
+print("\nStarting 2nd session...")
+with tf.Session() as sess:
+    # Initialize variables
+    sess.run(fetches=[init_global, init_local])
+    # Restore model from previously saved model
+    saver.restore(sess=sess, save_path=checkpoint_path)
+    print("Model restored from file: {path}".format(path=save_path))
+    # Resume training
+    for e in EPOCHS_IN_SESSION_2:
+        # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
+        # input data order.
+        np.random.shuffle(idx)
+        # Creates a batch generator.
+        batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
+        # Loops through batches.
+        for _ in range(n_batches):
+            # Gets a batch of row indices.
+            id_batch = next(batch_generator)
+            # Defines input dictionary
+            feed = {x: X_train[id_batch], y_true: Y_train[id_batch]}
+            # Executes the graph
+            sess.run(fetches=train_step, feed_dict=feed)
+
+        if e % 100 == 0:
+            # Evaluate metrics on training and validation data sets
+            train_loss = loss.eval(feed_dict={x: X_train, y_true: Y_train})
+            val_loss = loss.eval(feed_dict={x: X_val, y_true: Y_val})
+            # Prints the loss to the console
+            msg = ("Epoch: {e}/{epochs}; ".format(e=e, epochs=EPOCHS) +
+                   "Train MSE: {tr_ls}; ".format(tr_ls=train_loss) +
+                   "Validation MSE: {val_ls}; ".format(val_ls=val_loss))
+            print(msg)
+
+    # Model Testing ====================================================================================================
+    # Evaluate loss (MSE), total RMSE and R2 on test data
+    test_loss = loss.eval(feed_dict={x: X_test, y_true: Y_test})
+    rmse = rmse.eval(feed_dict={x: X_test, y_true: Y_test})
+    r_squared = r_squared.eval(feed_dict={x: X_test, y_true: Y_test})
+    # Evaluate prediction on Test data
+    y_pred = prediction.eval(feed_dict={x: X_test})
+
+# Print Test loss (MSE), total RMSE and R2 in console
 msg = "\nTest MSE: {test_loss}, RMSE: {rmse} and R2: {r2}".format(test_loss=test_loss, rmse=rmse, r2=r_squared)
 print(msg)
 
-# Evaluate prediction on Test data
-y_pred = prediction.eval(feed_dict={x: X_test})
 # Calculates RMSE and R2 metrics using sklearn
 sk_rmse = np.sqrt(mean_squared_error(y_true=Y_test, y_pred=y_pred))
 sk_r2 = r2_score(y_true=Y_test, y_pred=y_pred)
 print('Test sklearn RMSE: {rmse} and R2: {r2}'.format(rmse=sk_rmse, r2=sk_r2))
 
-# Comparison ===========================================================================================================
+# Comparison =======================================================================================================
 # Create array where values are sorted by feature axis.
 dpoints = np.asarray(a=sorted(np.concatenate([X_test, y_pred], axis=1), key=lambda s: s[0]))
 # Create figure
