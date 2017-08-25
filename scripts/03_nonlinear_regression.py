@@ -94,14 +94,11 @@ with tf.variable_scope('metrics'):
     r_squared = tf.reduce_mean(tf.subtract(x=1.0, y=tf.divide(x=rss, y=tss)))
 
 # Model Training =======================================================================================================
-EPOCHS_IN_SESSION_1 = range(0, EPOCHS // 3)
-EPOCHS_IN_SESSION_2 = range(EPOCHS // 3, EPOCHS + 1)
-
 # Initializing the variables
 init_global = tf.global_variables_initializer()
 init_local = tf.local_variables_initializer()
 
-# 'Saver' op to save and restore all the variables
+# Define the Saver op to save and restore all the variables
 saver = tf.train.Saver()
 
 # Running first session ================================================================================================
@@ -110,7 +107,7 @@ with tf.Session() as sess:
     # Initialize variables
     sess.run(fetches=[init_global, init_local])
     # Training cycle
-    for e in EPOCHS_IN_SESSION_1:
+    for e in range(0, EPOCHS // 3):
         # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
         # input data order.
         np.random.shuffle(idx)
@@ -148,7 +145,7 @@ with tf.Session() as sess:
     saver.restore(sess=sess, save_path=checkpoint_path)
     print("Model restored from file: {path}".format(path=save_path))
     # Resume training
-    for e in EPOCHS_IN_SESSION_2:
+    for e in range(EPOCHS // 3, EPOCHS + 1):
         # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
         # input data order.
         np.random.shuffle(idx)

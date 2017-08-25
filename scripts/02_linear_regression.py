@@ -64,8 +64,9 @@ with tf.variable_scope('metrics'):
 # Attaches graph to session
 sess = tf.InteractiveSession()
 # Initialises valuables in the graph
-sess.run(fetches=tf.global_variables_initializer())
-sess.run(fetches=tf.local_variables_initializer())
+init_global = tf.global_variables_initializer()
+init_local = tf.local_variables_initializer()
+sess.run(fetches=[init_global, init_local])
 
 for e in range(EPOCHS + 1):
     # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on

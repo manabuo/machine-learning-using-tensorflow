@@ -27,14 +27,13 @@ sess = tf.Session()
 # graph.
 
 # The output of the matmul is returned in 'result' as a numpy `ndarray` object.
-result = sess.run(product)
+result = sess.run(fetches=product)
 print(result)  # expected value is [[ 11.]]
 # Close the Session when we are done.
 sess.close()
-
 # ==============================================================================
-# # or just to launch the default graph and execute all three ops in the
-# # graph
-# with tf.Session() as sess:
-#   result = sess.run([product])
-#   print(result) # expected value is [[ 11.]]
+# or just to launch the default graph and execute all three ops in the
+# graph
+with tf.Session() as sess:
+  result = sess.run(fetches=product)
+  print(result) # expected value is [[ 11.]]

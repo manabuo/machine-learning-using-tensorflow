@@ -60,13 +60,11 @@ product = tf.matmul(matrix1, matrix2)
 > Note: `tf` in all scripts that follow stands for **tensorflow**. 
 
 The default graph now has three nodes: two `tf.constant()` *ops* and one `tf.matmul()` *op*, it can be visualised as:
-
 ```mermaid
 graph TD
   id1((matrix1)) --> id3((product));
   id2((matrix2)) --> id3((product));
 ```
-
 To actually multiply the matrices, and get the result of the multiplication, we must launch the graph in a session.
 
 Create a `Session` object without arguments, this launches the default graph.
@@ -74,28 +72,17 @@ Create a `Session` object without arguments, this launches the default graph.
 ```python
 # Launch the default graph.
 sess = tf.Session()
-# To run the matmul op we call the session 'run()' method, passing 'product'
-# which represents the output of the matmul op.  This indicates to the call
-# that we want to get the output of the matmul op back.
-
-# All inputs needed by the op are run automatically by the session.  They
-# typically are run in parallel.
-
-# The call 'run(product)' thus causes the execution of all three ops in the
-# graph.
-
-# The output of the matmul is returned in 'result' as a numpy `ndarray` object.
-result = sess.run(product)
-print(result)  # expected value is [[ 11.]]
-# Close the Session when we are done.
-sess.close()
 ```
-
-It is also possible enter a `Session` with a `with` block. The `Session` closes automatically at the end of the `with` block and thus `sess.close()` is not needed:
+Then  call `run()` method which executes of all three *ops* in the graph,
+```python
+result = sess.run(fetches=product)
+print(result)  # expected value is [[ 11.]]
+```
+After which `Session` has to ble closed by running `sess.close()`. However, it is also possible enter a `Session` with a `with` block. The `Session` closes automatically at the end of the `with` block and thus `sess.close()` is not needed:
 
 ```python
 with tf.Session() as sess:
-  result = sess.run([product])
+  result = sess.run(fetches=product)
   print(result)
 ```
 

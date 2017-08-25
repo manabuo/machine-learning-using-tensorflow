@@ -127,8 +127,9 @@ The first step is attaching `Session` to the graph and initializing all variable
 # Attaches graph to session
 sess = tf.InteractiveSession()
 # Initialises valuables in the graph
-sess.run(fetches=tf.global_variables_initializer())
-sess.run(fetches=tf.local_variables_initializer())
+init_global = tf.global_variables_initializer()
+init_local = tf.local_variables_initializer()
+sess.run(fetches=[init_global, init_local])
 ```
 In this example, we have used `tf.InteractiveSession()` function to attach the `Session` to the graph. This allows us to use model interactively in IDE such as **PyCharm**, **Atom**, etc.  The remaining two lines of the code run the `Session`, meaning execute the graph, by initializing global and local variables. In general, a majority of TensorFlow functions require only global variables to be initialized, however when `tf.metrics` is used local variables also are needed.
 
