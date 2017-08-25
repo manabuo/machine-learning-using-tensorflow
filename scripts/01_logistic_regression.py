@@ -14,7 +14,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 # Data Preparation =====================================================================================================
 # Define input data set location
-data_dir = 'data'
+data_dir = 'scripts/data'
 data_path = os.path.join(data_dir, 'wdbc.data')
 
 # Read in the data
@@ -60,7 +60,7 @@ with tf.variable_scope('inputs'):
     y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='target')
 
 # Define logistic regression model
-with tf.name_scope('logistic_regression'):
+with tf.variable_scope('logistic_regression'):
     # Predictions are performed by Y_FEATURES neurons in the output layer
     logits = tf.layers.dense(inputs=x, units=Y_FEATURES, name="prediction")
     # Define loss and training
@@ -71,7 +71,7 @@ with tf.name_scope('logistic_regression'):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 
 # Define metric ops
-with tf.name_scope('metrics'):
+with tf.variable_scope('metrics'):
     predictions = tf.argmax(input=logits, axis=1)
     labels = tf.argmax(input=y_true, axis=1)
     _, accuracy = tf.metrics.accuracy(labels=labels, predictions=predictions)
@@ -109,7 +109,7 @@ for e in range(EPOCHS + 1):
         # Prints the metrics to the console
         msg = ("Epoch: {e}/{epochs}; ".format(e=e, epochs=EPOCHS) +
                "Train loss: {tr_ls}, accuracy: {tr_acc}; ".format(tr_ls=train_loss, tr_acc=train_acc) +
-               "Validation loss: {val_ls}, accuracy: {val_acc}; ".format(val_ls=train_loss, val_acc=train_acc))
+               "Validation loss: {val_ls}, accuracy: {val_acc}; ".format(val_ls=val_loss, val_acc=val_acc))
         print(msg)
 
 # Model Testing ========================================================================================================
@@ -132,7 +132,7 @@ cm = confusion_matrix(y_true=y_t, y_pred=y_p)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.set_aspect(1)
-res = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.jet)
+res = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
 width, height = cm.shape
 for x in range(width):
     for y in range(height):

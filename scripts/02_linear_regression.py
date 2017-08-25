@@ -6,10 +6,8 @@ from sklearn.model_selection import train_test_split
 
 # Data Preparation =====================================================================================================
 # Synthetic Data
-# Define on-dimensional feature vector
-feature = np.linspace(start=-5, stop=10, num=2000)
-# Add additional dimension in order to avoid 0-rank array
-feature = np.expand_dims(feature, axis=1)
+# Define one-dimensional feature vector
+feature = 5.0 * np.random.random(size=(500, 1)) - 1
 # Creates random noise with amplitude 0.1, which we add to the target values
 noise = 0.1 * np.random.normal(scale=1, size=feature.shape)
 # Defines two-dimensional target array
@@ -18,15 +16,14 @@ target_2 = -1.2 * feature / 6.0 + 1.01 + noise
 target = np.concatenate((target_1, target_2), axis=1)
 
 # Split data sets into Training, Validation and Test sets
-X_train_val, X_test, Y_train_val, Y_test = train_test_split(feature, target,
-                                                            test_size=0.33, random_state=42)
+X_train_val, X_test, Y_train_val, Y_test = train_test_split(feature, target, test_size=0.33, random_state=42)
 X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.33, random_state=42)
 
 # Logistic Regression Graph Construction ===============================================================================
 # Hyperparameters
 X_FEATURES = X_train.shape[1]
 Y_FEATURES = Y_train.shape[1]
-BATCH_SIZE = 100
+BATCH_SIZE = 10
 LEARNING_RATE = 0.01
 EPOCHS = 100
 
@@ -46,20 +43,22 @@ with tf.variable_scope('inputs'):
     y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='target')
 
 # Define logistic regression model
-with tf.name_scope('logistic_regression'):
+with tf.variable_scope('linear_regression'):
     # Predictions are performed by Y_FEATURES neurons in the output layer
     prediction = tf.layers.dense(inputs=x, units=Y_FEATURES, name="prediction")
     # Define loss function as root square mean (RMSE) and record its value
     loss = tf.losses.mean_squared_error(labels=y_true, predictions=prediction)
-    train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
+    train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 
 # Define metric ops
-with tf.name_scope('metrics'):
+with tf.variable_scope('metrics'):
+    # Determin total RMSE
     _, rmse = tf.metrics.root_mean_squared_error(labels=y_true, predictions=prediction)
-
-    # sse = tf.reduce_sum(input_tensor=tf.square(x=tf.subtract(x=y_true, y=prediction)))
-    # tss = tf.reduce_sum(input_tensor=tf.square(x=tf.subtract(x=y_true, y=tf.reduce_mean(input_tensor=prediction))))
-    # r_squared = tf.subtract(x=1.0, y=tf.divide(x=sse, y=tss))
+    # Define total r_squared score as 1 - Residual sum of squares (rss) /  Total sum of squares (tss)
+    y_true_bar = tf.reduce_mean(input_tensor=y_true, axis=0)
+    tss = tf.reduce_sum(input_tensor=tf.square(x=tf.subtract(x=y_true, y=y_true_bar)), axis=0)
+    rss = tf.reduce_sum(input_tensor=tf.square(x=tf.subtract(x=y_true, y=prediction)), axis=0)
+    r_squared = tf.reduce_mean(tf.subtract(x=1.0, y=tf.divide(x=rss, y=tss)))
 
 # Model Training =======================================================================================================
 # Attaches graph to session
@@ -90,16 +89,14 @@ for e in range(EPOCHS + 1):
         # Prints the loss to the console
         msg = ("Epoch: {e}/{epochs}; ".format(e=e, epochs=EPOCHS) +
                "Train MSE: {tr_ls}; ".format(tr_ls=train_loss) +
-               "Validation MSE: {val_ls}; ".format(val_ls=train_loss))
+               "Validation MSE: {val_ls}; ".format(val_ls=val_loss))
         print(msg)
 
 # Model Testing ========================================================================================================
-# Evaluate loss (MSE), RMSE and R2 on test data
+# Evaluate loss (MSE), total RMSE and R2 on test data
 test_loss = loss.eval(feed_dict={x: X_test, y_true: Y_test})
 rmse = rmse.eval(feed_dict={x: X_test, y_true: Y_test})
-# r_squared = r_squared.eval(feed_dict={x: X_test, y_true: Y_test})
-r_squared = None
-
+r_squared = r_squared.eval(feed_dict={x: X_test, y_true: Y_test})
 msg = "\nTest MSE: {test_loss}, RMSE: {rmse} and R2: {r2}".format(test_loss=test_loss, rmse=rmse, r2=r_squared)
 print(msg)
 
@@ -117,23 +114,14 @@ fig.suptitle('Prediction vs. Ground truth', fontsize=14, fontweight='bold')
 # Plot comparison of predicted to ground truth values in the fist column
 plt.subplot(211)
 plt.plot(X_test, y_pred[:, 0], color='orange', linewidth=2, label='prediction')
-plt.scatter(x=X_test, y=Y_test[:, 0], c='black', s=1, label='ground truth')
+plt.scatter(x=X_test, y=Y_test[:, 0], c='black', s=2, label='ground truth')
 plt.legend()
 plt.ylabel('target 1')
 # Plot comparison of predicted to ground truth values in the second column
 plt.subplot(212)
 plt.plot(X_test, y_pred[:, 1], color='orange', linewidth=2, label='prediction')
-plt.scatter(x=X_test, y=Y_test[:, 1], c='black', s=1, label='ground truth')
+plt.scatter(x=X_test, y=Y_test[:, 1], c='black', s=2, label='ground truth')
 plt.legend()
 plt.xlabel('feature')
 plt.ylabel('target 2')
 fig.show()
-
-
-
-
-
-
-
-
-

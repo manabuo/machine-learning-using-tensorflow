@@ -8,7 +8,7 @@ Name: Breast Cancer Wisconsin (Diagnostic) Data Set (*wdbc.data* and *wdbc.names
 Source: http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
 
 ### Data Preparation
-We start by reading in the data file *wdbc.data*, where first two columns names are taken from supplementary the file *wdbc.names* for convenience and the rest are just numbered from 1 to 30 with prefix  *rv_*. After reading in, we split the set into outcome/target and feature/predictors sets, as *ID* does not contain useful information (at least that should be the case) we drop it. At this stage, we have two data frames, one for target values of shape (569 rows x 1 columns) and one for features, which shape is (569 rows x 30 columns).
+For brevity we are going to give only a brief overview on how data were prepared and what are the final shape of the data that are passed to the computational graph. So we start by reading in the data file *wdbc.data*, where first two columns names are taken from supplementary the file *wdbc.names* for convenience and the rest are just numbered from 1 to 30 with prefix  *rv_*. After reading in, we split the set into outcome/target and feature/predictors sets, as *ID* does not contain useful information (at least that should be the case) we drop it. At this stage, we have two data frames, one for target values of shape (569 rows x 1 columns) and one for features, which shape is (569 rows x 30 columns).
 
 Further, we one-hot encode target set and convert it to a numpy array. As we have only two categories, *B* for benign and  *M* for malignant, in the set, the shape of the array is (569 rows x 2 columns). Rows here represent a number of observations and 2 columns stand for outcome classes.
 
@@ -47,7 +47,7 @@ Our task is to build the following graph:
 In further explanations are going to follow the same structure as it can be seen in the graph above, therefore we will first define of inputs.
 
 #### Inputs
-Lines tha define input section of the graph are as follows:
+Lines that define input section of the graph are as follows:
 ```python
 # Define inputs to the model
 with tf.variable_scope('inputs'):
@@ -65,8 +65,7 @@ Further, [`tf.placeholder()`](https://www.tensorflow.org/api_docs/python/tf/plac
 
 To define a placeholder, it is necessary to define `dtype` parameter that specifies the data type of the value of the placeholder. The second required parameter is `shape` which specifies the shape of the tensor that can be accepted as the actual value for the placeholder. `shape = None` means that tensors of any shape will be accepted. Using ``shape = None`` is easy to construct graphs, but nightmarish for debugging. You should always define the shape of your placeholders as detailed as possible.
 
-In this example, we know that our features data set shape is 569 by 30. This means that when we create a placeholder for `x` the shape should be ``[569, 30]``. However, as it is computationally more efficient to feed the graph with small batches rather than full data set at once, we will split 569 samples into smaller chunks. The size of each batch in the script is given by `BATCH_SIZE` value. From this follows that the placeholders shape should be  ``[BATCH_SIZE, 30]``. In some situations, the last batch may be shorter than `BATCH_SIZE` value and this consequently could "break the code", for this reason, to avoid this situation, we write ``[None, X_FEATURES]``, where `X_FEATURES = 30` for convenience.
-Similarly, we define `y_true` placeholder which shape is ``[None, Y_FEATURES]`` where in our case `Y_FEATURES = 2` as our target data set has two classes.
+In this example, we know that our features data set shape is 569 by 30. This means that when we create a placeholder for `x` the shape should be ``[569, 30]``. However, as it is computationally more efficient to feed the graph with small batches rather than full data set at once, we will split 569 samples into smaller chunks. The size of each batch in the script is given by `BATCH_SIZE` value. From this follows that the placeholders shape should be  ``[BATCH_SIZE, 30]``. In some situations, the last batch may be shorter than `BATCH_SIZE` value and this consequently could "break the code", for this reason, to avoid this situation, we write ``[None, X_FEATURES]``, where `X_FEATURES = 30` for convenience. Similarly, we define `y_true` placeholder which shape is ``[None, Y_FEATURES]`` where in our case `Y_FEATURES = 2` as our target data set has two classes.
 
 >Note: You can also give your placeholder a name as you can any other *op* in TensorFlow.
 
@@ -78,7 +77,7 @@ In broad terms at this stage we start by defining an operation which first compu
 In our example this is written as:
 ```python
 # Define logistic regression model
-with tf.name_scope('logistic_regression'):
+with tf.variable_scope('logistic_regression'):
     # Predictions are performed by Y_FEATURES neurons in the output layer
     logits = tf.layers.dense(inputs=x, units=Y_FEATURES, name="prediction")
     # Define loss and training
@@ -108,11 +107,11 @@ This model has five parameters that have to be supplied to the graph during cons
 * `LEARNING_RATE` that is a value that corresponds to a step size in gradient descent algorithm,
 * `EPOCHS` - a number of times the model is going to see the whole data set.
 
-### Metrics
+#### Metrics
 This section is optional and is presented here as an example, showcasing TensorFlow's build in functions.  
 ```python
 # Define metric ops
-with tf.name_scope('metrics'):
+with tf.variable_scope('metrics'):
     predictions = tf.argmax(input=logits, axis=1)
     labels = tf.argmax(input=y_true, axis=1)
     _, accuracy = tf.metrics.accuracy(labels=labels, predictions=predictions)
@@ -162,7 +161,7 @@ for e in range(EPOCHS + 1):
         # Prints the metrics to the console
         msg = ("Epoch: {e}/{epochs}; ".format(e=e, epochs=EPOCHS) +
                "Train loss: {tr_ls}, accuracy: {tr_acc}; ".format(tr_ls=train_loss, tr_acc=train_acc) +
-               "Validation loss: {val_ls}, accuracy: {val_acc}; ".format(val_ls=train_loss, val_acc=train_acc))
+               "Validation loss: {val_ls}, accuracy: {val_acc}; ".format(val_ls=val_loss, val_acc=val_acc))
         print(msg)
 ```
 Outer loop is for epochs in which we first shuffle input array indices and then define a [python generator](https://wiki.python.org/moin/Generators) for batch creation. This function takes in a list of indices and creates a slice that contains `BATCH_SIZE` number or less of elements. The inner explicit loop is over number of batches that is computed beforehand. In the loop, [`next()`](https://www.programiz.com/python-programming/methods/built-in/next) function takes in our predefined python generator and returns a list of index values of length `BATCH_SIZE`. Every time this function is executed function retrieves the next item in the iterator.
@@ -201,7 +200,7 @@ cm = confusion_matrix(y_true=y_t, y_pred=y_p)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.set_aspect(1)
-res = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.jet)
+res = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
 width, height = cm.shape
 for x in range(width):
     for y in range(height):
