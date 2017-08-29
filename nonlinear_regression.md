@@ -27,8 +27,8 @@ It is also sometimes useful to only save or restore a subset of the variables us
 You can easily specify the names and variables to save by passing to the `tf.train.Saver()` constructor a Python dictionary: keys are the names to use, values are the variables to manage.
 
 You can create as many saver objects as you want if you need to save and restore different subsets of the model variables. The same variable can be listed in multiple saver objects, its value is only changed when the saver `restore()` method is run.
-If you only restore a subset of the model variables at the start of a session, you have to run an initialize *op* for the other variables. See tf.initialize_variables() for more information.
-```python 
+If you only restore a subset of the model variables at the start of a session, you have to run an initialize *op* for the other variables. See `tf.initialize_variables()` for more information.
+```python
 # Create some variables.
 v1 = tf.Variable(..., name="v1")
 v2 = tf.Variable(..., name="v2")
@@ -40,11 +40,11 @@ saver = tf.train.Saver({"my_v2": v2})
 ```
 
 
-### Optimizers 
+### Optimizers
 
 ### Activation functions
 
-### Overfitting 
+### Overfitting
 #### Regularization
 #### Dropout
 

@@ -50,9 +50,9 @@ with tf.variable_scope('linear_regression'):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 ```  
 As before, in this example we use the gradient descent algorithm to optimize the weights and biases. A summery of different types of optimization algorithms is available [here](http://ruder.io/optimizing-gradient-descent/) and [here](https://leonardoaraujosantos.gitbooks.io/artificial-inteligence/content/model_optimization.html).
-> Note: Right choice of optimization algorithms can significantly reduce training time as well as quality of the model, therefore the algorithm is additional hyperparameter that has to be considered.
+> Note: Right choice of optimization algorithms can significantly reduce training time as well as quality of the model, therefore the algorithm is an additional hyperparameter that has to be considered.
 
-Hyperparameters that were considered previously, as you might expect, remain the same as before.
+As this model differs little from the model for the Logistic Regression, the hyperparameters that were used before are also used in this example. 
 
 #### Metrics
 For completeness we have also kept metrics section, thought we have changed metrics that are actually computed.
@@ -68,7 +68,7 @@ with tf.variable_scope('metrics'):
 ```
 First is the [root mean squared error](https://en.wikipedia.org/wiki/Root-mean-square_deviation) (RMSE) that is already implemented in TensorFlow as `tf.metrics.root_mean_squared_error()`. This function required two parameters `labels` and `predictions`, which in our case are `y_true` and `prediction` tensors, respectively.
 
- The second metric is the [coefficient of determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) (R<sup>2</sup>), this, unfortunately, has not been implemented in TensorFlow yet, thus we do it ourselves. TensorFlow has [implementaion of basic mathemtical operations](https://www.tensorflow.org/api_guides/python/math_ops) that can be utilised to build more advanced operations. So, our task is to build general definition for the coefficient of determination, which on the paper is written as,
+ The second metric is the [coefficient of determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) (R<sup>2</sup>), this, unfortunately, has not been implemented in TensorFlow yet, thus we do it ourselves. TensorFlow has [implementation of basic mathematical operations](https://www.tensorflow.org/api_guides/python/math_ops) that can be utilised to build more advanced operations. So, our task is to build general definition for the coefficient of determination, which on the paper is written as,
 $$
 R^{2} = 1 - \frac{\sum_{i}(y_{i} - \hat{y}_{i})^{2}}{\sum_{i}(y_{i} - \bar{y})^{2}} \quad\text{and}\quad  \bar{y} =\frac{1}{n}\sum_{i=1}^{n}y_{i},
 $$
