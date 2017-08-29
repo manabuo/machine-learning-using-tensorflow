@@ -3,26 +3,25 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
 
-def hidden_dense_network(in_tensor, neurons_per_layer, activation_fn):
+def hidden_layers(in_tensor, layers):
     """
     Function stacks fully connected layers
 
     :param in_tensor: Input Tensor
     :type in_tensor: Tensor
-    :param neurons_per_layer: List of neurons per layer
-    :type neurons_per_layer: list(int)
-    :param activation_fn: Activation operator
-    :type activation_fn: function
-    :return: graph of densely connected layers
+    :param layers: List of dictionaries that contain a number of neurons for the particular layer ad the activation
+    function in the layer
+    :type layers: list(dict("units", "act_fn"))
+    :return: Tensor of the last densely connected layer
     :rtype: Tensor
     """
     h_input = in_tensor
-    for n in neurons_per_layer:
-        h_input = tf.layers.dense(inputs=h_input, units=n, activation=activation_fn)
+    for i, l in enumerate(layers):
+        h_input = tf.layers.dense(inputs=h_input, units=l["units"], activation=l["act_fn"],
+                                  name='hidden_{i}'.format(i=i))
     return h_input
 
 
@@ -36,7 +35,7 @@ graph_path = os.path.join(data_dir, 'graph')
 
 # Data Preparation =====================================================================================================
 # Define one-dimensional feature vector
-feature = 5.0 * np.random.random(size=(500, 1)) - 1
+feature = 5.0 * np.random.random(size=(1000, 1)) - 1
 # Creates random noise with amplitude 0.1, which we add to the target values
 noise = 0.01 * np.random.normal(scale=1, size=feature.shape)
 # Defines two-dimensional target array
@@ -48,15 +47,15 @@ target = np.multiply(target_1, target_2)
 X_train_val, X_test, Y_train_val, Y_test = train_test_split(feature, target, test_size=0.33, random_state=42)
 X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.33, random_state=42)
 
-# Logistic Regression Graph Construction ===============================================================================
-# Hyperparameters
+# Graph Construction ===================================================================================================
+# Parameters
 X_FEATURES = X_train.shape[1]
 Y_FEATURES = Y_train.shape[1]
-BATCH_SIZE = 100
-LEARNING_RATE = 0.001
+# Hyperparameters
+BATCH_SIZE = 10
+LEARNING_RATE = 0.01
 EPOCHS = 1000
-
-NEURONS_IN_LAYER = [15, 8]
+LAYERS = [{"units": 15, "act_fn": tf.nn.relu}, {"units": 8, "act_fn": tf.nn.relu}]
 
 # Get list of indices in the training set
 idx = list(range(X_train.shape[0]))
@@ -75,13 +74,17 @@ with tf.variable_scope('inputs'):
 
 # Define logistic regression model
 with tf.variable_scope('nonlinear_regression'):
-    # Constructs hidden fully connected layer network
-    h = hidden_dense_network(in_tensor=x, neurons_per_layer=NEURONS_IN_LAYER, activation_fn=tf.nn.relu)
+
+    # Define hidden layers
+    with tf.variable_scope('hidden_layers'):
+        # Constructs hidden fully connected layer network
+        h = hidden_layers(in_tensor=x, layers=LAYERS)
+
     # Predictions are performed by Y_FEATURES neurons in the output layer
     prediction = tf.layers.dense(inputs=h, units=Y_FEATURES, name="prediction")
     # Define loss function as root square mean (RMSE) and record its value
     loss = tf.losses.mean_squared_error(labels=y_true, predictions=prediction)
-    train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
+    train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 
 # Define metric ops
 with tf.variable_scope('metrics'):
@@ -139,8 +142,8 @@ with tf.Session() as sess:
 # Running a new session ================================================================================================
 print("\nStarting 2nd session...")
 with tf.Session() as sess:
-    # Initialize variables
-    sess.run(fetches=[init_global, init_local])
+    # Initialize only local variables for RMSE metric
+    sess.run(fetches=init_local)
     # Restore model from previously saved model
     saver.restore(sess=sess, save_path=checkpoint_path)
     print("Model restored from file: {path}".format(path=save_path))
@@ -170,22 +173,21 @@ with tf.Session() as sess:
                    "Validation MSE: {val_ls}; ".format(val_ls=val_loss))
             print(msg)
 
+    # Save model to disk
+    save_path = saver.save(sess=sess, save_path=checkpoint_path)
+    print("Model saved in file: {path}".format(path=save_path))
+
     # Model Testing ====================================================================================================
     # Evaluate loss (MSE), total RMSE and R2 on test data
     test_loss = loss.eval(feed_dict={x: X_test, y_true: Y_test})
-    rmse = rmse.eval(feed_dict={x: X_test, y_true: Y_test})
-    r_squared = r_squared.eval(feed_dict={x: X_test, y_true: Y_test})
+    rmse_test = rmse.eval(feed_dict={x: X_test, y_true: Y_test})
+    r2_test = r_squared.eval(feed_dict={x: X_test, y_true: Y_test})
     # Evaluate prediction on Test data
     y_pred = prediction.eval(feed_dict={x: X_test})
 
 # Print Test loss (MSE), total RMSE and R2 in console
-msg = "\nTest MSE: {test_loss}, RMSE: {rmse} and R2: {r2}".format(test_loss=test_loss, rmse=rmse, r2=r_squared)
+msg = "\nTest MSE: {test_loss}, RMSE: {rmse} and R2: {r2}".format(test_loss=test_loss, rmse=rmse_test, r2=r2_test)
 print(msg)
-
-# Calculates RMSE and R2 metrics using sklearn
-sk_rmse = np.sqrt(mean_squared_error(y_true=Y_test, y_pred=y_pred))
-sk_r2 = r2_score(y_true=Y_test, y_pred=y_pred)
-print('Test sklearn RMSE: {rmse} and R2: {r2}'.format(rmse=sk_rmse, r2=sk_r2))
 
 # Comparison =======================================================================================================
 # Create array where values are sorted by feature axis.

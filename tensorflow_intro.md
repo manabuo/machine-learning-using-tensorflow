@@ -27,8 +27,9 @@ However, the primary purpose of TensorFlow is not to provide out-of-the-box mach
 
 ### What is TensorFlow?
 Most notable difference between TensorFlow and other libraries is that TensorFlow does all its computation in graphs. A TensorFlow graph is a description of computations. That is, TensorFlow program separates the definition of computations from their execution. For more details on computational graphs see the following:
-* [Calculus on Computational Graphs: Backpropagation](http://colah.github.io/posts/2015-08-Backprop/)
-* [What is a TensorFlow Session?](http://danijar.com/what-is-a-tensorflow-session/)
++ [Calculus on Computational Graphs: Backpropagation](http://colah.github.io/posts/2015-08-Backprop/)
++ [What is a TensorFlow Session?](http://danijar.com/what-is-a-tensorflow-session/)
++ [Graphs and Sessions](https://www.tensorflow.org/versions/master/programmers_guide/graphs)
 
 A computational graph is a series of TensorFlow operations arranged into a graph of nodes. In the graph, nodes are called *ops* which is short-hand for *operations*. An *op* takes zero or more *Tensors*, performs some computation, and produces zero or more *Tensors*. As you might suspect, in TensorFlow *Tensor* is the basic object and it uses a tensor data structure to represent all data -- only tensors are passed between operations in the computation graph. You can think of a TensorFlow tensor as an n-dimensional array or list. The *Tensor* has a static type, a rank, and a shape. To learn more about how TensorFlow handles these concepts, see the [Rank, Shape, and Type reference](https://www.tensorflow.org/programmers_guide/dims_types).
 
@@ -57,7 +58,7 @@ matrix2 = tf.constant([[3.], [4.]])
 # multiplication. Output is a matrix of shape 1x1.
 product = tf.matmul(matrix1, matrix2)
 ```
-> Note: `tf` in all scripts that follow stands for **tensorflow**. 
+> Note: `tf` in all scripts that follow stands for **tensorflow**.
 
 The default graph now has three nodes: two `tf.constant()` *ops* and one `tf.matmul()` *op*, it can be visualised as:
 ```mermaid

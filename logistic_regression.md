@@ -7,41 +7,43 @@ Name: Breast Cancer Wisconsin (Diagnostic) Data Set (*wdbc.data* and *wdbc.names
 Source: http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
 
 ### Data Preparation
-For brevity we are going to give only a brief overview on how data were prepared and what are the final shape of the data that are passed to the computational graph. So we start by reading in the data file *wdbc.data*, where first two columns names are taken from supplementary the file *wdbc.names* for convenience and the rest are just numbered from 1 to 30 with prefix  *rv_*. After reading in, we split the set into outcome/target and feature/predictors sets, as *ID* does not contain useful information (at least that should be the case) we drop it. At this stage, we have two data frames, one for target values of shape (569 rows x 1 columns) and one for features, which shape is (569 rows x 30 columns).
+For brevity, we are going to give only a brief overview of how data were prepared and what is the final shape of the data that are passed to the computational graph. So we start by reading in the data file *wdbc.data*, where first two columns names are taken from supplementary the file *wdbc.names* for convenience and the rest are just numbered from 1 to 30 with prefix  *rv_*. After reading in, we split the set into outcome/target and feature/predictors sets, as *ID* does not contain useful information (at least that should be the case) we drop it. At this stage, we have two data frames, one for target values of shape (569 rows x 1 columns) and one for features, which shape is (569 rows x 30 columns).
 
 Further, we one-hot encode target set and convert it to a numpy array. As we have only two categories, *B* for benign and  *M* for malignant, in the set, the shape of the array is (569 rows x 2 columns). Rows here represent a number of observations and 2 columns stand for outcome classes.
 
-This is followed by feature set transformation, more precisely we rescale all value so that the values in each column are between 0 and 1. In this example, we used `MinMaxScaler()` function from `scikit-learn` package that scaled each column individually using the following equation,
-$$
-x_{scaled} = \frac{x - x_{min}}{x_{max} - x_{min}}.
-$$
-The scaling function outputs numpy array of the same size as input data frame, in this case, it is 569 rows and 30 columns.
+Next, we split both, target and feature sets into training, validation and test arrays. Length of the test data set is chosen to be 1/3 of training and validation data sets and subsequently, the validations set is 1/3 of the training set. For convenience to achieve this we use `train_test_split()` function from `scikit-learn` package.
 
-To conclude this stage we split both, target and feature arrays into training, validation and test array. Length of the test data set is chosen to be 1/3 of training and Validation data sets and subsequently, the validations set is 1/3 of the training set. For convenience to achieve this we use `train_test_split()` function from `scikit-learn` package.
+ To conclude this stage we transform all three feature sets, more precisely we rescale all value in data sets so that the values are between 0 and 1. In this example, we used `MinMaxScaler()` function from `scikit-learn` package that scales each column individually using the following equation,
+ $$
+ x_{scaled} = \frac{x - x_{min}}{x_{max} - x_{min}}.
+ $$
+> Note: Statistics that are used in the scaling functions are computed on the training data and only then are used to scale validation and training sets.
+
+In this example, the scaling function outputs numpy array of the same size as input data frame, in this case, it is 569 rows and 30 columns.
 
 ### Graph Construction
 As mentioned in the previous chapter, the most differentiating part of the TensorFlow from the other libraries is that a model or "an analysis plan" has to be constructed separately and before it is executed. In TensorFlow models are represented as [graphs](https://www.tensorflow.org/api_guides/python/framework) where operations as nodes and edges carry tensors/weights.
 Our task is to build the following graph:
 ```mermaid
   graph TD
-    subgraph Metrics
+    subgraph Logistic Regression Model
+      ts{Optimiser}  -.-> loss{Loss}
+      logits((Logits)) --> loss{Loss}
+    end;
+      subgraph Metrics
+      logits((Logits)) --> Predictions
       Labels --> accuracy{Accuracy}
       Labels --> auc{auc}
       Labels --> precision{Precision}
       Predictions --> accuracy{Accuracy}
       Predictions --> auc{AUC}
       Predictions --> precision{Precision}
-    end
-    subgraph Logistic Regression Model
-        logits((Logits)) --> loss{Loss}
-        loss{Loss} --> ts{Optimiser}
-        logits((Logits)) --> Predictions
-    end
+    end;
     subgraph Inputs
-      Predictors--> logits((Logits))
-      Target --> loss{Loss}
+      Features --> logits((Logits))
       Target --> Labels
-    end
+      Target --> loss{Loss}
+    end;
 ```
 In further explanations are going to follow the same structure as it can be seen in the graph above, therefore we will first define of inputs.
 
@@ -99,10 +101,10 @@ Further, to actually train a model or, in the other words, find "best" values fo
 Next, `minimize(loss)` takes care of both computing the gradients and applying them to the variables. This operation is, by convention, known as the *train_op* and is what must be run by a TensorFlow session in order to induce one full step of training.
 
 ##### Hyperparameters
-This model has five parameters that have to be supplied to the graph during construction and as the result, they influence the behaviour of the model:
-+ `X_FEATURES` - number of input features,
+This model has two parameters that only influence input and output layer shapes, these are, `X_FEATURES` which is a number of input features, and`Y_FEATURES` - the number of output classes or a number of "neurons" in the output layer.
+
+However, other three parameters (hyperparameters) that have to be supplied to the graph during construction, do influence the model and training are:
 + `BATCH_SIZE` - length of input array,
-+ `Y_FEATURES` - number of output classes or number of "neurons" in the output layer,
 + `LEARNING_RATE` that is a value that corresponds to a step size in gradient descent algorithm,
 + `EPOCHS` - a number of times the model is going to see the whole data set.
 

@@ -25,22 +25,26 @@ df = pd.read_csv(filepath_or_buffer=data_path, names=['ID', 'diagnosis'] + ['rv_
 target_df = df.filter(like='diagnosis')
 features_df = df.drop(labels=['ID', 'diagnosis'], axis=1)
 
-# One hot encode Target dateset
+# One hot encode Target date set
 dummy_target = pd.get_dummies(data=target_df).values
 
+# Split data sets into Training, Validation and Test sets
+unscaled_X_train_val, unscaled_X_test, Y_train_val, Y_test = train_test_split(features_df.values, dummy_target,
+                                                                              test_size=0.33,
+                                                                              random_state=42)
+unscaled_X_train, unscaled_X_val, Y_train, Y_val = train_test_split(unscaled_X_train_val, Y_train_val, test_size=0.33,
+                                                                    random_state=42)
 # This estimator scales each feature individually such that it is in the range between zero and one.
 scaler = MinMaxScaler()
-scaled_features = scaler.fit_transform(features_df)
-
-# Split data sets into Training, Validation and Test sets
-X_train_val, X_test, Y_train_val, Y_test = train_test_split(scaled_features, dummy_target,
-                                                            test_size=0.33, random_state=42)
-X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.33, random_state=42)
+X_train = scaler.fit_transform(unscaled_X_train)
+X_val = scaler.transform(unscaled_X_val)
+X_test = scaler.transform(unscaled_X_test)
 
 # Logistic Regression Graph Construction ===============================================================================
-# Hyperparameters
+# Parameters
 X_FEATURES = X_train.shape[1]
 Y_FEATURES = Y_train.shape[1]
+# Hyperparameters
 BATCH_SIZE = 10
 LEARNING_RATE = 0.05
 EPOCHS = 1000

@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 # Data Preparation =====================================================================================================
 # Synthetic Data
 # Define one-dimensional feature vector
-feature = 5.0 * np.random.random(size=(500, 1)) - 1
+feature = 5.0 * np.random.random(size=(1000, 1)) - 1
 # Creates random noise with amplitude 0.1, which we add to the target values
 noise = 0.1 * np.random.normal(scale=1, size=feature.shape)
 # Defines two-dimensional target array
@@ -20,9 +20,10 @@ X_train_val, X_test, Y_train_val, Y_test = train_test_split(feature, target, tes
 X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.33, random_state=42)
 
 # Logistic Regression Graph Construction ===============================================================================
-# Hyperparameters
+# Parameters
 X_FEATURES = X_train.shape[1]
 Y_FEATURES = Y_train.shape[1]
+# Hyperparameters
 BATCH_SIZE = 10
 LEARNING_RATE = 0.01
 EPOCHS = 100

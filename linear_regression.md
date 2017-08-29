@@ -6,7 +6,7 @@ This time we are going to use synthetic data. As you can see in the code below,
 ```python
 # Synthetic Data
 # Define one-dimensional feature vector
-feature = 5.0 * np.random.random(size=(500, 1)) - 1
+feature = 5.0 * np.random.random(size=(1000, 1)) - 1
 # Creates random noise with amplitude 0.1, which we add to the target values
 noise = 0.1 * np.random.normal(scale=1, size=feature.shape)
 # Defines two-dimensional target array
@@ -18,7 +18,7 @@ target = np.concatenate((target_1, target_2), axis=1)
 X_train_val, X_test, Y_train_val, Y_test = train_test_split(feature, target, test_size=0.33, random_state=42)
 X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.33, random_state=42)
 ```
-features are just a randomly generated numbers in the range -1 to 4. The shape of the array is  `[500, 1]`. To make life just a bit more interesting, we also create a random noise with the maximum amplitude of 0.1. Further, we create two target arrays, that are later concatenated into one `[500, 2]` numpy array. The parameters and coefficients that are used in the example are arbitrary and therefore feel free to play around. However, note that if you select very very small or very very large values you may require to change hyperparameters as otherwise, the model will have difficulties to make a prediction. The final step in the data preparation stage, as before, is splitting the feature and the target arrays into train, validation and test data sets.
+features are just a randomly generated numbers in the range -1 to 4. The shape of the array is  `[1000, 1]`. To make life just a bit more interesting, we also create a random noise with the maximum amplitude of 0.1. Further, we create two target arrays, that are later concatenated into one `[1000, 2]` numpy array. The parameters and coefficients that are used in the example are arbitrary and therefore feel free to play around. However, note that if you select very very small or very very large values you may require to change hyperparameters as otherwise, the model will have difficulties to make a prediction. The final step in the data preparation stage, as before, is splitting the feature and the target arrays into train, validation and test data sets.
 
 As the next step, we are going to construct the computational graph.
 
@@ -49,10 +49,9 @@ with tf.variable_scope('linear_regression'):
     loss = tf.losses.mean_squared_error(labels=y_true, predictions=prediction)
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 ```  
-As before, in this example we use the gradient descent algorithm to optimize the weights and biases. A summery of different types of optimization algorithms is available [here](http://ruder.io/optimizing-gradient-descent/) and [here](https://leonardoaraujosantos.gitbooks.io/artificial-inteligence/content/model_optimization.html).
-> Note: Right choice of optimization algorithms can significantly reduce training time as well as quality of the model, therefore the algorithm is an additional hyperparameter that has to be considered.
+As before, in this example we use the gradient descent algorithm to optimize the weights and biases.
 
-As this model differs little from the model for the Logistic Regression, the hyperparameters that were used before are also used in this example. 
+As this model differs little from the model for the Logistic Regression, the hyperparameters that were used before are also used in this example.
 
 #### Metrics
 For completeness we have also kept metrics section, thought we have changed metrics that are actually computed.
@@ -119,7 +118,5 @@ However, if you wish to return to the previous chapter press [here](logistic_reg
 + [02_linear_regression.py](scripts/02_linear_regression.py)
 
 ### References
-+ [Artificial Inteligence GitBook](https://www.gitbook.com/book/leonardoaraujosantos/artificial-inteligence/details)
 + [Numpy Manual](https://docs.scipy.org/doc/numpy/index.html)
-+ [Sebastian Ruder blog](http://ruder.io/#open)
 + Wikipedia articles on [Mean Square Error](https://en.wikipedia.org/wiki/Mean_squared_error), [Coefficient of Determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) and [Root Mean Squared Error](https://en.wikipedia.org/wiki/Root-mean-square_deviation)
