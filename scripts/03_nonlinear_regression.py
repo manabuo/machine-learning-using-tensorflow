@@ -72,7 +72,7 @@ with tf.variable_scope('inputs'):
     # placeholder for true values
     y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='target')
 
-# Define logistic regression model
+# Define nonlinear regression model
 with tf.variable_scope('nonlinear_regression'):
 
     # Define hidden layers
@@ -82,9 +82,10 @@ with tf.variable_scope('nonlinear_regression'):
 
     # Predictions are performed by Y_FEATURES neurons in the output layer
     prediction = tf.layers.dense(inputs=h, units=Y_FEATURES, name="prediction")
-    # Define loss function as root square mean (RMSE) and record its value
+    # # Define loss function as mean square error (MSE)
     loss = tf.losses.mean_squared_error(labels=y_true, predictions=prediction)
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
+    # train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 
 # Define metric ops
 with tf.variable_scope('metrics'):

@@ -15,7 +15,7 @@ This tutorial consists of the following sections:
 (Bonus, we build a classifier that tells if given picture is a cat or not.)
  + [*Linear Regression*](linear_regression.md) - we show how to fit a straight line to a data.
  + [*Nonlinear Regression*](nonlinear_regression.md) - we fit a nonlinear equation to a data
- + [*Brief introduction to Recurrent Neural Network*]() chapter gives a very brief explanation why we might need to use the Recurrent Neural Networks and what options are available in TensorFlow out of the box.
+ + [*Introduction to Recurrent Neural Network*](rnn_intro.md) chapter gives a very brief explanation why we might need to use the Recurrent Neural Networks and what options are available in TensorFlow out of the box.
  + [*Static and Dynamic Recurrent Neural Network*]() - gives a high-level overview of differences between two types of networks and the ways how to use them.
  + [*PhasedLSTM vs. Vanilla LSTM*]() - describes what is a *PhasedLSTM* and how it can be used.
  + [*Deep Architecture Networks*]() - shows how multiple layers of different types can be combined together.  

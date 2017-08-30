@@ -8,7 +8,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-# Original data set tha is used in this example is
+# Original Date Source =================================================================================================
 # Name: Breast Cancer Wisconsin (Diagnostic) Data Set (wdbc.data, wdbc.names)
 # Source: http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
 
