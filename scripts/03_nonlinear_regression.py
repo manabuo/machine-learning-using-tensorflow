@@ -30,9 +30,6 @@ data_dir = os.path.join('scripts', 'data')
 # Sets location for model checkpoints
 model_path = os.path.join(data_dir, '03_model')
 checkpoint_path = os.path.join(model_path, 'model')
-# Sets location for graphs
-graph_path = os.path.join(data_dir, 'graph')
-
 # Data Preparation =====================================================================================================
 # Define one-dimensional feature vector
 feature = 5.0 * np.random.random(size=(1000, 1)) - 1
@@ -166,31 +163,33 @@ with tf.Session() as sess:
 
         if e % 100 == 0:
             # Evaluate metrics on training and validation data sets
-            train_loss = loss.eval(feed_dict={x: X_train, y_true: Y_train})
-            val_loss = loss.eval(feed_dict={x: X_val, y_true: Y_val})
+            loss_train = loss.eval(feed_dict={x: X_train, y_true: Y_train})
+            loss_val = loss.eval(feed_dict={x: X_val, y_true: Y_val})
             # Prints the loss to the console
             msg = ("Epoch: {e}/{epochs}; ".format(e=e, epochs=EPOCHS) +
-                   "Train MSE: {tr_ls}; ".format(tr_ls=train_loss) +
-                   "Validation MSE: {val_ls}; ".format(val_ls=val_loss))
+                   "Train MSE: {tr_ls}; ".format(tr_ls=loss_train) +
+                   "Validation MSE: {val_ls}; ".format(val_ls=loss_val))
             print(msg)
 
     # Save model to disk
     save_path = saver.save(sess=sess, save_path=checkpoint_path)
     print("Model saved in file: {path}".format(path=save_path))
 
-    # Model Testing ====================================================================================================
-    # Evaluate loss (MSE), total RMSE and R2 on test data
-    test_loss = loss.eval(feed_dict={x: X_test, y_true: Y_test})
-    rmse_test = rmse.eval(feed_dict={x: X_test, y_true: Y_test})
-    r2_test = r_squared.eval(feed_dict={x: X_test, y_true: Y_test})
-    # Evaluate prediction on Test data
-    y_pred = prediction.eval(feed_dict={x: X_test})
+# Model Testing ========================================================================================================
+with tf.Session() as sess:
+    # Initialize only local variables for RMSE metric
+    sess.run(fetches=init_local)
+    # Restore model from previously saved model
+    saver.restore(sess=sess, save_path=checkpoint_path)
+    # Evaluate loss (MSE), total RMSE, R2 and predictions on test data
+    loss_test, rmse_test, r2_test, y_pred = sess.run(fetches=[loss, rmse, r_squared, prediction],
+                                                     feed_dict={x: X_test, y_true: Y_test})
 
 # Print Test loss (MSE), total RMSE and R2 in console
-msg = "\nTest MSE: {test_loss}, RMSE: {rmse} and R2: {r2}".format(test_loss=test_loss, rmse=rmse_test, r2=r2_test)
+msg = "\nTest MSE: {test_loss}, RMSE: {rmse} and R2: {r2}".format(test_loss=loss_test, rmse=rmse_test, r2=r2_test)
 print(msg)
 
-# Comparison =======================================================================================================
+# Comparison ===========================================================================================================
 # Create array where values are sorted by feature axis.
 dpoints = np.asarray(a=sorted(np.concatenate([X_test, y_pred], axis=1), key=lambda s: s[0]))
 # Create figure

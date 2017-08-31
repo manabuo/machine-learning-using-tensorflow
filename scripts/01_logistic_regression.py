@@ -34,7 +34,7 @@ unscaled_X_train_val, unscaled_X_test, Y_train_val, Y_test = train_test_split(fe
                                                                               random_state=42)
 unscaled_X_train, unscaled_X_val, Y_train, Y_val = train_test_split(unscaled_X_train_val, Y_train_val, test_size=0.33,
                                                                     random_state=42)
-# This estimator scales each feature individually such that it is in the range between zero and one.
+# This scales each feature individually such that it is in the range between zero and one.
 scaler = MinMaxScaler()
 X_train = scaler.fit_transform(unscaled_X_train)
 X_val = scaler.transform(unscaled_X_val)

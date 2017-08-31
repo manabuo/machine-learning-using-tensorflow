@@ -91,7 +91,7 @@ data_dir = os.path.join('scripts', 'data')
 # Define input data set location
 data_path = os.path.join(data_dir, 'exchange_rate.csv')
 # Sets location for model checkpoints
-model_path = os.path.join(data_dir, '04_model_basic')
+model_path = os.path.join(data_dir, '04_model_improved')
 checkpoint_path = os.path.join(model_path, 'model')
 # Sets location for graphs
 graph_path = os.path.join(data_dir, 'graph')
@@ -168,7 +168,7 @@ with tf.variable_scope('inputs'):
     # placeholder for output sequence
     out_seq = tf.placeholder(dtype=tf.float32, shape=[None, OUTPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES], name='target')
     # placeholder for boolean that controls dropout
-    training = tf.placeholder_with_default(input=False, shape=None, name='dropout_switch')
+    training = tf.placeholder_with_default(input=False, shape=[], name='dropout_switch')
     with tf.variable_scope('learning_rate'):
         # define iteration counter
         global_step = tf.Variable(0, trainable=False)
@@ -179,8 +179,12 @@ with tf.variable_scope('inputs'):
 
 # Define recurrent layer
 with tf.variable_scope('recurrent_layer'):
-    # Create list of Long short-term memory unit recurrent network cell
-    lstm_cells = [tf.nn.rnn_cell.LSTMCell(num_units=l["units"]) for l in LSTM_LAYERS]
+    # Create a list of Long short-term memory unit recurrent network cells with dropouts wrapped around each.
+    # def f1(): return lambda:
+    #
+    # def f2(): return lambda: [tf.nn.rnn_cell.LSTMCell(num_units=l["units"]) for l in LSTM_LAYERS]
+
+    lstm_cells = [tf.nn.rnn_cell.DropoutWrapper(cell=tf.nn.rnn_cell.LSTMCell(num_units=l["units"]), output_keep_prob=0.5) for l in LSTM_LAYERS]
     # Connects multiple RNN cells
     rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=lstm_cells)
     # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
@@ -192,7 +196,7 @@ with tf.variable_scope('prediction'):
     # However, the last output is simply equal to the last state.
     last_output = rnn_state[-1].h
     # Apply a dropout in order to prevent an overfitting
-    x = tf.layers.dropout(inputs=last_output, rate=0.5, training=training, name='dropout')
+    x = tf.layers.dropout(inputs=last_output, rate=0.3, training=training, name='dropout')
     # Here prediction is the one feature vector at the time point (not a sequence of the feature vectors)
     prediction = tf.layers.dense(inputs=x, units=OUTPUT_FEATURES, name='prediction')
     # Reduce dimension of the input tensor
@@ -263,7 +267,7 @@ with tf.Session() as sess:
     print(msg)
 
 # Comparison ===========================================================================================================
-# Restore input and predicted values to the original scale and form 
+# Restore input and predicted values to the original scale and form
 time_val, true_val, pred_val = recover_orig_values(time_set=t_output_val, x_true=x_output_val,
                                                    x_pred=pred_output_seq_val,
                                                    feature_col_names=feature_col, scaler_obj=scaler)
