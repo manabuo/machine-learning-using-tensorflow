@@ -1,4 +1,5 @@
 import os
+import urllib.request
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,10 +9,8 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 # Original Date Source =================================================================================================
-# Name: Spot exchange rates against £ sterling data from Statistical Interactive Database of interest & exchange rates
-# provided by Bank of England
-# Source: "http://www.bankofengland.co.uk/boeapps/iadb/index.asp?Travel=NIxIRx&levels=1&XNotes=Y&B33940XNode3790.
-# x=6&B33940XNode3790.y=4&XNotes2=Y&Nodes=X3790X3791X33940&SectionRequired=I&HideNums=-1&ExtraInfo=true#BM"
+# Name: Appliances energy prediction Data Set
+# Source: https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction
 
 
 def split_arrays(array_a, array_b, split_ratio):
@@ -88,38 +87,48 @@ def recover_orig_values(time_set, x_true, x_pred, feature_col_names, scaler_obj)
 
 # Data Location ========================================================================================================
 data_dir = os.path.join('scripts', 'data')
+model_dir = os.path.join(data_dir, '04')
+model_path = os.path.join(model_dir, 'basic')
+# If path does not exists then create one
+if not os.path.isdir(model_path):
+    os.makedirs(model_path)
 # Define input data set location
-data_path = os.path.join(data_dir, 'exchange_rate.csv')
+data_path = os.path.join(model_dir, 'raw.data')
 # Sets location for model checkpoints
-model_path = os.path.join(data_dir, '04_model_basic')
-checkpoint_path = os.path.join(model_path, 'model')
+checkpoint_path = os.path.join(model_path, 'checkpoints')
 # Sets location for graphs
-graph_path = os.path.join(data_dir, 'graph')
+graph_path = os.path.join(model_path, 'graph')
+# Retrieve data
+if not os.path.exists(data_path):
+    urllib.request.urlretrieve(
+        url='https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv',
+        filename=data_path)
+    print("Downloading data set to: {path}".format(path=data_path))
 
 # Data Preparation =====================================================================================================
-# Define sequence parameters
-INPUT_SEQUENCE_LENGTH = 10
-OUTPUT_SEQUENCE_LENGTH = 1
-OUTPUT_SEQUENCE_STEPS_AHEAD = 4
-
 # Read in the data
-time_column = ['Date']
-parser = (lambda d: pd.datetime.strptime(d, '%d/%m/%Y'))
-df = pd.read_csv(filepath_or_buffer=data_path, parse_dates=time_column, date_parser=parser)
+time_col = ['date']
+df = pd.read_csv(filepath_or_buffer=data_path, parse_dates=time_col)
 # Separate data frame into tow arrays: one for time variable and actual time series data set
-feature_col = list(set(df.columns) - set(time_column))
+target_col = ['Appliances', 'lights']
+feature_col = list(set(df.columns) - set(time_col + target_col))
 X = df.filter(items=feature_col).values
-T = df.filter(items=time_column).values
+T = df.filter(items=time_col).values
 # Split data into Training and Test data sets
 X_train_val, us_X_test, T_train_val, T_test = split_arrays(array_a=X, array_b=T, split_ratio=0.33)
 # Split Test data into Train and Validation data sets
-us_X_train, us_X_val, T_train, T_val = split_arrays(array_a=X_train_val, array_b=T_train_val, split_ratio=0.33)
+us_X_train, us_X_val, T_train, T_val = split_arrays(array_a=X_train_val, array_b=T_train_val, split_ratio=0.10)
 
 # This scales each feature individually such that it is in the range between zero and one.
 scaler = MinMaxScaler()
 X_train = scaler.fit_transform(us_X_train)
 X_val = scaler.transform(us_X_val)
 X_test = scaler.transform(us_X_test)
+
+# Define sequence parameters
+INPUT_SEQUENCE_LENGTH = 25
+OUTPUT_SEQUENCE_LENGTH = 1
+OUTPUT_SEQUENCE_STEPS_AHEAD = 2
 
 # Transform time variable and time series data sets into sequential data sets
 x_input_test, x_output_test = transform_to_seq(array=X_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
@@ -146,12 +155,12 @@ t_input_val, t_output_val = transform_to_seq(array=T_val, input_seq_len=INPUT_SE
 INPUT_FEATURES = x_input_train.shape[2]
 OUTPUT_FEATURES = x_output_train.shape[2]
 # Hyperparameters
-BATCH_SIZE = 100
+BATCH_SIZE = 20
 EPOCHS = 500
 INITIAL_LEARNING_RATE = 1e-2
 LEARNING_RATE_DECAY_STEPS = x_input_train.shape[0]
 LEARNING_RATE_DECAY_RATE = 0.96
-LSTM_LAYERS = [{"units": 15}, {"units": 10}]
+LSTM_LAYERS = [{"units": 100}, {"units": 30}]
 
 # Get list of indices in the training set
 idx = list(range(x_input_train.shape[0]))
@@ -171,7 +180,7 @@ with tf.variable_scope('inputs'):
     training = tf.placeholder_with_default(input=False, shape=None, name='dropout_switch')
     with tf.variable_scope('learning_rate'):
         # define iteration counter
-        global_step = tf.Variable(0, trainable=False)
+        global_step = tf.Variable(initial_value=0, trainable=False)
         # create exponentially decaying learning rate operator
         learning_rate = tf.train.exponential_decay(learning_rate=INITIAL_LEARNING_RATE, global_step=global_step,
                                                    decay_steps=LEARNING_RATE_DECAY_STEPS,
@@ -263,7 +272,7 @@ with tf.Session() as sess:
     print(msg)
 
 # Comparison ===========================================================================================================
-# Restore input and predicted values to the original scale and form 
+# Recover input and predicted values to the original scale and form
 time_val, true_val, pred_val = recover_orig_values(time_set=t_output_val, x_true=x_output_val,
                                                    x_pred=pred_output_seq_val,
                                                    feature_col_names=feature_col, scaler_obj=scaler)
@@ -276,8 +285,9 @@ time_train, true_train, pred_train = recover_orig_values(time_set=t_output_train
                                                          x_pred=pred_output_seq_train,
                                                          feature_col_names=feature_col, scaler_obj=scaler)
 
-# Create figures that compare all features and all date sets
-fig, subplot = plt.subplots(nrows=len(feature_col), ncols=3, sharex='col', sharey='row')
+# Create figures that compare tree random features and all date sets
+f_col = np.random.choice(a=feature_col, size=3).tolist()
+fig, subplot = plt.subplots(nrows=len(f_col), ncols=3, sharex='col', sharey='row')
 # Creates titles for plot columns
 subplot[0, 0].set_title('Training')
 subplot[0, 1].set_title('Validation')
@@ -287,9 +297,9 @@ leg_labels = ('Original data', 'Ground truth', 'Prediction')
 # Defines linewidth for the Ground truth line
 base_linewidth = 1.2
 # Iterates over all data sets and features creating the plots
-for col in range(len(feature_col)):
+for col in range(len(f_col)):
     # Creates a shared y axis labels for each row
-    subplot[col, 0].set_ylabel(feature_col[col])
+    subplot[col, 0].set_ylabel(f_col[col])
     # Creates plots for training data
     l1, = subplot[col, 0].plot(T_train, us_X_train[:, col], color='red', linewidth=base_linewidth + 0.5,
                                label=leg_labels[0])
@@ -309,9 +319,8 @@ for col in range(len(feature_col)):
                          label=leg_labels[2])
 
 for i in range(3):
-    subplot[len(feature_col) - 1, i].set_xlabel(time_column[0])
+    subplot[len(feature_col) - 1, i].set_xlabel(time_col[0])
 
 # Creates a legend
 fig.legend((l1, l2, l3), labels=leg_labels, loc='lower center', ncol=5, labelspacing=0.0)
-fig.tight_layout()
 fig.show()

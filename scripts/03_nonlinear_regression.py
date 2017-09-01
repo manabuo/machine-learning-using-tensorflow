@@ -27,9 +27,13 @@ def hidden_layers(in_tensor, layers):
 
 # Data Location ========================================================================================================
 data_dir = os.path.join('scripts', 'data')
-# Sets location for model checkpoints
-model_path = os.path.join(data_dir, '03_model')
-checkpoint_path = os.path.join(model_path, 'model')
+model_dir = os.path.join(data_dir, '03')
+# If path does not exists then create one
+if not os.path.isdir(model_dir):
+    os.makedirs(model_dir)
+# Defines path to the model files
+checkpoint_path = os.path.join(model_dir, 'checkpoints')
+
 # Data Preparation =====================================================================================================
 # Define one-dimensional feature vector
 feature = 5.0 * np.random.random(size=(1000, 1)) - 1

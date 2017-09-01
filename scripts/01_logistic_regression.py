@@ -1,4 +1,5 @@
 import os
+import urllib.request
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,13 +10,24 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 # Original Date Source =================================================================================================
-# Name: Breast Cancer Wisconsin (Diagnostic) Data Set (wdbc.data, wdbc.names)
+# Name: Breast Cancer Wisconsin (Diagnostic) Data Set (wdbc)
 # Source: http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
 
 # Data Location ========================================================================================================
-# Define input data set location
+# Define model directory structure
 data_dir = os.path.join('scripts', 'data')
-data_path = os.path.join(data_dir, 'wdbc.data')
+model_dir = os.path.join(data_dir, '01')
+# If path does not exists then create one
+if not os.path.isdir(model_dir):
+    os.makedirs(model_dir)
+# Defines path to data file
+data_path = os.path.join(model_dir, 'raw.data')
+# Retrieve data
+if not os.path.exists(data_path):
+    urllib.request.urlretrieve(
+        url='http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data',
+        filename=data_path)
+    print("Downloading data set to: {path}".format(path=data_path))
 
 # Data Preparation =====================================================================================================
 # Read in the data

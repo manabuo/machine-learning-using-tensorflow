@@ -3,8 +3,8 @@ This chapter presents the first fully fledged example of Logistic Regression tha
 
 ### Data set
 The dataset that is used in the example comes from [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php):
-Name: Breast Cancer Wisconsin (Diagnostic) Data Set (*wdbc.data* and *wdbc.names*)
-Source: http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
++ Name: Breast Cancer Wisconsin (Diagnostic) Data Set (*wdbc.data* and *wdbc.names*)
++ Source: http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
 
 ### Data Preparation
 For brevity, we are going to give only a brief overview of how data were prepared and what is the final shape of the data that are passed to the computational graph. So we start by reading in the data file *wdbc.data*, where first two columns names are taken from supplementary the file *wdbc.names* for convenience and the rest are just numbered from 1 to 30 with prefix  *rv_*. After reading in, we split the set into outcome/target and feature/predictors sets, as *ID* does not contain useful information (at least that should be the case) we drop it. At this stage, we have two data frames, one for target values of shape (569 rows x 1 columns) and one for features, which shape is (569 rows x 30 columns).

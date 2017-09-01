@@ -117,7 +117,7 @@ Dropout, in the nutshell, is a technique where during the training iterations a 
 
 It is important to note that the dropout during the evaluation and prediction phases has to be turned off.
 
-We will see TensorFlow implementations of the dropout in the following chapter. 
+We will see TensorFlow implementations of the dropout in the following chapter.
 
 ### Code
 + [03_nonlinear_regression.py](scripts/03_nonlinear_regression.py)
