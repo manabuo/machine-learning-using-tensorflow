@@ -27,10 +27,10 @@ This data set will be used in all subsequent examples and, as mentioned in the p
 In the first example, we are going to use sequences as inputs and try to predict a point N-steps in the *future*. In what follows we are going to refer to this type of the prediction task as Sequence to Vector prediction, in future examples we will also Sequence to Sequence prediction.
 
 #### Data Preparation
-We start our data preparation by separating features and time variable. This step is unnecessary as it has been shown that for some applications leaving time variable as an additional feature is advantageous, but in this particular example, we will neglect it. Next, we split our records into tree data set: Training, Validation and Test. Then we rescale all the values in the training set so that they lie between 0 and 1, and using training data set statistics we also rescale Validation and Test data. The following step transforms flat-file time series to a sequential data set by splitting it.
-In this example, all input sequences are of the same length, the parameter that defines this length is `INPUT_SEQUENCE_LENGTH`. In the code presented we also have parameter `OUTPUT_SEQUENCE_LENGTH` which for this example should remain 1 as we wish to predict only a point in the future. In order to tell how far in the future prediction should be made is controlled by `OUTPUT_SEQUENCE_STEPS_AHEAD` parameter.
+We start our data preparation by splitting input data into tree data set: Training, Validation and Test.  Then we separate
+ features, targets and time variable. It has been shown that for some applications leaving time variable as an additional feature is advantageous, but in this particular example, we will neglect it. Further,  we rescale all the values in the training sets so that they lie between 0 and 1, and using training data set statistics we rescale Validation and Test data. Data preparation stage is completed after transforming flat-file time series to a sequential data.
 
-In the nutshell, in this stage, we transform the flat-file time series of the shape `[Time Step, Features]` to two sequential data sets.  Input set is of the shape `[Batch, INPUT_SEQUENCE_LENGTH, Features]` and the output set has the shape `[Batch, 1, Features]`.
+In this example, all input sequences are of the same length, the parameter that defines the length is `INPUT_SEQUENCE_LENGTH`. In the code presented we also have parameter `OUTPUT_SEQUENCE_LENGTH` which for this example should remain 1 as we will try to predict only one point in the future. In order to tell how far in the future prediction should be we introduce `OUTPUT_SEQUENCE_STEPS_AHEAD` parameter. In the nutshell, in this stage, we transform the flat-file time series of the shape `[Time Step, Features]` to two sequential data sets. Input set is of the shape `[Batch, INPUT_SEQUENCE_LENGTH, Features]` and the output set has the shape `[Batch, 1, Features]`, and using input feature sequences we try to predict one target point.
 
 Next step as before is a graph construction, but in this tutorial, we going to show how to create variables in the graph, make learning rate to decrease during computations, introduce a dropout layer and, of course, how to create recurrent neural network layers.
 
@@ -93,7 +93,7 @@ with tf.variable_scope('predictions'):
     truth = tf.squeeze(input=out_seq, axis=1)
     # Define loss function as mean square error (MSE)
     loss = tf.losses.mean_squared_error(labels=truth, predictions=prediction)
-    train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss=loss)
+    train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss=loss, global_step=global_step)
 ``` 
 The output of [`tf.nn.dynamic_rnn()`] function is a tuple that contains cell outputs and the states for all timesteps. In order to make a prediction we are using output of the last timestep or in this situation it is also the last RNN state.  The last output tensor then is passed to the dropout layer, which is used to prevent an overfitting. Function [`tf.layers.dropout()`](https://www.tensorflow.org/api_docs/python/tf/layers/dropout) requires only one parameter `inputs`. Dropout has to be applied only during the training phase wnd when we compute predictions or other calculation it has to be switched off. This can be achieved in two ways, first, passing different `rate` values for each phase or as we have done, by passing a `training` boolean.
 

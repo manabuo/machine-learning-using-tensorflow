@@ -84,8 +84,8 @@ def recover_orig_values(time_set, x_true, x_pred, feature_col_names, scaler_obj)
 
 # Data Location ========================================================================================================
 data_dir = os.path.join('scripts', 'data')
-model_dir = os.path.join(data_dir, '04')
-model_path = os.path.join(model_dir, 'basic')
+model_dir = os.path.join(data_dir, '05')
+model_path = os.path.join(model_dir, '01')
 # If path does not exists then create one
 if not os.path.isdir(model_path):
     os.makedirs(model_path)
@@ -95,11 +95,12 @@ data_path = os.path.join(model_dir, 'raw.data')
 checkpoint_path = os.path.join(model_path, 'checkpoints')
 # Sets location for graphs
 graph_path = os.path.join(model_path, 'graph')
-
 # Retrieve data
-urllib.request.urlretrieve(
-    url='https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv',
-    filename=data_path)
+if not os.path.exists(data_path):
+    urllib.request.urlretrieve(
+        url='https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv',
+        filename=data_path)
+    print("Downloading data set to: {path}".format(path=data_path))
 
 # Data Preparation =====================================================================================================
 # Define sequence parameters
@@ -111,9 +112,9 @@ OUTPUT_SEQUENCE_STEPS_AHEAD = 4
 time_col = ['date']
 df = pd.read_csv(filepath_or_buffer=data_path, parse_dates=time_col)
 # Split data into Training and Test data sets
-df_test_train = split_arrays(frame=df, split_ratio=0.33)
+df_test_train = split_data(frame=df, split_ratio=0.33)
 # Split Test data into Train and Validation data sets
-df_train_val = split_arrays(frame=df_test_train["major"], split_ratio=0.33)
+df_train_val = split_data(frame=df_test_train["major"], split_ratio=0.33)
 
 # Separate data frame into tow arrays: one for time variable and actual time series data set
 target_col = ['Appliances', 'lights']
@@ -145,7 +146,6 @@ y_scaler = MinMaxScaler()
 Y_train = y_scaler.fit_transform(data['target']['train'])
 Y_val = y_scaler.transform(data['target']['valid'])
 Y_test = y_scaler.transform(data['target']['test'])
-
 
 # Transform time variable and time series data sets into sequential data sets
 x_input_test, x_output_test = transform_to_seq(array=X_test, input_seq_len=INPUT_SEQUENCE_LENGTH,

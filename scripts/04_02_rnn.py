@@ -12,22 +12,20 @@ from sklearn.preprocessing import MinMaxScaler
 # Name: Appliances energy prediction Data Set
 # Source: https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction
 
-def split_arrays(array_a, array_b, split_ratio):
+def split_data(frame, split_ratio):
     """
-    Function split arrays in the list using given split_ratio.
-    :param array_a: array that will be split
-    :type array_a: numpy.array
-    :param array_b: array that will be split
-    :type array_b: numpy.array
+    Function split dataframe in the list using given split_ratio.
+    :param frame: dataframe that has to be split
+    :type frame: pandas.DataFrame
     :param split_ratio: Split ratio value
     :type split_ratio: float
-    :return: four spit arrays
-    :rtype: numpy.array
+    :return: dict of two spit dataframes
+    :rtype: dict
     """
     # Compute number of elements in the first split data set
-    split = int(array_a.shape[0] * (1.0 - split_ratio))
+    split = int(frame.shape[0] * (1.0 - split_ratio))
     # Split data sets in the list and return  list of tuples of splits
-    return array_a[:split, :], array_a[split:, :], array_b[:split, :], array_b[split:, :]
+    return {'major': frame.iloc[:split, :], 'minor': frame.iloc[split:, :]}
 
 
 def transform_to_seq(array, input_seq_len, output_seq_len, output_seq_steps_ahead):
@@ -60,27 +58,27 @@ def transform_to_seq(array, input_seq_len, output_seq_len, output_seq_steps_ahea
     return np.array(data_input), np.array(data_output)
 
 
-def recover_orig_values(time_set, x_true, x_pred, feature_col_names, scaler_obj):
+def recover_orig_values(time_set, true, pred, col_names, scaler_obj):
     """
-    Function recovers values from sequences and convert to orignainal scale
+    Function recovers values from sequences and converts to original scale
     :param time_set: RNN input time array
     :type time_set: numpy.array
-    :param x_true: RNN input ground truth array
-    :type x_true: numpy.array
-    :param x_pred: RNN prediction array
-    :type x_pred: numpy.array
-    :param feature_col_names: list of feature names
-    :type feature_col_names: list(str)
+    :param true: RNN input ground truth array
+    :type true: numpy.array
+    :param pred: RNN prediction array
+    :type pred: numpy.array
+    :param col_names: list of feature names
+    :type col_names: list(str)
     :param scaler_obj: Scikit-learn Prepossessing Scaler object
     :type scaler_obj: sklearn.prepossessing scaler object
     :return: Three arrays that contain time and original and predicted values rescaled to original scales
     :rtype: numpy.array
     """
     time = np.expand_dims(a=np.unique(time_set.flatten('F')), axis=1)
-    x_true_tuple = tuple(np.expand_dims(a=x_true[:, :, i].flatten('F'), axis=1)[:time.shape[0], :] for i in
-                         range(len(feature_col_names)))
+    x_true_tuple = tuple(np.expand_dims(a=true[:, :, i].flatten('F'), axis=1)[:time.shape[0], :] for i in
+                         range(len(col_names)))
     true_values = scaler_obj.inverse_transform(np.concatenate(x_true_tuple, axis=1))
-    pred_values = scaler_obj.inverse_transform(x_pred)
+    pred_values = scaler_obj.inverse_transform(pred)
     return time, true_values, pred_values
 
 
@@ -105,29 +103,49 @@ if not os.path.exists(data_path):
     print("Downloading data set to: {path}".format(path=data_path))
 
 # Data Preparation =====================================================================================================
+# Define sequence parameters
+INPUT_SEQUENCE_LENGTH = 10
+OUTPUT_SEQUENCE_LENGTH = 1
+OUTPUT_SEQUENCE_STEPS_AHEAD = 1
+
 # Read in the data
 time_col = ['date']
 df = pd.read_csv(filepath_or_buffer=data_path, parse_dates=time_col)
+# Split data into Training and Test data sets
+df_test_train = split_data(frame=df, split_ratio=0.33)
+# Split Test data into Train and Validation data sets
+df_train_val = split_data(frame=df_test_train["major"], split_ratio=0.33)
+
 # Separate data frame into tow arrays: one for time variable and actual time series data set
 target_col = ['Appliances', 'lights']
 feature_col = list(set(df.columns) - set(time_col + target_col))
-X = df.filter(items=feature_col).values
-T = df.filter(items=time_col).values
-# Split data into Training and Test data sets
-X_train_val, us_X_test, T_train_val, T_test = split_arrays(array_a=X, array_b=T, split_ratio=0.33)
-# Split Test data into Train and Validation data sets
-us_X_train, us_X_val, T_train, T_val = split_arrays(array_a=X_train_val, array_b=T_train_val, split_ratio=0.10)
+
+data = {'features': {
+    'train': df_train_val["major"].filter(items=feature_col).values,
+    'valid': df_train_val["minor"].filter(items=feature_col).values,
+    'test': df_test_train["minor"].filter(items=feature_col).values
+},
+    'time': {
+        'train': df_train_val["major"].filter(items=time_col).values,
+        'valid': df_train_val["minor"].filter(items=time_col).values,
+        'test': df_test_train["minor"].filter(items=time_col).values
+    },
+    'target': {
+        'train': df_train_val["major"].filter(items=target_col).values,
+        'valid': df_train_val["minor"].filter(items=target_col).values,
+        'test': df_test_train["minor"].filter(items=target_col).values
+    }}
 
 # This scales each feature individually such that it is in the range between zero and one.
-scaler = MinMaxScaler()
-X_train = scaler.fit_transform(us_X_train)
-X_val = scaler.transform(us_X_val)
-X_test = scaler.transform(us_X_test)
+x_scaler = MinMaxScaler()
+X_train = x_scaler.fit_transform(data['features']['train'])
+X_val = x_scaler.transform(data['features']['valid'])
+X_test = x_scaler.transform(data['features']['test'])
 
-# Define sequence parameters
-INPUT_SEQUENCE_LENGTH = 30
-OUTPUT_SEQUENCE_LENGTH = 1
-OUTPUT_SEQUENCE_STEPS_AHEAD = 1
+y_scaler = MinMaxScaler()
+Y_train = y_scaler.fit_transform(data['target']['train'])
+Y_val = y_scaler.transform(data['target']['valid'])
+Y_test = y_scaler.transform(data['target']['test'])
 
 # Transform time variable and time series data sets into sequential data sets
 x_input_test, x_output_test = transform_to_seq(array=X_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
@@ -139,24 +157,36 @@ x_input_train, x_output_train = transform_to_seq(array=X_train, input_seq_len=IN
 x_input_val, x_output_val = transform_to_seq(array=X_val, input_seq_len=INPUT_SEQUENCE_LENGTH,
                                              output_seq_len=OUTPUT_SEQUENCE_LENGTH,
                                              output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
-t_input_test, t_output_test = transform_to_seq(array=T_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
+
+y_input_test, y_output_test = transform_to_seq(array=Y_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
                                                output_seq_len=OUTPUT_SEQUENCE_LENGTH,
                                                output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
-t_input_train, t_output_train = transform_to_seq(array=T_train, input_seq_len=INPUT_SEQUENCE_LENGTH,
+y_input_train, y_output_train = transform_to_seq(array=Y_train, input_seq_len=INPUT_SEQUENCE_LENGTH,
                                                  output_seq_len=OUTPUT_SEQUENCE_LENGTH,
                                                  output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
-t_input_val, t_output_val = transform_to_seq(array=T_val, input_seq_len=INPUT_SEQUENCE_LENGTH,
+y_input_val, y_output_val = transform_to_seq(array=Y_val, input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                             output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                             output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+
+t_input_test, t_output_test = transform_to_seq(array=data['time']['test'], input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                               output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                               output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+t_input_train, t_output_train = transform_to_seq(array=data['time']['train'], input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                                 output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                                 output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+
+t_input_val, t_output_val = transform_to_seq(array=data['time']['valid'], input_seq_len=INPUT_SEQUENCE_LENGTH,
                                              output_seq_len=OUTPUT_SEQUENCE_LENGTH,
                                              output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
 
 # Graph Construction ===================================================================================================
 # Parameters
 INPUT_FEATURES = x_input_train.shape[2]
-OUTPUT_FEATURES = x_output_train.shape[2]
+OUTPUT_FEATURES = y_output_train.shape[2]
 # Hyperparameters
-BATCH_SIZE = 70
-EPOCHS = 1000
-GRU_LAYERS = [{"units": 4, "keep_prob": 0.5}, {"units": 4, "keep_prob": 0.4}]
+BATCH_SIZE = 100
+EPOCHS = 200
+GRU_LAYERS = [{"units": 4, "keep_prob": 0.6}, {"units": 4, "keep_prob": 0.5}]
 
 # Get list of indices in the training set
 idx = list(range(x_input_train.shape[0]))
@@ -164,7 +194,7 @@ idx = list(range(x_input_train.shape[0]))
 n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
 
 INITIAL_LEARNING_RATE = 1e-1
-LEARNING_RATE_DECAY_STEPS = 10 * n_batches
+LEARNING_RATE_DECAY_STEPS = 5 * n_batches
 LEARNING_RATE_DECAY_RATE = 0.96
 
 # Resets default graph
@@ -192,7 +222,7 @@ with tf.variable_scope('inputs'):
 
 # Define recurrent layer
 with tf.variable_scope('recurrent_layer'):
-    # Create a list of Long short-term memory unit recurrent network cells with dropouts wrapped around each.
+    # Create a list of GRU unit recurrent network cells with dropouts wrapped around each.
     def with_dropout(layers, rnn_input):
         with tf.variable_scope('with_dropout'):
             gru_cells = [tf.nn.rnn_cell.DropoutWrapper(cell=tf.nn.rnn_cell.GRUCell(num_units=l["units"]),
@@ -221,10 +251,8 @@ with tf.variable_scope('predictions'):
     # last_output = rnn_output[:, -1, :]
     # However, the last output is simply equal to the last state.
     last_output = rnn_state[-1]
-    # Apply a dropout in order to prevent an overfitting
-    x = tf.layers.dropout(inputs=last_output, rate=0.5, training=training, name='dropout')
     # Here prediction is the one feature vector at the time point (not a sequence of the feature vectors)
-    prediction = tf.layers.dense(inputs=x, units=OUTPUT_FEATURES, name='prediction')
+    prediction = tf.layers.dense(inputs=last_output, units=OUTPUT_FEATURES, name='prediction')
     # Reduce dimension of the input tensor
     truth = tf.squeeze(input=out_seq, axis=1)
     # Define loss function as mean square error (MSE)
@@ -247,6 +275,7 @@ saver = tf.train.Saver()
 
 # Running the session ==================================================================================================
 with tf.Session() as sess:
+    print('Starting Graph Execution')
     # Write merged summaries out to the graph_path (initialization)
     summary_writer = tf.summary.FileWriter(logdir=graph_path, graph=sess.graph)
 
@@ -272,18 +301,18 @@ with tf.Session() as sess:
             # Gets a batch of row indices.
             id_batch = next(batch_generator)
             # Defines input dictionary
-            feed = {in_seq: x_input_train[id_batch], out_seq: x_output_train[id_batch], training: True}
+            feed = {in_seq: x_input_train[id_batch], out_seq: y_output_train[id_batch], training: True}
             # Executes the graph
             sess.run(fetches=train_step, feed_dict=feed)
 
         # Evaluate all variables that are contained in summery/log object and write them out into the log file
-        summary = merged.eval(feed_dict={in_seq: x_input_val, out_seq: x_output_val, training: False})
+        summary = merged.eval(feed_dict={in_seq: x_input_val, out_seq: y_output_val, training: False})
         summary_writer.add_summary(summary=summary, global_step=e)
 
         if e % 100 == 0:
             # Evaluate metrics on training and validation data sets
-            loss_train = loss.eval(feed_dict={in_seq: x_input_train, out_seq: x_output_train, training: False})
-            loss_val = loss.eval(feed_dict={in_seq: x_input_val, out_seq: x_output_val, training: False})
+            loss_train = loss.eval(feed_dict={in_seq: x_input_train, out_seq: y_output_train, training: False})
+            loss_val = loss.eval(feed_dict={in_seq: x_input_val, out_seq: y_output_val, training: False})
             # Prints the loss to the console
             msg = ("Epoch: {e}/{epochs}; ".format(e=e, epochs=EPOCHS) +
                    "Train MSE: {tr_ls}; ".format(tr_ls=loss_train) +
@@ -305,7 +334,7 @@ with tf.Session() as sess:
 
     # Evaluate loss (MSE) and predictions on test data
     loss_test, pred_output_seq_test = sess.run(fetches=[loss, prediction],
-                                               feed_dict={in_seq: x_input_test, out_seq: x_output_test,
+                                               feed_dict={in_seq: x_input_test, out_seq: y_output_test,
                                                           training: False})
     # Print Test loss (MSE), total RMSE in console
     msg = "\nTest MSE: {test_loss} and RMSE: {rmse}".format(test_loss=loss_test, rmse=np.sqrt(loss_test))
@@ -313,20 +342,20 @@ with tf.Session() as sess:
 
 # Comparison ===========================================================================================================
 # Recover input and predicted values to the original scale and form
-time_val, true_val, pred_val = recover_orig_values(time_set=t_output_val, x_true=x_output_val,
-                                                   x_pred=pred_output_seq_val,
-                                                   feature_col_names=feature_col, scaler_obj=scaler)
+time_val, true_val, pred_val = recover_orig_values(time_set=t_output_val, true=y_output_val,
+                                                   pred=pred_output_seq_val, col_names=target_col,
+                                                   scaler_obj=y_scaler)
 
-time_test, true_test, pred_test = recover_orig_values(time_set=t_output_test, x_true=x_output_test,
-                                                      x_pred=pred_output_seq_test,
-                                                      feature_col_names=feature_col, scaler_obj=scaler)
+time_test, true_test, pred_test = recover_orig_values(time_set=t_output_test, true=y_output_test,
+                                                      pred=pred_output_seq_test, col_names=target_col,
+                                                      scaler_obj=y_scaler)
 
-time_train, true_train, pred_train = recover_orig_values(time_set=t_output_train, x_true=x_output_train,
-                                                         x_pred=pred_output_seq_train,
-                                                         feature_col_names=feature_col, scaler_obj=scaler)
+time_train, true_train, pred_train = recover_orig_values(time_set=t_output_train, true=y_output_train,
+                                                         pred=pred_output_seq_train, col_names=target_col,
+                                                         scaler_obj=y_scaler)
 
 # Create figures that compare tree random features and all date sets
-f_col = np.random.choice(a=feature_col, size=3).tolist()
+f_col = target_col
 fig, subplot = plt.subplots(nrows=len(f_col), ncols=3, sharex='col', sharey='row')
 # Creates titles for plot columns
 subplot[0, 0].set_title('Training')
@@ -341,19 +370,22 @@ for col in range(len(f_col)):
     # Creates a shared y axis labels for each row
     subplot[col, 0].set_ylabel(f_col[col])
     # Creates plots for training data
-    l1, = subplot[col, 0].plot(T_train, us_X_train[:, col], color='red', linewidth=base_linewidth + 0.5,
+    l1, = subplot[col, 0].plot(data['time']['train'], data['target']['train'][:, col], color='red',
+                               linewidth=base_linewidth + 0.5,
                                label=leg_labels[0])
     l2, = subplot[col, 0].plot(time_train, true_train[:, col], color='black', linewidth=base_linewidth,
                                label=leg_labels[1])
     l3, = subplot[col, 0].plot(time_train, pred_train[:, col], color='orange', linewidth=base_linewidth - 0.5,
                                label=leg_labels[2])
     # Creates plots for validation data
-    subplot[col, 1].plot(T_val, us_X_val[:, col], color='red', linewidth=base_linewidth + 0.5, label=leg_labels[0])
+    subplot[col, 1].plot(data['time']['valid'], data['target']['valid'][:, col], color='red',
+                         linewidth=base_linewidth + 0.5, label=leg_labels[0])
     subplot[col, 1].plot(time_val, true_val[:, col], color='black', linewidth=base_linewidth, label=leg_labels[1])
     subplot[col, 1].plot(time_val, pred_val[:, col], color='orange', linewidth=base_linewidth - 0.5,
                          label=leg_labels[2])
     # Creates plots for test data
-    subplot[col, 2].plot(T_test, us_X_test[:, col], color='red', linewidth=base_linewidth + 0.5, label=leg_labels[0])
+    subplot[col, 2].plot(data['time']['test'], data['target']['test'][:, col], color='red',
+                         linewidth=base_linewidth + 0.5, label=leg_labels[0])
     subplot[col, 2].plot(time_test, true_test[:, col], color='black', linewidth=base_linewidth, label=leg_labels[1])
     subplot[col, 2].plot(time_test, pred_test[:, col], color='orange', linewidth=base_linewidth - 0.5,
                          label=leg_labels[2])
