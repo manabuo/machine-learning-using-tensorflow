@@ -107,18 +107,6 @@ In this example, we introduced a notion of the [activation function](https://en.
 
 In this particular example, for all hidden layers, we used [Rectified Linear Unit](https://en.wikipedia.org/wiki/Rectifier_(neural_networks)).
 
-### Overfitting
-Increasing the size of the neural network by increasing the number of neurons per layers or/and increasing the number of layers, the network becomes more prone to overfitting. In order to avoid this effect two techniques are often used: [Regularization](https://en.wikipedia.org/wiki/Regularization_(mathematics)) and [Dropout](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf). This technique can be used together as well as on its own.
-
-> Note: It is advisable to use neural networks with many layers that have a small number of neurons per layer.
-
-#### Dropout
-Dropout, in the nutshell, is a technique where during the training iterations a number of the neurons in certain layers are randomly deactivated. This forces, remaining neurons in the layer, to compensate the loss of information by learning *concepts* that their colleagues knew before they were deactivated. Normally, the dropout is used after fully-connected layers but is also possible to use the dropout after another type of layers.
-
-It is important to note that the dropout during the evaluation and prediction phases has to be turned off.
-
-We will see TensorFlow implementations of the dropout in the following chapter.
-
 ### Code
 + [03_nonlinear_regression.py](scripts/03_nonlinear_regression.py)
 

@@ -69,7 +69,7 @@ init_global = tf.global_variables_initializer()
 init_local = tf.local_variables_initializer()
 sess.run(fetches=[init_global, init_local])
 
-for e in range(EPOCHS + 1):
+for e in range(1, EPOCHS + 1):
     # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
     # input data order.
     np.random.shuffle(idx)

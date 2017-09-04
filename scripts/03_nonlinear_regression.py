@@ -112,7 +112,7 @@ with tf.Session() as sess:
     # Initialize variables
     sess.run(fetches=[init_global, init_local])
     # Training cycle
-    for e in range(0, EPOCHS // 3):
+    for e in range(1, EPOCHS // 3+1):
         # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
         # input data order.
         np.random.shuffle(idx)
@@ -150,7 +150,7 @@ with tf.Session() as sess:
     saver.restore(sess=sess, save_path=checkpoint_path)
     print("Model restored from file: {path}".format(path=save_path))
     # Resume training
-    for e in range(EPOCHS // 3, EPOCHS + 1):
+    for e in range(EPOCHS // 3+1, EPOCHS + 1):
         # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
         # input data order.
         np.random.shuffle(idx)

@@ -12,7 +12,6 @@ from sklearn.preprocessing import MinMaxScaler
 # Name: Appliances energy prediction Data Set
 # Source: https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction
 
-
 def split_arrays(array_a, array_b, split_ratio):
     """
     Function split arrays in the list using given split_ratio.
@@ -88,7 +87,7 @@ def recover_orig_values(time_set, x_true, x_pred, feature_col_names, scaler_obj)
 # Data Location ========================================================================================================
 data_dir = os.path.join('scripts', 'data')
 model_dir = os.path.join(data_dir, '04')
-model_path = os.path.join(model_dir, 'basic')
+model_path = os.path.join(model_dir, '02')
 # If path does not exists then create one
 if not os.path.isdir(model_path):
     os.makedirs(model_path)
@@ -126,9 +125,9 @@ X_val = scaler.transform(us_X_val)
 X_test = scaler.transform(us_X_test)
 
 # Define sequence parameters
-INPUT_SEQUENCE_LENGTH = 25
+INPUT_SEQUENCE_LENGTH = 30
 OUTPUT_SEQUENCE_LENGTH = 1
-OUTPUT_SEQUENCE_STEPS_AHEAD = 2
+OUTPUT_SEQUENCE_STEPS_AHEAD = 1
 
 # Transform time variable and time series data sets into sequential data sets
 x_input_test, x_output_test = transform_to_seq(array=X_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
@@ -155,17 +154,18 @@ t_input_val, t_output_val = transform_to_seq(array=T_val, input_seq_len=INPUT_SE
 INPUT_FEATURES = x_input_train.shape[2]
 OUTPUT_FEATURES = x_output_train.shape[2]
 # Hyperparameters
-BATCH_SIZE = 20
-EPOCHS = 500
-INITIAL_LEARNING_RATE = 1e-2
-LEARNING_RATE_DECAY_STEPS = x_input_train.shape[0]
-LEARNING_RATE_DECAY_RATE = 0.96
-GRU_LAYERS = [{"units": 10}, {"units": 10}]
+BATCH_SIZE = 70
+EPOCHS = 1000
+GRU_LAYERS = [{"units": 4, "keep_prob": 0.5}, {"units": 4, "keep_prob": 0.4}]
 
 # Get list of indices in the training set
 idx = list(range(x_input_train.shape[0]))
 # Determine total number of batches
 n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
+
+INITIAL_LEARNING_RATE = 1e-1
+LEARNING_RATE_DECAY_STEPS = 10 * n_batches
+LEARNING_RATE_DECAY_RATE = 0.96
 
 # Resets default graph
 tf.reset_default_graph()
@@ -186,16 +186,37 @@ with tf.variable_scope('inputs'):
                                                    decay_steps=LEARNING_RATE_DECAY_STEPS,
                                                    decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True)
 
+        # Add the following variables to log/summary file that is used by TensorBoard
+        tf.summary.scalar(name='learning_rate', tensor=learning_rate)
+        tf.summary.scalar(name='global_step', tensor=global_step)
+
 # Define recurrent layer
 with tf.variable_scope('recurrent_layer'):
-    # Create list of Long short-term memory unit recurrent network cell
-    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in GRU_LAYERS]
-    # Connects multiple RNN cells
-    rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
-    # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
-    rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=in_seq, dtype=tf.float32)
+    # Create a list of Long short-term memory unit recurrent network cells with dropouts wrapped around each.
+    def with_dropout(layers, rnn_input):
+        with tf.variable_scope('with_dropout'):
+            gru_cells = [tf.nn.rnn_cell.DropoutWrapper(cell=tf.nn.rnn_cell.GRUCell(num_units=l["units"]),
+                                                       output_keep_prob=l["keep_prob"]) for l in layers]
+            # Connects multiple RNN cells
+            rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
+            # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
+            return tf.nn.dynamic_rnn(cell=rnn_cells, inputs=rnn_input, dtype=tf.float32)
 
-with tf.variable_scope('prediction'):
+
+    def without_dropout(layers, rnn_input):
+        with tf.variable_scope('without_dropout'):
+            gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in layers]
+            # Connects multiple RNN cells
+            rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
+            # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
+            return tf.nn.dynamic_rnn(cell=rnn_cells, inputs=rnn_input, dtype=tf.float32)
+
+
+    rnn_output, rnn_state = tf.cond(training,
+                                    true_fn=lambda: with_dropout(layers=GRU_LAYERS, rnn_input=in_seq),
+                                    false_fn=lambda: without_dropout(layers=GRU_LAYERS, rnn_input=in_seq))
+
+with tf.variable_scope('predictions'):
     # Select the last relevant RNN output.
     # last_output = rnn_output[:, -1, :]
     # However, the last output is simply equal to the last state.
@@ -208,17 +229,27 @@ with tf.variable_scope('prediction'):
     truth = tf.squeeze(input=out_seq, axis=1)
     # Define loss function as mean square error (MSE)
     loss = tf.losses.mean_squared_error(labels=truth, predictions=prediction)
-    train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss=loss)
+    train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss=loss, global_step=global_step)
+
+    # Add the following variables to log/summary file that is used by TensorBoard
+    tf.summary.scalar(name='MSE', tensor=loss)
+    tf.summary.scalar(name='RMSE', tensor=tf.sqrt(x=loss))
 
 # Model Training =======================================================================================================
+# Merge all the summaries
+merged = tf.summary.merge_all()
+
 # Initializing the variables
 init_global = tf.global_variables_initializer()
 
 # Define the Saver op to save and restore all the variables
 saver = tf.train.Saver()
 
-# Running the session ================================================================================================
+# Running the session ==================================================================================================
 with tf.Session() as sess:
+    # Write merged summaries out to the graph_path (initialization)
+    summary_writer = tf.summary.FileWriter(logdir=graph_path, graph=sess.graph)
+
     # Determines if model has been saved before
     if os.path.exists(os.path.join(model_path, 'checkpoint')):
         # Restore model from previously saved model
@@ -229,7 +260,7 @@ with tf.Session() as sess:
         sess.run(fetches=init_global)
 
     # Training cycle
-    for e in range(EPOCHS + 1):
+    for e in range(1, EPOCHS + 1):
         # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
         # input data order.
         np.random.shuffle(idx)
@@ -237,13 +268,17 @@ with tf.Session() as sess:
         batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
 
         # Loops through batches.
-        for _ in range(n_batches):
+        for s in range(n_batches):
             # Gets a batch of row indices.
             id_batch = next(batch_generator)
             # Defines input dictionary
             feed = {in_seq: x_input_train[id_batch], out_seq: x_output_train[id_batch], training: True}
             # Executes the graph
             sess.run(fetches=train_step, feed_dict=feed)
+
+        # Evaluate all variables that are contained in summery/log object and write them out into the log file
+        summary = merged.eval(feed_dict={in_seq: x_input_val, out_seq: x_output_val, training: False})
+        summary_writer.add_summary(summary=summary, global_step=e)
 
         if e % 100 == 0:
             # Evaluate metrics on training and validation data sets
@@ -259,7 +294,12 @@ with tf.Session() as sess:
     saver.save(sess=sess, save_path=checkpoint_path)
     print("Model saved in file: {path}".format(path=checkpoint_path))
 
-    # Model Testing ====================================================================================================
+# Model Testing ========================================================================================================
+with tf.Session() as sess:
+    #  Restore model from previously saved model
+    saver.restore(sess=sess, save_path=checkpoint_path)
+
+    # Evaluate predictions for training and validation data
     pred_output_seq_train = prediction.eval(feed_dict={in_seq: x_input_train, training: False})
     pred_output_seq_val = prediction.eval(feed_dict={in_seq: x_input_val, training: False})
 
@@ -319,8 +359,10 @@ for col in range(len(f_col)):
                          label=leg_labels[2])
 
 for i in range(3):
-    subplot[len(feature_col) - 1, i].set_xlabel(time_col[0])
+    subplot[len(f_col) - 1, i].set_xlabel(time_col[0])
+    for tick in subplot[len(f_col) - 1, i].get_xticklabels():
+        tick.set_rotation(-75)
 
 # Creates a legend
-fig.legend((l1, l2, l3), labels=leg_labels, loc='lower center', ncol=5, labelspacing=0.0)
+fig.legend((l1, l2, l3), labels=leg_labels, loc='upper center', ncol=5, labelspacing=0.0)
 fig.show()
