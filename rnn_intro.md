@@ -15,7 +15,7 @@ However, if a sequence is long, in practice, the internal state has a very diffi
 + instead of using the sigmoid activation function we can use the Rectified Linear Units (ReLU) function. The derivative for the ReLU is either 0 or 1. This way, gradients would flow through the neurons whose derivative is 1 without getting attenuated while propagating back through time-steps.
 
 Another approach is to use more sophisticated units, such as [**LSTM** (Long Short-Term Memory)](https://en.wikipedia.org/wiki/Long_short-term_memory) or [**GRU** (Gated Recurrent Unit)](https://en.wikipedia.org/wiki/Gated_recurrent_unit). These units were explicitly designed to prevent the problem of exploding and vanishing gradients as well as improve long term memory of the RNNs.
-> Note: Throughout this tutorial, we are going to use only LSTM units.
+> Note: Throughout this tutorial, we are going to use only GRU units as they are less expencive that LSTM units and there is no noticable difference between results using either of the units.
 
 ### Recurrent Neural Network
 This example we are using the data set that comes from [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php):
@@ -65,13 +65,13 @@ Further, having specified all the necessary variables we can proceed with constr
 ```python
 with tf.variable_scope('recurrent_layer'):
     # Create list of Long short-term memory unit recurrent network cell
-    lstm_cells = [tf.nn.rnn_cell.LSTMCell(num_units=l["units"]) for l in LSTM_LAYERS]
+    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in GRU_LAYERS]
     # Connects multiple RNN cells
-    rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=lstm_cells)
+    rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
     # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
     rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=in_seq, dtype=tf.float32)
 ```
-As we said, in this and what follows we are going to use only the LSTM units for RNN. For other type of cells, see [here](https://www.tensorflow.org/api_docs/python/tf/nn/rnn_cell). In TensorFlow LSTM cell is [`tf.nn.rnn_cell.LSTMCell()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/LSTMCell), this function requires one parameter, `num_units`,  which defines a number of hidden units per cell. Next, we combine all the cells into a list which is passed to `tf.nn.rnn_cell.MultiRNNCell()` function that stakes all the single cells. Next function, [`tf.nn.dynamic_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/dynamic_rnn) is responsible for creation of the actual RNN. 
+As we said, in this and what follows we are going to use only the GRU units for RNN. For other type of cells, see [here](https://www.tensorflow.org/api_docs/python/tf/nn/rnn_cell). In TensorFlow GRU cell is [`tf.nn.rnn_cell.GRUCell()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/GRUCell), this function requires one parameter, `num_units`,  which defines a number of hidden units per cell. Next, we combine all the cells into a list which is passed to `tf.nn.rnn_cell.MultiRNNCell()` function that stakes all the single cells. Next function, [`tf.nn.dynamic_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/dynamic_rnn) is responsible for creation of the actual RNN. 
 
 > Note: In other tutorials you may have seen another function [`tf.nn.static_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/static_rnn) that creates a recurrent neural network. This function is still available in the API but there have been suggestions that it will be deprecated one day due to its limitation that we will touch on in the following examples. 
 
@@ -84,7 +84,7 @@ with tf.variable_scope('prediction'):
     # Select the last relevant RNN output.
     # last_output = rnn_output[:, -1, :]
     # However, the last output is simply equal to the last state.
-    last_output = rnn_state[-1].h
+    last_output = rnn_state[-1]
     # Apply a dropout in order to prevent an overfitting
     x = tf.layers.dropout(inputs=last_output, rate=0.5, training=training, name='dropout')
     # Here prediction is the one feature vector at the time point (not a sequence of the feature vectors)

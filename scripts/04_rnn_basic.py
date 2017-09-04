@@ -160,7 +160,7 @@ EPOCHS = 500
 INITIAL_LEARNING_RATE = 1e-2
 LEARNING_RATE_DECAY_STEPS = x_input_train.shape[0]
 LEARNING_RATE_DECAY_RATE = 0.96
-LSTM_LAYERS = [{"units": 100}, {"units": 30}]
+GRU_LAYERS = [{"units": 10}, {"units": 10}]
 
 # Get list of indices in the training set
 idx = list(range(x_input_train.shape[0]))
@@ -189,9 +189,9 @@ with tf.variable_scope('inputs'):
 # Define recurrent layer
 with tf.variable_scope('recurrent_layer'):
     # Create list of Long short-term memory unit recurrent network cell
-    lstm_cells = [tf.nn.rnn_cell.LSTMCell(num_units=l["units"]) for l in LSTM_LAYERS]
+    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in GRU_LAYERS]
     # Connects multiple RNN cells
-    rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=lstm_cells)
+    rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
     # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
     rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=in_seq, dtype=tf.float32)
 
@@ -199,7 +199,7 @@ with tf.variable_scope('prediction'):
     # Select the last relevant RNN output.
     # last_output = rnn_output[:, -1, :]
     # However, the last output is simply equal to the last state.
-    last_output = rnn_state[-1].h
+    last_output = rnn_state[-1]
     # Apply a dropout in order to prevent an overfitting
     x = tf.layers.dropout(inputs=last_output, rate=0.5, training=training, name='dropout')
     # Here prediction is the one feature vector at the time point (not a sequence of the feature vectors)
