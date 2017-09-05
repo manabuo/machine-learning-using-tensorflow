@@ -112,6 +112,7 @@ print('Test sklearn RMSE: {rmse} and R2: {r2}'.format(rmse=sk_rmse, r2=sk_r2))
 
 To complete the comparison we visualize both target values by plotting them and overlaying corresponding predictions.  
 
+### Next
 In the [next chapter](nonlinear_regression.md) we will also see how to extend the code presented here to fully connected neural network for the regression task.
 However, if you wish to return to the previous chapter press [here](logistic_regression.md).
 ### Code

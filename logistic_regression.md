@@ -215,6 +215,7 @@ plt.xticks(tick_marks, ['B', 'M'])
 plt.yticks(tick_marks, ['B', 'M'])
 ```
 
+### Next
 This concludes the description of the Logistic Regression and in the [example that follows](linear_regression.md) we will see how to modify our existing code in order to perform the Linear Regression. However, if you wish to return to the previous chapter press [here](tensorflow_intro.md).
 
 ### Code

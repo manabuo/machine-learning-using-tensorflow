@@ -107,6 +107,9 @@ In this example, we introduced a notion of the [activation function](https://en.
 
 In this particular example, for all hidden layers, we used [Rectified Linear Unit](https://en.wikipedia.org/wiki/Rectifier_(neural_networks)).
 
+### Next
+In this chapter we saw how to create *simple* Feedforward Neural Networks using model that we showed in the [previous chapter](linear_regression.md) and just adding an additional neural layer. Hence, current model allows us make predictions for linear and nonlinear processes. However, this network cannot be used if data the we are interested in have temporal dependence. Thus in the [chapter that follows](rnn_intro.md) we will show how to do in this situation.
+
 ### Code
 + [03_nonlinear_regression.py](scripts/03_nonlinear_regression.py)
 

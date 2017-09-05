@@ -43,14 +43,15 @@ with tf.variable_scope('inputs'):
     # placeholder for output sequence
     out_seq = tf.placeholder(dtype=tf.float32, shape=[None, OUTPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES], name='target')
     # placeholder for boolean that controls dropout
-    training = tf.placeholder_with_default(input=False, shape=None, name='dropout_switch')
-    with tf.variable_scope('learning_rate'):
+    training = tf.placeholder_with_default(input=False, shape=None, name="dropout_switch")
+    with tf.variable_scope("learning_rate"):
         # define iteration counter
-        global_step = tf.Variable(0, trainable=False)
+        global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
         # create exponentially decaying learning rate operator
         learning_rate = tf.train.exponential_decay(learning_rate=INITIAL_LEARNING_RATE, global_step=global_step,
                                                    decay_steps=LEARNING_RATE_DECAY_STEPS,
-                                                   decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True)
+                                                   decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True,
+                                                   name="learning_rate")
 ```
 In the code snippet above you can see a few new variables, such as, `training` and everything that is under *learning_rate* variable scope. 
 
@@ -64,8 +65,8 @@ When training a model, it is often recommended to lower the learning rate as the
 Further, having specified all the necessary variables we can proceed with constructing the recurrent neural network part of the graph. 
 ```python
 with tf.variable_scope('recurrent_layer'):
-    # Create list of Long short-term memory unit recurrent network cell
-    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in GRU_LAYERS]
+    # Create list of GRU unit recurrent network cell
+    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"], activation=l["act_fn"]) for l in GRU_LAYERS]
     # Connects multiple RNN cells
     rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
     # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
@@ -81,14 +82,16 @@ These lines are everything that is needed to construct a multi-layer RNN. So, ne
 
 ```python
 with tf.variable_scope('predictions'):
-    # Select the last relevant RNN output.
+    # 1) Select the last relevant RNN output.
     # last_output = rnn_output[:, -1, :]
     # However, the last output is simply equal to the last state.
-    last_output = rnn_state[-1]
-    # Apply a dropout in order to prevent an overfitting
-    x = tf.layers.dropout(inputs=last_output, rate=0.5, training=training, name='dropout')
+    # output = rnn_state[-1]
+
+    # 2) Select all RNN outputs
+    output = tf.concat(values=rnn_state, axis=1)
+
     # Here prediction is the one feature vector at the time point (not a sequence of the feature vectors)
-    prediction = tf.layers.dense(inputs=x, units=OUTPUT_FEATURES, name='prediction')
+    prediction = tf.layers.dense(inputs=output, units=OUTPUT_FEATURES, name='prediction')
     # Reduce dimension of the input tensor
     truth = tf.squeeze(input=out_seq, axis=1)
     # Define loss function as mean square error (MSE)
@@ -108,12 +111,12 @@ This chapter has references to two python scripts. The first of which, [04_01_rn
 In the script [04_02_rnn.py](scripts/04_02_rnn.py), we show how to add a dropout layer around RNN cells. To do this we use [`tf.nn.rnn_cell.DropoutWrapper()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/DropoutWrapper). Specifying dropout probabilities for `input_keep_prob` and `output_keep_prob` parameters we can add dropout to inputs and outputs for the given cell. Unfortunately, at this moment, this function does not take the parameter that informs the wrapper if we are training or testing the model, as it was in the case of `tf.layers.dropout()`. To resolve this issue, as mentioned earlier, we can use more than one approach. However, as we have already introduced the boolean switch variable `training`, we will show how to reuse it.
 
 ```python
-# Define recurrent layer
 with tf.variable_scope('recurrent_layer'):
-    # Create a list of Long short-term memory unit recurrent network cells with dropouts wrapped around each.
+    # Create a list of GRU unit recurrent network cells with dropouts wrapped around each.
     def with_dropout(layers, rnn_input):
         with tf.variable_scope('with_dropout'):
-            gru_cells = [tf.nn.rnn_cell.DropoutWrapper(cell=tf.nn.rnn_cell.GRUCell(num_units=l["units"]),
+            gru_cells = [tf.nn.rnn_cell.DropoutWrapper(cell=tf.nn.rnn_cell.GRUCell(num_units=l["units"], 
+                                                                                   activation=l["act_fn"]),
                                                        output_keep_prob=l["keep_prob"]) for l in layers]
             # Connects multiple RNN cells
             rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
@@ -123,7 +126,7 @@ with tf.variable_scope('recurrent_layer'):
 
     def without_dropout(layers, rnn_input):
         with tf.variable_scope('without_dropout'):
-            gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in layers]
+            gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"], activation=l["act_fn"]) for l in layers]
             # Connects multiple RNN cells
             rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
             # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
@@ -199,6 +202,10 @@ To visualize these values we have to launch TensorBoard using command line and s
 tensorboard --logdir="path/to/event-directory"
 ```
 In this particular example `"path/to/event-directory"` is something like this `scripts/data/04/basic/graph`.
+
+
+### Next
+In the [next chapter](rnn_seq.md) we will show how to modify the code presented here in order to make sequential predictions rather then just points at certain time. We will also show how to deal input sequences that do no have the same length.  
 
 ### Code 
 + [04_01_rnn.py](scripts/04_01_rnn.py)

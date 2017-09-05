@@ -148,25 +148,25 @@ Y_val = y_scaler.transform(data['target']['valid'])
 Y_test = y_scaler.transform(data['target']['test'])
 
 # Transform time variable and time series data sets into sequential data sets
-x_input_test, x_output_test = transform_to_seq(array=X_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
-                                               output_seq_len=OUTPUT_SEQUENCE_LENGTH,
-                                               output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
-x_input_train, x_output_train = transform_to_seq(array=X_train, input_seq_len=INPUT_SEQUENCE_LENGTH,
-                                                 output_seq_len=OUTPUT_SEQUENCE_LENGTH,
-                                                 output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
-x_input_val, x_output_val = transform_to_seq(array=X_val, input_seq_len=INPUT_SEQUENCE_LENGTH,
-                                             output_seq_len=OUTPUT_SEQUENCE_LENGTH,
-                                             output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+x_input_test, _ = transform_to_seq(array=X_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                   output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                   output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+x_input_train, _ = transform_to_seq(array=X_train, input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                    output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                    output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+x_input_val, _ = transform_to_seq(array=X_val, input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                  output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                  output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
 
-y_input_test, y_output_test = transform_to_seq(array=Y_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
-                                               output_seq_len=OUTPUT_SEQUENCE_LENGTH,
-                                               output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
-y_input_train, y_output_train = transform_to_seq(array=Y_train, input_seq_len=INPUT_SEQUENCE_LENGTH,
-                                                 output_seq_len=OUTPUT_SEQUENCE_LENGTH,
-                                                 output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
-y_input_val, y_output_val = transform_to_seq(array=Y_val, input_seq_len=INPUT_SEQUENCE_LENGTH,
-                                             output_seq_len=OUTPUT_SEQUENCE_LENGTH,
-                                             output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+_, y_output_test = transform_to_seq(array=Y_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                    output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                    output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+_, y_output_train = transform_to_seq(array=Y_train, input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                     output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                     output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+_, y_output_val = transform_to_seq(array=Y_val, input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                   output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                   output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
 
 t_input_test, t_output_test = transform_to_seq(array=data['time']['test'], input_seq_len=INPUT_SEQUENCE_LENGTH,
                                                output_seq_len=OUTPUT_SEQUENCE_LENGTH,
@@ -186,7 +186,8 @@ OUTPUT_FEATURES = y_output_train.shape[2]
 # Hyperparameters
 BATCH_SIZE = 100
 EPOCHS = 200
-GRU_LAYERS = [{"units": 4}, {"units": 4}]
+GRU_LAYERS = [{"units": 15, "keep_prob": 0.4, "act_fn": tf.nn.relu},
+              {"units": 10, "keep_prob": 0.3, "act_fn": tf.nn.relu}]
 
 # Get list of indices in the training set
 idx = list(range(x_input_train.shape[0]))
@@ -207,35 +208,40 @@ with tf.variable_scope('inputs'):
     # placeholder for output sequence
     out_seq = tf.placeholder(dtype=tf.float32, shape=[None, OUTPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES], name='target')
     # placeholder for boolean that controls dropout
-    training = tf.placeholder_with_default(input=False, shape=None, name='dropout_switch')
-    with tf.variable_scope('learning_rate'):
+    training = tf.placeholder_with_default(input=False, shape=None, name="dropout_switch")
+    with tf.variable_scope("learning_rate"):
         # define iteration counter
-        global_step = tf.Variable(initial_value=0, trainable=False)
+        global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
         # create exponentially decaying learning rate operator
         learning_rate = tf.train.exponential_decay(learning_rate=INITIAL_LEARNING_RATE, global_step=global_step,
                                                    decay_steps=LEARNING_RATE_DECAY_STEPS,
-                                                   decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True)
+                                                   decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True,
+                                                   name="learning_rate")
 
         # Add the following variables to log/summary file that is used by TensorBoard
-        tf.summary.scalar(name='learning_rate', tensor=learning_rate)
-        tf.summary.scalar(name='global_step', tensor=global_step)
+        tf.summary.scalar(name="learning_rate", tensor=learning_rate)
+        tf.summary.scalar(name="global_step", tensor=global_step)
 
 # Define recurrent layer
 with tf.variable_scope('recurrent_layer'):
     # Create list of GRU unit recurrent network cell
-    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in GRU_LAYERS]
+    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"], activation=l["act_fn"]) for l in GRU_LAYERS]
     # Connects multiple RNN cells
     rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
     # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
     rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=in_seq, dtype=tf.float32)
 
 with tf.variable_scope('predictions'):
-    # Select the last relevant RNN output.
+    # 1) Select the last relevant RNN output.
     # last_output = rnn_output[:, -1, :]
     # However, the last output is simply equal to the last state.
-    last_output = rnn_state[-1]
+    # output = rnn_state[-1]
+
+    # 2) Select all RNN outputs
+    output = tf.concat(values=rnn_state, axis=1)
+
     # Apply a dropout in order to prevent an overfitting
-    x = tf.layers.dropout(inputs=last_output, rate=0.5, training=training, name='dropout')
+    x = tf.layers.dropout(inputs=output, rate=0.5, training=training, name='dropout')
     # Here prediction is the one feature vector at the time point (not a sequence of the feature vectors)
     prediction = tf.layers.dense(inputs=x, units=OUTPUT_FEATURES, name='prediction')
     # Reduce dimension of the input tensor

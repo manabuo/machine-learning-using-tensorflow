@@ -1,16 +1,10 @@
 import os
-import urllib.request
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from sklearn.preprocessing import MinMaxScaler
-
-
-# Original Date Source =================================================================================================
-# Name: Appliances energy prediction Data Set
-# Source: https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction
 
 def split_data(frame, split_ratio):
     """
@@ -85,22 +79,42 @@ def recover_orig_values(time_set, true, pred, col_names, scaler_obj):
 # Data Location ========================================================================================================
 data_dir = os.path.join('scripts', 'data')
 model_dir = os.path.join(data_dir, '04')
-model_path = os.path.join(model_dir, '02')
+model_path = os.path.join(model_dir, '01')
 # If path does not exists then create one
 if not os.path.isdir(model_path):
     os.makedirs(model_path)
 # Define input data set location
-data_path = os.path.join(model_dir, 'raw.data')
+data_path = os.path.join(model_dir, 'FAKE_DATA.csv')
 # Sets location for model checkpoints
 checkpoint_path = os.path.join(model_path, 'checkpoints')
 # Sets location for graphs
 graph_path = os.path.join(model_path, 'graph')
-# Retrieve data
-if not os.path.exists(data_path):
-    urllib.request.urlretrieve(
-        url='https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv',
-        filename=data_path)
-    print("Downloading data set to: {path}".format(path=data_path))
+# Retrieve data ========================================================================================================
+if os.path.exists(data_path) is not True:
+
+    N = 3000
+    N_feature = 2
+
+    t = np.sort(np.random.uniform(low=0.0, high=10.0, size=(N, 1)), axis=0)
+    noise_amplitude = np.random.random_integers(low=1, high=5, size=(N_feature, 1))
+    x = list()
+    for i in range(N_feature):
+        noise = np.random.uniform(low=-noise_amplitude[i], high=noise_amplitude[i], size=(N, 1))
+        shift = np.random.random_integers(low=-noise_amplitude[i], high=noise_amplitude[i], size=(1, 1))
+        slope = np.random.uniform(low=-0.4, high=0.4, size=(1, 1)) * 0.0
+        x.append(slope * t + (np.sin(t * i) + np.cos(t * noise_amplitude[i])) - shift)
+    x = np.concatenate(x, axis=1)
+    y = list()
+    y.append(np.expand_dims(a=np.sum(x, axis=1), axis=1))
+    y.append(np.expand_dims(a=np.std(x, axis=1), axis=1))
+    # y.append(np.expand_dims(a=np.tanh(np.mean(x, axis=1)), axis=1))
+    # y.append(np.expand_dims(a=np.i0(np.std(x, axis=1)), axis=1))
+    y = np.concatenate(y, axis=1)
+    time_col = ['time']
+    feature_col = ['feature_{i}'.format(i=i) for i in range(N_feature)]
+    target_col = ['target_{i}'.format(i=i) for i in range(y.shape[1])]
+    df = pd.DataFrame(data=np.concatenate((t, x, y), axis=1), columns=time_col+feature_col+target_col)
+    df.to_csv(path_or_buf=data_path, index=False)
 
 # Data Preparation =====================================================================================================
 # Define sequence parameters
@@ -109,16 +123,16 @@ OUTPUT_SEQUENCE_LENGTH = 1
 OUTPUT_SEQUENCE_STEPS_AHEAD = 1
 
 # Read in the data
-time_col = ['date']
+time_col = ['time']
 df = pd.read_csv(filepath_or_buffer=data_path, parse_dates=time_col)
 # Split data into Training and Test data sets
-df_test_train = split_data(frame=df, split_ratio=0.33)
+df_test_train = split_data(frame=df, split_ratio=0.3)
 # Split Test data into Train and Validation data sets
-df_train_val = split_data(frame=df_test_train["major"], split_ratio=0.33)
+df_train_val = split_data(frame=df_test_train["major"], split_ratio=0.2)
 
 # Separate data frame into tow arrays: one for time variable and actual time series data set
-target_col = ['Appliances', 'lights']
-feature_col = list(set(df.columns) - set(time_col + target_col))
+target_col = df.filter(like='target').columns.tolist()
+feature_col = list(set(df.columns) - set(target_col + time_col))
 
 data = {'features': {
     'train': df_train_val["major"].filter(items=feature_col).values,
@@ -185,9 +199,9 @@ INPUT_FEATURES = x_input_train.shape[2]
 OUTPUT_FEATURES = y_output_train.shape[2]
 # Hyperparameters
 BATCH_SIZE = 100
-EPOCHS = 200
-GRU_LAYERS = [{"units": 15, "keep_prob": 0.4, "act_fn": tf.nn.relu},
-              {"units": 10, "keep_prob": 0.3, "act_fn": tf.nn.relu}]
+EPOCHS = 2000
+GRU_LAYERS = [{"units": 12, "keep_prob": 0.3, "act_fn": tf.nn.relu},
+              {"units": 10, "keep_prob": 0.1, "act_fn": tf.tanh}]
 
 # Get list of indices in the training set
 idx = list(range(x_input_train.shape[0]))
@@ -195,7 +209,7 @@ idx = list(range(x_input_train.shape[0]))
 n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
 
 INITIAL_LEARNING_RATE = 1e-1
-LEARNING_RATE_DECAY_STEPS = 5 * n_batches
+LEARNING_RATE_DECAY_STEPS = 500 * n_batches
 LEARNING_RATE_DECAY_RATE = 0.96
 
 # Resets default graph
@@ -405,3 +419,5 @@ for i in range(3):
 # Creates a legend
 fig.legend((l1, l2, l3), labels=leg_labels, loc='upper center', ncol=5, labelspacing=0.0)
 fig.show()
+
+
