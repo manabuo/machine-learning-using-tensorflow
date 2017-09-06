@@ -22,7 +22,22 @@ This example we are using the data set that comes from [UC Irvine Machine Learni
 + Name: Appliances energy prediction Data Set
 + Source: https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction
 
-This data set will be used in all subsequent examples and, as mentioned in the previous chapter, we are going to consider only regression tasks from now on.
+This data set will be used in all subsequent examples and, as mentioned in the previous chapter, we are going to consider only regression tasks from now on. In addition, the examples presented here are of the type **many to one**.
+```mermaid
+graph TD
+subgraph RNN
+  r1((h1)) --> r2((h1))
+  r2((h2)) --> r3((h1))
+end
+subgraph OUTPUT
+  r3((h3)) --> o3((y3))
+end
+  subgraph INPUT
+    i1((x1)) --> r1((h1))
+    i2((x2)) --> r2((h2))
+    i3((x3)) --> r3((h3))
+  end
+```
 
 In the first example, we are going to use sequences as inputs and try to predict a point N-steps in the *future*. In what follows we are going to refer to this type of the prediction task as Sequence to Vector prediction, in future examples we will also Sequence to Sequence prediction.
 
@@ -53,16 +68,16 @@ with tf.variable_scope('inputs'):
                                                    decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True,
                                                    name="learning_rate")
 ```
-In the code snippet above you can see a few new variables, such as, `training` and everything that is under *learning_rate* variable scope. 
+In the code snippet above you can see a few new variables, such as, `training` and everything that is under *learning_rate* variable scope.
 
-So, first things first, `training` is a `tf.placeholder_with_default()` tensor, which is similar to `tf.placeholder()` but has an additional `input` parameter where we can specify a default value in the case if during the graph's execution no value is provided. In this particular case, a default value is set to a boolean `False` value, and it acts as a switch that tells the graph if we are using it to train or test. 
+So, first things first, `training` is a `tf.placeholder_with_default()` tensor, which is similar to `tf.placeholder()` but has an additional `input` parameter where we can specify a default value in the case if during the graph's execution no value is provided. In this particular case, a default value is set to a boolean `False` value, and it acts as a switch that tells the graph if we are using it to train or test.
 
-Next, as the variable scope name suggests, all variables here are related to the learning rate, which is now decreasing during computations. The first variable here has [`tf.Variable()`](https://www.tensorflow.org/programmers_guide/variables) class. The difference between a `tf.constant()` and a `tf.Variable()` is that a constant is constant and that is it but variable can be assigned to and its value can be changed. Constant's value is stored in the graph definition and its value is replicated wherever the graph is loaded, this means that constants are memory expensive. However, `tf.Variable()` it is an in-memory buffer that contains a tensor and it can be stored outside the graph. Here, `global_step` variable acts as an iteration counter that is incremented at each training step. It is used in the next operation, [`tf.train.exponential_decay()`](https://www.tensorflow.org/api_docs/python/tf/train/exponential_decay), which applies exponential decay to the learning rate. 
+Next, as the variable scope name suggests, all variables here are related to the learning rate, which is now decreasing during computations. The first variable here has [`tf.Variable()`](https://www.tensorflow.org/programmers_guide/variables) class. The difference between a `tf.constant()` and a `tf.Variable()` is that a constant is constant and that is it but variable can be assigned to and its value can be changed. Constant's value is stored in the graph definition and its value is replicated wherever the graph is loaded, this means that constants are memory expensive. However, `tf.Variable()` it is an in-memory buffer that contains a tensor and it can be stored outside the graph. Here, `global_step` variable acts as an iteration counter that is incremented at each training step. It is used in the next operation, [`tf.train.exponential_decay()`](https://www.tensorflow.org/api_docs/python/tf/train/exponential_decay), which applies exponential decay to the learning rate.
 
 When training a model, it is often recommended to lower the learning rate as the training progresses. This function applies an exponential decay function to a provided initial learning rate (`learning_rate`). It requires the previously defined `global_step` value to compute the decayed learning rate. The remaining parameters, `decay_steps`, `decay_rate` and `staircase`, are the number of steps after which to decrease the learning rate, decay rate and staircase function which, if `True`, decays the learning rate at discrete intervals, respectively.
 
 
-Further, having specified all the necessary variables we can proceed with constructing the recurrent neural network part of the graph. 
+Further, having specified all the necessary variables we can proceed with constructing the recurrent neural network part of the graph.
 ```python
 with tf.variable_scope('recurrent_layer'):
     # Create list of GRU unit recurrent network cell
@@ -72,9 +87,9 @@ with tf.variable_scope('recurrent_layer'):
     # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
     rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=in_seq, dtype=tf.float32)
 ```
-As we said, in this and what follows we are going to use only the GRU units for RNN. For other type of cells, see [here](https://www.tensorflow.org/api_docs/python/tf/nn/rnn_cell). In TensorFlow GRU cell is [`tf.nn.rnn_cell.GRUCell()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/GRUCell), this function requires one parameter, `num_units`,  which defines a number of hidden units per cell. Next, we combine all the cells into a list which is passed to `tf.nn.rnn_cell.MultiRNNCell()` function that stakes all the single cells. Next function, [`tf.nn.dynamic_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/dynamic_rnn) is responsible for creation of the actual RNN. 
+As we said, in this and what follows we are going to use only the GRU units for RNN. For other type of cells, see [here](https://www.tensorflow.org/api_docs/python/tf/nn/rnn_cell). In TensorFlow GRU cell is [`tf.nn.rnn_cell.GRUCell()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/GRUCell), this function requires one parameter, `num_units`,  which defines a number of hidden units per cell. Next, we combine all the cells into a list which is passed to `tf.nn.rnn_cell.MultiRNNCell()` function that stakes all the single cells. Next function, [`tf.nn.dynamic_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/dynamic_rnn) is responsible for creation of the actual RNN.
 
-> Note: In other tutorials you may have seen another function [`tf.nn.static_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/static_rnn) that creates a recurrent neural network. This function is still available in the API but there have been suggestions that it will be deprecated one day due to its limitation that we will touch on in the following examples. 
+> Note: In other tutorials you may have seen another function [`tf.nn.static_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/static_rnn) that creates a recurrent neural network. This function is still available in the API but there have been suggestions that it will be deprecated one day due to its limitation that we will touch on in the following examples.
 
 In this particular situation, it only requires three parameters, which are our stacked cells, the RNN input tensor, and the data type for the initial state and expected output. The last parameter is required if the initial state is not provided.
 
@@ -96,26 +111,26 @@ with tf.variable_scope('predictions'):
     truth = tf.squeeze(input=out_seq, axis=1)
     # Define loss function as mean square error (MSE)
     loss = tf.losses.mean_squared_error(labels=truth, predictions=prediction)
-    train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss=loss, global_step=global_step)
-``` 
+    train_step = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss=loss, global_step=global_step)
+```
 The output of [`tf.nn.dynamic_rnn()`] function is a tuple that contains cell outputs and the states for all timesteps. In order to make a prediction we are using output of the last timestep or in this situation it is also the last RNN state.  The last output tensor then is passed to the dropout layer, which is used to prevent an overfitting. Function [`tf.layers.dropout()`](https://www.tensorflow.org/api_docs/python/tf/layers/dropout) requires only one parameter `inputs`. Dropout has to be applied only during the training phase wnd when we compute predictions or other calculation it has to be switched off. This can be achieved in two ways, first, passing different `rate` values for each phase or as we have done, by passing a `training` boolean.
 
 > Note: In this particular example, the dropout does not have the noticeable impact as our network is small. In the next example, we will show how to apply dropout to RNN cells.
 
 Remaining steps in the graph are the same as earlier examples, with one exception. As the output of the dense layer is 2-dimensional tensor but our ground truth input tensor is 3-dimensional tensor with length in one direction being one, we cannot compare both tensors. To resolve this issue we have to decrease the dimensionality of the largest tensor, by, in this case, removing dimension of size 1 from the shape of the tensor.
 
-Graph execution follows the same steps as in previous examples. The only modification that has been done is for `feed_dict` parameter, as it now allows the third value, `training`, that tells the graph if we perform training or not and that subsequently turns on and off the dropout layer. 
+Graph execution follows the same steps as in previous examples. The only modification that has been done is for `feed_dict` parameter, as it now allows the third value, `training`, that tells the graph if we perform training or not and that subsequently turns on and off the dropout layer.
 
-This chapter has references to two python scripts. The first of which, [04_01_rnn.py](scripts/04_01_rnn.py). was described in detail above, but as the second scripts have only one change, we will explain only it. 
+This chapter has references to two python scripts. The first of which, [04_01_rnn.py](scripts/04_01_rnn.py). was described in detail above, but as the second scripts have only one change, we will explain only it.
 
-In the script [04_02_rnn.py](scripts/04_02_rnn.py), we show how to add a dropout layer around RNN cells. To do this we use [`tf.nn.rnn_cell.DropoutWrapper()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/DropoutWrapper). Specifying dropout probabilities for `input_keep_prob` and `output_keep_prob` parameters we can add dropout to inputs and outputs for the given cell. Unfortunately, at this moment, this function does not take the parameter that informs the wrapper if we are training or testing the model, as it was in the case of `tf.layers.dropout()`. To resolve this issue, as mentioned earlier, we can use more than one approach. However, as we have already introduced the boolean switch variable `training`, we will show how to reuse it.
+In the script [04_02_rnn.py](scripts/04_02_rnn.py), we show how to add a dropout layer around RNN cells. To do this we use [`tf.nn.rnn_cell.DropoutWrapper()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/DropoutWrapper). Specifying dropout probabilities for `input_keep_prob` and `output_keep_prob` parameters we can add dropout to inputs and outputs for the given cell. Unfortunately, at this moment, this function does not take the parameter that informs the wrapper if we are training or testing the model, as it was in the case of `tf.layers.dropout()`. To resolve this issue, as mentioned earlier, we can use more than one approach. However, as we have already introduced the boolean switch `training`, we will show how to use it.
 
 ```python
 with tf.variable_scope('recurrent_layer'):
     # Create a list of GRU unit recurrent network cells with dropouts wrapped around each.
     def with_dropout(layers, rnn_input):
         with tf.variable_scope('with_dropout'):
-            gru_cells = [tf.nn.rnn_cell.DropoutWrapper(cell=tf.nn.rnn_cell.GRUCell(num_units=l["units"], 
+            gru_cells = [tf.nn.rnn_cell.DropoutWrapper(cell=tf.nn.rnn_cell.GRUCell(num_units=l["units"],
                                                                                    activation=l["act_fn"]),
                                                        output_keep_prob=l["keep_prob"]) for l in layers]
             # Connects multiple RNN cells
@@ -138,9 +153,9 @@ with tf.variable_scope('recurrent_layer'):
                                     false_fn=lambda: without_dropout(layers=GRU_LAYERS, rnn_input=in_seq))
 ```
 
-TensorFlow does not allow us to use standard python `if` statement in the graph, but is has its own implementation for conditional execution, [`tf.cond()`](https://www.tensorflow.org/api_docs/python/tf/cond). This function requires three parameters, `pred` which is `tf.bool` type and determines whether to return the result of functions `true_fn` or `false_fn`. Function `true_fn` is executed if `pred` is true and `false_fn` otherwise. 
+TensorFlow does not allow us to use standard python `if` statement in the graph, but is has its own implementation for conditional execution, [`tf.cond()`](https://www.tensorflow.org/api_docs/python/tf/cond). This function requires three parameters, `pred` which is `tf.bool` type and determines whether to return the result of functions `true_fn` or `false_fn`. Function `true_fn` is executed if `pred` is true and `false_fn` otherwise.
 
-As `tf.cond()` function returns only a list of tensors and  `tf.nn.rnn_cell.MultiRNNCell()`, `tf.nn.rnn_cell.DropoutWrapper()` and `tf.nn.rnn_cell.GRUCell()` return objects that are not tensors, all these *ops* have to be wrapped into  `true_fn` or `false_fn` functions. The output of each of function then is an output of `tf.nn.dynamic_rnn()`. 
+As `tf.cond()` function returns only a list of tensors and  `tf.nn.rnn_cell.MultiRNNCell()`, `tf.nn.rnn_cell.DropoutWrapper()` and `tf.nn.rnn_cell.GRUCell()` return objects that are not tensors, all these *ops* have to be wrapped into  `true_fn` or `false_fn` functions. The output of each of the functions equal to the output of `tf.nn.dynamic_rnn()` function.
 
 #### Hyperparameters
 In addition to already mentioned hyperparameters in the previous chapters, this model has three more that are associated with the learning rate: `INITIAL_LEARNING_RATE`, `LEARNING_RATE_DECAY_STEPS`, `LEARNING_RATE_DECAY_RATE`.
@@ -158,9 +173,9 @@ Dropout, in the nutshell, is a technique where during the training iterations a 
 It is important to note that dropout, during the evaluation and prediction phases, has to be turned off.
 
 ### TensorBoard
-As we mentioned before, in TensorFlow, you collectively call constants, variables, operators as *ops*. TensorFlow is not just a software library, but a suite of software that includes TensorFlow, TensorBoard, and TensorServing. To make the most out of TensorFlow, we should know how to use all of the above in conjunction with one another. In this section, we will introduce TensorBoard. 
+As we mentioned before, in TensorFlow, you collectively call constants, variables, operators as *ops*. TensorFlow is not just a software library, but a suite of software that includes TensorFlow, TensorBoard, and TensorServing. To make the most out of TensorFlow, we should know how to use all of the above in conjunction with one another. In this section, we will introduce TensorBoard.
 
-TensorBoard is a graph visualization software (Web App) included with any standard TensorFlow installation. When a user performs certain operations in a TensorBoard-activated TensorFlow program, these operations are exported to an event file. TensorBoard is able to convert these event files to graphs that can give insight into a model’s behaviour. 
+TensorBoard is a graph visualization software (Web App) included with any standard TensorFlow installation. When a user performs certain operations in a TensorBoard-activated TensorFlow program, these operations are exported to an event file. TensorBoard is able to convert these event files to graphs that can give insight into a model’s behaviour.
 
 In the code that is referenced in this chapter you may see the following lines in the graph construction stage for:
 + ```inputs``` variables:
@@ -168,7 +183,7 @@ In the code that is referenced in this chapter you may see the following lines i
 # Add the following variables to log/summary file that is used by TensorBoard
 tf.summary.scalar(name='learning_rate', tensor=learning_rate)
 tf.summary.scalar(name='global_step', tensor=global_step)
-``` 
+```
 + ```predictions``` variables:
 ```python
 # Add the following variables to log/summary file that is used by TensorBoard
@@ -187,9 +202,9 @@ This *op* merges all summaries collected in the default graph. Next, during the 
 # Write merged summaries out to the graph_path (initialization)
 summary_writer = tf.summary.FileWriter(logdir=graph_path, graph=sess.graph)
 ```
-Here FileWriter class provides a mechanism to create an event file in a given directory and add summaries and events to it. The class updates the file contents asynchronously. This allows a training program to call methods to add data to the file directly from the training loop, without slowing down training. As you might guess, it requires two parameters, `logdir` - location of the event file directory, and `graph` which is Graph object that is used in the current session. 
+Here FileWriter class provides a mechanism to create an event file in a given directory and add summaries and events to it. The class updates the file contents asynchronously. This allows a training program to call methods to add data to the file directly from the training loop, without slowing down training. As you might guess, it requires two parameters, `logdir` - location of the event file directory, and `graph` which is Graph object that is used in the current session.
 
-After we have initialized the FileWriters, we have to add summaries to the FileWriters as we train and test the model. This is achieved by the following lines, 
+After we have initialized the FileWriters, we have to add summaries to the FileWriters as we train and test the model. This is achieved by the following lines,
 ```python
 # Evaluate all variables that are contained in summary/log object and write them out into the log file
 summary = merged.eval(feed_dict={in_seq: x_input_val, out_seq: x_output_val, training: False})
@@ -207,7 +222,7 @@ In this particular example `"path/to/event-directory"` is something like this `s
 ### Next
 In the [next chapter](rnn_seq.md) we will show how to modify the code presented here in order to make sequential predictions rather then just points at certain time. We will also show how to deal input sequences that do no have the same length.  
 
-### Code 
+### Code
 + [04_01_rnn.py](scripts/04_01_rnn.py)
 + [04_02_rnn.py](scripts/04_02_rnn.py)
 

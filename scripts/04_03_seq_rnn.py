@@ -104,8 +104,8 @@ if not os.path.exists(data_path):
 
 # Data Preparation =====================================================================================================
 # Define sequence parameters
-INPUT_SEQUENCE_LENGTH = 20
-OUTPUT_SEQUENCE_LENGTH = 1
+INPUT_SEQUENCE_LENGTH = 5
+OUTPUT_SEQUENCE_LENGTH = INPUT_SEQUENCE_LENGTH
 OUTPUT_SEQUENCE_STEPS_AHEAD = 1
 
 # Read in the data
@@ -180,26 +180,25 @@ t_input_val, _ = transform_to_seq(array=data["time"]["valid"], input_seq_len=INP
                                   output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
 
 # Graph Construction ===================================================================================================
+# Resets default graph
+tf.reset_default_graph()
+
 # Parameters
 INPUT_FEATURES = x_input_train.shape[2]
 OUTPUT_FEATURES = y_input_train.shape[2]
 # Hyperparameters
 BATCH_SIZE = 100
-EPOCHS = 500
-GRU_LAYERS = [{"units": 15, "keep_prob": 0.4, "act_fn": tf.nn.relu},
-              {"units": 10, "keep_prob": 0.3, "act_fn": tf.nn.relu}]
+EPOCHS = 1000
+RNN_LAYERS = [{"units": 8},
+              {"units": 8},
+              {"units": 8}]
+
+LEARNING_RATE = 1e-3
 
 # Get list of indices in the training set
 idx = list(range(x_input_train.shape[0]))
 # Determine total number of batches
 n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
-
-INITIAL_LEARNING_RATE = 1e-1
-LEARNING_RATE_DECAY_STEPS = 100 * n_batches
-LEARNING_RATE_DECAY_RATE = 0.96
-
-# Resets default graph
-tf.reset_default_graph()
 
 # Define inputs to the model
 with tf.variable_scope("inputs"):
@@ -211,60 +210,30 @@ with tf.variable_scope("inputs"):
                              name="target")
     # placeholder for boolean that controls dropout
     training = tf.placeholder_with_default(input=False, shape=None, name="dropout_switch")
-    with tf.variable_scope("learning_rate"):
-        # define iteration counter
-        global_step = tf.Variable(initial_value=0, trainable=False, name="global_step")
-        # create exponentially decaying learning rate operator
-        learning_rate = tf.train.exponential_decay(learning_rate=INITIAL_LEARNING_RATE, global_step=global_step,
-                                                   decay_steps=LEARNING_RATE_DECAY_STEPS,
-                                                   decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True,
-                                                   name="learning_rate")
-
-        # Add the following variables to log/summary file that is used by TensorBoard
-        tf.summary.scalar(name="learning_rate", tensor=learning_rate)
-        tf.summary.scalar(name="global_step", tensor=global_step)
 
 # Define recurrent layer
 with tf.variable_scope("recurrent_layer"):
-    # Create a list of GRU unit recurrent network cells with dropouts wrapped around each.
-    def with_dropout(layers, rnn_input):
-        with tf.variable_scope("with_dropout"):
-            gru_cells = [tf.nn.rnn_cell.DropoutWrapper(cell=tf.nn.rnn_cell.GRUCell(num_units=l["units"],
-                                                                                   activation=l["act_fn"]),
-                                                       output_keep_prob=l["keep_prob"]) for l in layers]
-            # Connects multiple RNN cells
-            rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
-            # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
-            return tf.nn.dynamic_rnn(cell=rnn_cells, inputs=rnn_input, dtype=tf.float32)
+    # Create a list of GRU unit recurrent network cells
+    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in RNN_LAYERS]
+    # Connects multiple RNN cells
+    rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
+    # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
+    rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=in_seq, dtype=tf.float32)
 
-
-    def without_dropout(layers, rnn_input):
-        with tf.variable_scope("without_dropout"):
-            gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in layers]
-            # Connects multiple RNN cells
-            rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
-            # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
-            return tf.nn.dynamic_rnn(cell=rnn_cells, inputs=rnn_input, dtype=tf.float32)
-
-
-    rnn_output, rnn_state = tf.cond(pred=training,
-                                    true_fn=lambda: with_dropout(layers=GRU_LAYERS, rnn_input=in_seq),
-                                    false_fn=lambda: without_dropout(layers=GRU_LAYERS, rnn_input=in_seq),
-                                    name='RNN_dropout_switch')
-
-with tf.variable_scope("output_projection"):
-    # Stacks all RNN outputs
-    stacked_rnn_outputs = tf.reshape(tensor=rnn_output, shape=[-1, GRU_LAYERS[-1]["units"]])
-    # Passes stacked outputs through dense layer
-    stacked_outputs = tf.layers.dense(inputs=stacked_rnn_outputs, units=OUTPUT_FEATURES)
 
 with tf.variable_scope("predictions"):
-    # Reshapes stacked_outputs back to sequences
-    prediction = tf.reshape(tensor=stacked_outputs, shape=[-1, INPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES],
-                            name="prediction")
+    with tf.variable_scope("output_projection"):
+        # Stacks all RNN outputs
+        stacked_rnn_outputs = tf.reshape(tensor=rnn_output, shape=[-1, RNN_LAYERS[-1]["units"]])
+        # Passes stacked outputs through dense layer
+        stacked_outputs = tf.layers.dense(inputs=stacked_rnn_outputs, units=OUTPUT_FEATURES)
+        # Reshapes stacked_outputs back to sequences
+        prediction = tf.reshape(tensor=stacked_outputs, shape=[-1, INPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES],
+                                name="prediction")
+
     # Define loss function as mean square error (MSE)
     loss = tf.losses.mean_squared_error(labels=out_seq, predictions=prediction)
-    train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss=loss, global_step=global_step)
+    train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 
     # Add the following variables to log/summary file that is used by TensorBoard
     tf.summary.scalar(name="MSE", tensor=loss)

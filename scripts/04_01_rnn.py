@@ -58,30 +58,6 @@ def transform_to_seq(array, input_seq_len, output_seq_len, output_seq_steps_ahea
     return np.array(data_input), np.array(data_output)
 
 
-def recover_orig_values(time_set, true, pred, col_names, scaler_obj):
-    """
-    Function recovers values from sequences and converts to original scale
-    :param time_set: RNN input time array
-    :type time_set: numpy.array
-    :param true: RNN input ground truth array
-    :type true: numpy.array
-    :param pred: RNN prediction array
-    :type pred: numpy.array
-    :param col_names: list of feature names
-    :type col_names: list(str)
-    :param scaler_obj: Scikit-learn Prepossessing Scaler object
-    :type scaler_obj: sklearn.prepossessing scaler object
-    :return: Three arrays that contain time and original and predicted values rescaled to original scales
-    :rtype: numpy.array
-    """
-    time = np.expand_dims(a=np.unique(time_set.flatten('F')), axis=1)
-    x_true_tuple = tuple(np.expand_dims(a=true[:, :, i].flatten('F'), axis=1)[:time.shape[0], :] for i in
-                         range(len(col_names)))
-    true_values = scaler_obj.inverse_transform(np.concatenate(x_true_tuple, axis=1))
-    pred_values = scaler_obj.inverse_transform(pred)
-    return time, true_values, pred_values
-
-
 # Data Location ========================================================================================================
 data_dir = os.path.join('scripts', 'data')
 model_dir = os.path.join(data_dir, '04')
@@ -104,7 +80,7 @@ if not os.path.exists(data_path):
 
 # Data Preparation =====================================================================================================
 # Define sequence parameters
-INPUT_SEQUENCE_LENGTH = 10
+INPUT_SEQUENCE_LENGTH = 4
 OUTPUT_SEQUENCE_LENGTH = 1
 OUTPUT_SEQUENCE_STEPS_AHEAD = 1
 
@@ -180,14 +156,17 @@ t_input_val, t_output_val = transform_to_seq(array=data['time']['valid'], input_
                                              output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
 
 # Graph Construction ===================================================================================================
+# Resets default graph
+tf.reset_default_graph()
+
 # Parameters
 INPUT_FEATURES = x_input_train.shape[2]
 OUTPUT_FEATURES = y_output_train.shape[2]
 # Hyperparameters
-BATCH_SIZE = 100
-EPOCHS = 200
-GRU_LAYERS = [{"units": 15, "keep_prob": 0.4, "act_fn": tf.nn.relu},
-              {"units": 10, "keep_prob": 0.3, "act_fn": tf.nn.relu}]
+BATCH_SIZE = 70
+EPOCHS = 500
+RNN_LAYERS = [{"units": 6},
+              {"units": 6}]
 
 # Get list of indices in the training set
 idx = list(range(x_input_train.shape[0]))
@@ -195,11 +174,8 @@ idx = list(range(x_input_train.shape[0]))
 n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
 
 INITIAL_LEARNING_RATE = 1e-1
-LEARNING_RATE_DECAY_STEPS = 5 * n_batches
+LEARNING_RATE_DECAY_STEPS = 150 * n_batches
 LEARNING_RATE_DECAY_RATE = 0.96
-
-# Resets default graph
-tf.reset_default_graph()
 
 # Define inputs to the model
 with tf.variable_scope('inputs'):
@@ -225,7 +201,7 @@ with tf.variable_scope('inputs'):
 # Define recurrent layer
 with tf.variable_scope('recurrent_layer'):
     # Create list of GRU unit recurrent network cell
-    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"], activation=l["act_fn"]) for l in GRU_LAYERS]
+    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in RNN_LAYERS]
     # Connects multiple RNN cells
     rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
     # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
@@ -233,12 +209,9 @@ with tf.variable_scope('recurrent_layer'):
 
 with tf.variable_scope('predictions'):
     # 1) Select the last relevant RNN output.
-    # last_output = rnn_output[:, -1, :]
+    # output = rnn_output[:, -1, :]
     # However, the last output is simply equal to the last state.
-    # output = rnn_state[-1]
-
-    # 2) Select all RNN outputs
-    output = tf.concat(values=rnn_state, axis=1)
+    output = rnn_state[-1]
 
     # Apply a dropout in order to prevent an overfitting
     x = tf.layers.dropout(inputs=output, rate=0.5, training=training, name='dropout')
@@ -248,7 +221,8 @@ with tf.variable_scope('predictions'):
     truth = tf.squeeze(input=out_seq, axis=1)
     # Define loss function as mean square error (MSE)
     loss = tf.losses.mean_squared_error(labels=truth, predictions=prediction)
-    train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss=loss, global_step=global_step)
+    train_step = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss=loss,
+                                                                                         global_step=global_step)
 
     # Add the following variables to log/summary file that is used by TensorBoard
     tf.summary.scalar(name='MSE', tensor=loss)
@@ -333,17 +307,17 @@ with tf.Session() as sess:
 
 # Comparison ===========================================================================================================
 # Recover input and predicted values to the original scale and form
-time_val, true_val, pred_val = recover_orig_values(time_set=t_output_val, true=y_output_val,
-                                                   pred=pred_output_seq_val, col_names=target_col,
-                                                   scaler_obj=y_scaler)
+time_val = np.squeeze(a=t_output_val, axis=2)
+true_val = y_scaler.inverse_transform(X=np.squeeze(a=y_output_val, axis=1))
+pred_val = y_scaler.inverse_transform(X=pred_output_seq_val)
 
-time_test, true_test, pred_test = recover_orig_values(time_set=t_output_test, true=y_output_test,
-                                                      pred=pred_output_seq_test, col_names=target_col,
-                                                      scaler_obj=y_scaler)
+time_test = np.squeeze(a=t_output_test, axis=2)
+true_test = y_scaler.inverse_transform(X=np.squeeze(a=y_output_test, axis=1))
+pred_test = y_scaler.inverse_transform(X=pred_output_seq_test)
 
-time_train, true_train, pred_train = recover_orig_values(time_set=t_output_train, true=y_output_train,
-                                                         pred=pred_output_seq_train, col_names=target_col,
-                                                         scaler_obj=y_scaler)
+time_train = np.squeeze(a=t_output_train, axis=2)
+true_train = y_scaler.inverse_transform(X=np.squeeze(a=y_output_train, axis=1))
+pred_train = y_scaler.inverse_transform(X=pred_output_seq_train)
 
 # Create figures that compare tree random features and all date sets
 f_col = target_col
