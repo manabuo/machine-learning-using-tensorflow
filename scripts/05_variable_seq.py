@@ -66,7 +66,6 @@ def create_targets(t, slice_len):
 def hidden_layers(in_tensor, layers):
     """
     Function stacks fully connected layers
-
     :param in_tensor: Input Tensor
     :type in_tensor: Tensor
     :param layers: List of dictionaries that contain a number of neurons for the particular layer ad the activation
@@ -271,7 +270,7 @@ with tf.Session() as sess:
 
         summary_writer.add_summary(summary=summary, global_step=e)
 
-        if e % 50 == 0:
+        if e % 100 == 0:
             # Evaluate metrics on training and validation data sets
             loss_train = loss.eval(feed_dict={input_seq: features_train,
                                               output_seq: targets_train,
@@ -309,30 +308,24 @@ with tf.Session() as sess:
     print(msg)
 
 # Comparison ===========================================================================================================
-points_train = np.sort(
-    a=np.concatenate([time,
-                      np.squeeze(a=targets_train, axis=1),
-                      pred_train], axis=1),
-    axis=0)
-
-points_val = np.sort(
-    a=np.concatenate([time,
-                      np.squeeze(a=targets_val, axis=1),
-                      pred_val], axis=1),
-    axis=0)
-
-points_test = np.sort(
-    a=np.concatenate([time,
-                      np.squeeze(a=targets_test, axis=1),
-                      pred_test], axis=1),
-    axis=0)
-
-plt.figure(num=0)
-plt.plot(points_train[:, 0], points_train[:, 1:])
-plt.title(s='Training')
-plt.figure(num=1)
-plt.plot(points_test[:, 0], points_test[:, 1:])
-plt.title(s='Test')
-plt.figure(num=2)
-plt.plot(points_val[:, 0], points_val[:, 1:])
-plt.title(s='Validation')
+points = list()
+# Combine Training, Validation and Test targets and predictions
+points.append(np.sort(a=np.concatenate([time[seq_len_train], np.squeeze(a=targets_train, axis=1), pred_train],
+                                       axis=1), axis=0))
+points.append(np.sort(a=np.concatenate([time[seq_len_val], np.squeeze(a=targets_val, axis=1), pred_val],
+                                       axis=1), axis=0))
+points.append(np.sort(a=np.concatenate([time[seq_len_test], np.squeeze(a=targets_test, axis=1), pred_test],
+                                       axis=1), axis=0))
+# Define plot titles
+titles = ['Training', 'Test', 'Validation']
+# Generate three plots
+for j in range(3):
+    plt.figure(num=j)
+    for i in range(1, 3):
+        plt.plot(points[j][:, 0], points[j][:, i], linewidth=0.5, color='black',
+                 marker='+', markersize=5,
+                 label='target_{t} - truth'.format(t=i))
+        plt.plot(points[j][:, 0], points[j][:, i + 2], linewidth=1, color='orange',
+                 label='target_{t} - prediction'.format(t=i))
+    plt.legend()
+    plt.title(s=titles[j])
