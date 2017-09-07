@@ -27,6 +27,7 @@ features are just a randomly generated numbers in the range -1 to 4. The shape o
 As the next step, we are going to construct the computational graph.
 
 ### Graph Construction
+
 Although in this example feature and target arrays have changed the shape when compared with the example for the logistic regression, the inputs in the graph remain the same, as well as the structure of the graph it self.
 
 ```python
@@ -55,13 +56,14 @@ with tf.variable_scope('linear_regression'):
     # Define loss function as mean square error (MSE)
     loss = tf.losses.mean_squared_error(labels=y_true, predictions=prediction)
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
-``` 
- 
+```
+
 As before, in this example we use the gradient descent algorithm to optimize the weights and biases.
 
 As this model differs little from the model for the Logistic Regression, the hyperparameters that were used before are also used in this example.
 
 #### Metrics
+
 For completeness we have also kept metrics section, thought we have changed metrics that are actually computed.
 
 ```python
@@ -77,7 +79,7 @@ with tf.variable_scope('metrics'):
 
 First is the [root mean squared error](https://en.wikipedia.org/wiki/Root-mean-square_deviation) (RMSE) that is already implemented in TensorFlow as `tf.metrics.root_mean_squared_error()`. This function required two parameters `labels` and `predictions`, which in our case are `y_true` and `prediction` tensors, respectively.
 
- The second metric is the [coefficient of determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) (R<sup>2</sup>), this, unfortunately, has not been implemented in TensorFlow yet, thus we do it ourselves. TensorFlow has [implementation of basic mathematical operations](https://www.tensorflow.org/api_guides/python/math_ops) that can be utilised to build more advanced operations. So, our task is to build general definition for the coefficient of determination, which on the paper is written as,
+The second metric is the [coefficient of determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) (R<sup>2</sup>), this, unfortunately, has not been implemented in TensorFlow yet, thus we do it ourselves. TensorFlow has [implementation of basic mathematical operations](https://www.tensorflow.org/api_guides/python/math_ops) that can be utilised to build more advanced operations. So, our task is to build general definition for the coefficient of determination, which on the paper is written as,
 $$
 R^{2} = 1 - \frac{\sum_{i}(y_{i} - \hat{y}_{i})^{2}}{\sum_{i}(y_{i} - \bar{y})^{2}} \quad\text{and}\quad  \bar{y} =\frac{1}{n}\sum_{i=1}^{n}y_{i},
 $$
@@ -86,6 +88,7 @@ where $y_{i}$ stands for observations and $\hat{y}_{i}$ are predictions.
 As the names of the functions used in the code are self-explanatory, we will limit explanation to only two functions, `tf.reduce_mean()` and `tf.reduce_sum()`. To begin, `tf.reduce_mean()` function computes a mean value along a given tensor axis, this operation is equivalent to equation for $\bar{y}$. In our situations, this functions yields tensor of rank 1 (vector) which contains two mean values for each target. Next, `tf.reduce_sum()` is equivalent to $\sum_{i}$ operation with option to specify the axis along which it has to  perform summation.
 
 ### Model Training and Testing
+
 Model training or graph execution stage remains exactly the same as for logistic regression example, with the only difference in metrics that are evaluated and printed on the console.
 
 ```python
@@ -123,7 +126,7 @@ sk_r2 = r2_score(y_true=Y_test, y_pred=y_pred)
 print('Test sklearn RMSE: {rmse} and R2: {r2}'.format(rmse=sk_rmse, r2=sk_r2))
 ```
 
-To complete the comparison we visualize both target values by plotting them and overlaying corresponding predictions.  
+To complete the comparison we visualize both target values by plotting them and overlaying corresponding predictions.
 
 ### Next
 

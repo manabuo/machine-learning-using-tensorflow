@@ -83,7 +83,6 @@ Next, as the variable scope name suggests, all variables here are related to the
 
 When training a model, it is often recommended to lower the learning rate as the training progresses. This function applies an exponential decay function to a provided initial learning rate (`learning_rate`). It requires the previously defined `global_step` value to compute the decayed learning rate. The remaining parameters, `decay_steps`, `decay_rate` and `staircase`, are the number of steps after which to decrease the learning rate, decay rate and staircase function which, if `True`, decays the learning rate at discrete intervals, respectively.
 
-
 Further, having specified all the necessary variables we can proceed with constructing the recurrent neural network part of the graph.
 
 ```python
@@ -192,6 +191,7 @@ As we mentioned before, in TensorFlow, you collectively call constants, variable
 TensorBoard is a graph visualization software (Web App) included with any standard TensorFlow installation. When a user performs certain operations in a TensorBoard-activated TensorFlow program, these operations are exported to an event file. TensorBoard is able to convert these event files to graphs that can give insight into a model’s behaviour.
 
 In the code that is referenced in this chapter you may see the following lines in the graph construction stage for:
+
 + `inputs` variables:
 
 ```python
@@ -199,6 +199,7 @@ In the code that is referenced in this chapter you may see the following lines i
 tf.summary.scalar(name='learning_rate', tensor=learning_rate)
 tf.summary.scalar(name='global_step', tensor=global_step)
 ```
+
 + `predictions` variables:
 
 ```python
@@ -245,7 +246,7 @@ In this particular example `"path/to/event-directory"` is something like this `s
 
 ### Next
 
-In the [next chapter](rnn_seq.md) we will show how to modify the code presented here in order to make sequential predictions rather then just points at certain time. We will also show how to deal input sequences that do no have the same length.  
+In the [next chapter](rnn_seq.md) we will show how to modify the code presented here in order to make sequential predictions rather then just points at certain time. We will also show how to deal input sequences that do no have the same length.
 
 ### Code
 

@@ -2,7 +2,7 @@
 
 In this chapter, we introduce and give a very brief description of basic building blocks and concepts that are used in building models. Here we also provide with an overview on how the models should be structured.
 
-### Why TensorFlow?
+### Why TensorFlow
 
 TensorFlow is an open-source software library from Google for numerical computation using data flow graphs. It is the library that allows us to
 
@@ -21,14 +21,13 @@ Both TensorFlow Estimator and TensorFlow Learn allows you to load in data, const
 Google has some good tutorial on how to build model using [TensorFlow Estimator](https://www.tensorflow.org/get_started/estimator).
 
 > Note: TensorFlow Learn was originally an independent project called Scikit Flow (SKFlow).
-
 > Note: TensorFlow Contrib module, which TensorFlow Learn is part of, contains volatile or experimental code.
 
 Another notable addition to the TensorFlow is the implementation of the [Keras](https://keras.io/) API, that significantly reduces the number of lines and improves readability of the code. See [TensorFlow Contrib Keras](https://www.tensorflow.org/api_docs/python/tf/contrib/keras).
 
 However, the primary purpose of TensorFlow is not to provide out-of-the-box machine learning solutions. Instead, TensorFlow provides an extensive suite of functions and classes that allow users to define models from scratch. This is more complicated but offers much more flexibility. You can build almost any architecture you can think of in TensorFlow.
 
-### What is TensorFlow?
+### What is TensorFlow
 
 Most notable difference between TensorFlow and other libraries is that TensorFlow does all its computation in graphs. A TensorFlow graph is a description of computations. That is, TensorFlow program separates the definition of computations from their execution. For more details on computational graphs see the following:
 
@@ -40,7 +39,7 @@ A computational graph is a series of TensorFlow operations arranged into a graph
 
 For example, in the case of the patient records *Tensor* is a 3-D array with dimensions **[patients, record_lengh, features]** or in case of images it is a 4-D array where dimensions are **[images, height, width, channels]**.
 
-### How does TensorFlow works?
+### How does TensorFlow works
 
 As the example, to build a graph we start with *ops* that do not need any input, such as `Constant`, and pass their output to other *ops* that do a computation.
 

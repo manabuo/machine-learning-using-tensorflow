@@ -81,7 +81,6 @@ In this example, we know that our features data set shape is 569 by 30. This mea
 
 Next section in the graph is the definition of the Logistic Regression Model itself.
 
-
 #### Logistic Regression Model
 
 In broad terms at this stage we start by defining an operation which first computes predictions when given an input, then it is passed to an appropriate loss function and subsequently, it is passed to an optimisation function.
@@ -122,7 +121,7 @@ However, other three parameters (hyperparameters) that have to be supplied to th
 
 #### Metrics
 
-This section is optional and is presented here as an example, showcasing TensorFlow's build in functions.  
+This section is optional and is presented here as an example, showcasing TensorFlow's build in functions.
 
 ```python
 # Define metric ops

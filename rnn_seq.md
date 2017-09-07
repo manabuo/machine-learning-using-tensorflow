@@ -58,37 +58,10 @@ In all previous examples that we looked at, input sequences had the same length.
 
 For this example we will use synthetic data set.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### Next
 
 ### Code
+
 + [04_03_seq_rnn.py](scripts/04_03_seq_rnn.py)
 + [05_variable_seq.py](scripts/05_variable_seq.py)
 
