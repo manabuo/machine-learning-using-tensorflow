@@ -22,21 +22,22 @@ graph_path = os.path.join(model_dir, "graph")
 seq_number = 1000
 max_seq_len = 50
 seq_len = np.random.random_integers(low=2, high=max_seq_len, size=seq_number)
-time = np.sort(np.random.uniform(low=0, high=6, size=(max_seq_len, 1)), axis=0)
+time = np.sort(np.random.uniform(low=0, high=6, size=(max_seq_len+1, 1)), axis=0)
 
+
+targets = list()
 features = list()
-for s in seq_len-1:
+for s in seq_len:
     f = {"f_time": time[:s]}
     f.update({"f_1": np.sin(time[:s]*2)})
     f.update({"f_2": np.sin(time[:s]*2) + np.cos(time[:s]*8)})
     features.append(f)
-
-targets = list()
-for s in seq_len:
     t = {"t_time": time[s]}
     t.update({"t_1": np.sin(time[s]*2)})
     t.update({"t_2": np.sin(time[s]*2) + np.cos(time[s]*8)})
     targets.append(t)
+
+
 
 
 
