@@ -1,7 +1,9 @@
 import os
 import pickle
 
+import matplotlib.pylab as plt
 import numpy as np
+import tensorflow as tf
 
 
 def get_values(timesteps):
@@ -59,6 +61,25 @@ def create_targets(t, slice_len):
     t_1 = np.squeeze(a=val_1[slice_len]).reshape([-1, 1])
     t_2 = np.sqrt(np.abs(val_2[slice_len])).reshape([-1, 1])
     return np.expand_dims(a=np.append(arr=t_1, values=t_2, axis=1), axis=0)
+
+
+def hidden_layers(in_tensor, layers):
+    """
+    Function stacks fully connected layers
+
+    :param in_tensor: Input Tensor
+    :type in_tensor: Tensor
+    :param layers: List of dictionaries that contain a number of neurons for the particular layer ad the activation
+    function in the layer
+    :type layers: list(dict("units", "act_fn"))
+    :return: Tensor of the last densely connected layer
+    :rtype: Tensor
+    """
+    h_input = in_tensor
+    for i, l in enumerate(layers):
+        h_input = tf.layers.dense(inputs=h_input, units=l["units"], activation=l["act_fn"],
+                                  name="hidden_{i}".format(i=i))
+    return h_input
 
 
 # Data Location ========================================================================================================
@@ -128,8 +149,190 @@ targets_train, targets_val, targets_test = (targets[idx_train, :, :],
                                             targets[idx_test, :, :])
 seq_len_train, seq_len_val, seq_len_test = seq_len[idx_train], seq_len[idx_val], seq_len[idx_test]
 
-
 # Graph Construction ===================================================================================================
+# Resets default graph
+tf.reset_default_graph()
 
+# Parameters
+INPUT_FEATURES = features_train.shape[2]
+INPUT_SEQUENCE_LENGTH = features_train.shape[1]
+OUTPUT_FEATURES = targets_train.shape[2]
+OUTPUT_SEQUENCE_LENGTH = targets_train.shape[1]
 
+# Hyperparameters
+BATCH_SIZE = 70
+EPOCHS = 500
+RNN_LAYERS = [{"units": 8},
+              {"units": 8}]
+HIDDEN_LAYERS = [{"units": 15, "act_fn": tf.nn.tanh},
+                 {"units": 8, "act_fn": tf.nn.tanh}]
 
+LEARNING_RATE = 1e-1
+
+# Get list of indices in the training set
+idx = list(range(features_train.shape[0]))
+# Determine total number of batches
+n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
+
+# Define inputs to the model
+with tf.variable_scope("inputs"):
+    # placeholder for input sequence
+    input_seq = tf.placeholder(dtype=tf.float32, shape=[None, INPUT_SEQUENCE_LENGTH, INPUT_FEATURES],
+                               name="predictors")
+    # placeholder for output sequence
+    output_seq = tf.placeholder(dtype=tf.float32, shape=[None, OUTPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES],
+                                name="target")
+    # placeholder for actual sequence length variable
+    sequence_length = tf.placeholder(dtype=tf.float32, shape=[None], name="sequence_length")
+    # adds histograms of sequence_length to the log file
+    tf.summary.histogram(name="sequences_lengths", values=sequence_length)
+
+# Define recurrent layers
+with tf.variable_scope("recurrent_layers"):
+    # Create a list of GRU unit recurrent network cells
+    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in RNN_LAYERS]
+    # Connects multiple RNN cells
+    rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
+    # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
+    rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=input_seq, dtype=tf.float32,
+                                              sequence_length=sequence_length)
+# Defines hidden layers
+with tf.variable_scope("hidden_layers"):
+    # 1) Select the last relevant RNN output.
+    # output = rnn_output[:, -1, :]
+    # However, the last output is simply equal to the last state.
+    output = rnn_state[-1]
+    # Constructs hidden fully connected layer network
+    hidden = hidden_layers(in_tensor=output, layers=HIDDEN_LAYERS)
+
+with tf.variable_scope("predictions"):
+    # Here prediction is the one feature vector at the time point (not a sequence of the feature vectors)
+    y_pred = tf.layers.dense(inputs=hidden, units=OUTPUT_FEATURES, name="prediction")
+    # Adds dimension of the output tensor
+    prediction = tf.expand_dims(input=y_pred, axis=1, name="prediction_sequence")
+    # Define loss function as mean square error (MSE)
+    loss = tf.losses.mean_squared_error(labels=output_seq, predictions=prediction)
+    train_step = tf.train.AdagradOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
+    # Add the following variables to log/summary file that is used by TensorBoard
+    tf.summary.scalar(name="MSE", tensor=loss)
+    tf.summary.scalar(name="RMSE", tensor=tf.sqrt(x=loss))
+
+# Model Training =======================================================================================================
+# Merge all the summaries
+merged = tf.summary.merge_all()
+
+# Initializing the variables
+init_global = tf.global_variables_initializer()
+
+# Define the Saver op to save and restore all the variables
+saver = tf.train.Saver()
+
+# Running the session ==================================================================================================
+with tf.Session() as sess:
+    # Write merged summaries out to the graph_path (initialization)
+    summary_writer = tf.summary.FileWriter(logdir=graph_path, graph=sess.graph)
+
+    # Determines if model has been saved before
+    if os.path.exists(os.path.join(model_dir, "checkpoint")):
+        print("Model found")
+        # Restore model from previously saved model
+        saver.restore(sess=sess, save_path=checkpoint_path)
+        print("Model restored from file: {path}".format(path=checkpoint_path))
+    else:
+        print("Model not found")
+        # Initialize variables
+        sess.run(fetches=init_global)
+
+    print("Starting Training...")
+
+    # Training cycle
+    for e in range(1, EPOCHS + 1):
+        # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
+        # input data order.
+        np.random.shuffle(idx)
+        # Creates a batch generator.
+        batch_generator = (idx[i * BATCH_SIZE:(1 + i) * BATCH_SIZE] for i in range(n_batches))
+
+        # Loops through batches.
+        for s in range(n_batches):
+            # Gets a batch of row indices.
+            id_batch = next(batch_generator)
+            # Defines input dictionary
+            feed = {input_seq: features_train[id_batch],
+                    output_seq: targets_train[id_batch],
+                    sequence_length: seq_len_train[id_batch]}
+            # Executes the graph
+            sess.run(fetches=train_step, feed_dict=feed)
+
+        # Evaluate all variables that are contained in summery/log object and write them out into the log file
+        summary = merged.eval(feed_dict={input_seq: features_val,
+                                         output_seq: targets_val,
+                                         sequence_length: seq_len_val})
+
+        summary_writer.add_summary(summary=summary, global_step=e)
+
+        if e % 50 == 0:
+            # Evaluate metrics on training and validation data sets
+            loss_train = loss.eval(feed_dict={input_seq: features_train,
+                                              output_seq: targets_train,
+                                              sequence_length: seq_len_train})
+
+            loss_val = loss.eval(feed_dict={input_seq: features_val,
+                                            output_seq: targets_val,
+                                            sequence_length: seq_len_val})
+            # Prints the loss to the console
+            msg = ("Epoch: {e}/{epochs}; ".format(e=e, epochs=EPOCHS) +
+                   "Train MSE: {tr_ls}; ".format(tr_ls=loss_train) +
+                   "Validation MSE: {val_ls}; ".format(val_ls=loss_val))
+            print(msg)
+
+    # Saves model to disk
+    saver.save(sess=sess, save_path=checkpoint_path)
+    print("Model saved in file: {path}".format(path=checkpoint_path))
+
+# Model Testing ========================================================================================================
+# Evaluate Test RMSE and MSE
+with tf.Session() as sess:
+    #  Restore model from previously saved model
+    saver.restore(sess=sess, save_path=checkpoint_path)
+
+    # Evaluate predictions for training and validation data
+    pred_train = y_pred.eval(feed_dict={input_seq: features_train, sequence_length: seq_len_train})
+    pred_val = y_pred.eval(feed_dict={input_seq: features_val, sequence_length: seq_len_val})
+
+    # Evaluate loss (MSE) and predictions on test data
+    loss_test, pred_test = sess.run(fetches=[loss, y_pred], feed_dict={input_seq: features_test,
+                                                                       output_seq: targets_test,
+                                                                       sequence_length: seq_len_test})
+    # Print Test loss (MSE), total RMSE in console
+    msg = "\nTest MSE: {test_loss} and RMSE: {rmse}".format(test_loss=loss_test, rmse=np.sqrt(loss_test))
+    print(msg)
+
+# Comparison ===========================================================================================================
+points_train = np.sort(
+    a=np.concatenate([time,
+                      np.squeeze(a=targets_train, axis=1),
+                      pred_train], axis=1),
+    axis=0)
+
+points_val = np.sort(
+    a=np.concatenate([time,
+                      np.squeeze(a=targets_val, axis=1),
+                      pred_val], axis=1),
+    axis=0)
+
+points_test = np.sort(
+    a=np.concatenate([time,
+                      np.squeeze(a=targets_test, axis=1),
+                      pred_test], axis=1),
+    axis=0)
+
+plt.figure(num=0)
+plt.plot(points_train[:, 0], points_train[:, 1:])
+plt.title(s='Training')
+plt.figure(num=1)
+plt.plot(points_test[:, 0], points_test[:, 1:])
+plt.title(s='Test')
+plt.figure(num=2)
+plt.plot(points_val[:, 0], points_val[:, 1:])
+plt.title(s='Validation')

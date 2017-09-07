@@ -240,18 +240,22 @@ saver = tf.train.Saver()
 
 # Running the session ==================================================================================================
 with tf.Session() as sess:
-    print("Starting Graph Execution")
+
     # Write merged summaries out to the graph_path (initialization)
     summary_writer = tf.summary.FileWriter(logdir=graph_path, graph=sess.graph)
 
     # Determines if model has been saved before
     if os.path.exists(os.path.join(model_path, "checkpoint")):
+        print("Model not found")
         # Restore model from previously saved model
         saver.restore(sess=sess, save_path=checkpoint_path)
         print("Model restored from file: {path}".format(path=checkpoint_path))
     else:
+        print("Model not found")
         # Initialize variables
         sess.run(fetches=init_global)
+
+    print("Starting Training...")
 
     # Training cycle
     for e in range(1, EPOCHS + 1):
