@@ -1,4 +1,5 @@
 ## Introduction to Recurrent Neural Network
+
 In the previous chapters, we presented *simple* [Feedforward Neural Networks](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7) (FNN) that varied in size and purpose. These type of networks work well on structured (fact based) data where both event order information and location relative to other records is irrelevant. However, this, as you might imagine, is not always the case.
 
 For example, consider images, where every pixel has a value and a specific location. This pixel's value by itself does not provide us with much information and it defiantly does not help us to understand the image. Thus in order to *see* the image, the pixel's neighbours and their neighbour have to be considered as well. For these type of problems, the [Convolutional Neural Networks](http://cs231n.github.io/convolutional-networks/) (CNN, *not a news agency!*) are used, as they are created to learn from the information that is contained in the pixel and also around it. In this tutorial, we will not discuss this type of networks as they are not often used on the structured data, like, patient records, transaction records, etc.
@@ -18,11 +19,14 @@ Another approach is to use more sophisticated units, such as [**LSTM** (Long Sho
 > Note: Throughout this tutorial, we are going to use only GRU units as they are less expensive than LSTM, and there are no noticeable differences between results using either of the units.
 
 ### Recurrent Neural Network
+
 This example we are using the data set that comes from [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php):
+
 + Name: Appliances energy prediction Data Set
 + Source: https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction
 
 This data set will be used in all subsequent examples and, as mentioned in the previous chapter, we are going to consider only regression tasks from now on. In addition, the examples presented here are of the type **many to one**.
+
 ```mermaid
 graph TD
 subgraph RNN
@@ -42,15 +46,17 @@ end
 In the first example, we are going to use sequences as inputs and try to predict a point N-steps in the *future*. In what follows we are going to refer to this type of the prediction task as Sequence to Vector prediction, in future examples we will also Sequence to Sequence prediction.
 
 #### Data Preparation
-We start our data preparation by splitting input data into tree data set: Training, Validation and Test.  Then we separate
- features, targets and time variable. It has been shown that for some applications leaving time variable as an additional feature is advantageous, but in this particular example, we will neglect it. Further,  we rescale all the values in the training sets so that they lie between 0 and 1, and using training data set statistics we rescale Validation and Test data. Data preparation stage is completed after transforming flat-file time series to a sequential data.
+
+We start our data preparation by splitting input data into tree data set: Training, Validation and Test.  Then we separate features, targets and time variable. It has been shown that for some applications leaving time variable as an additional feature is advantageous, but in this particular example, we will neglect it. Further,  we rescale all the values in the training sets so that they lie between 0 and 1, and using training data set statistics we rescale Validation and Test data. Data preparation stage is completed after transforming flat-file time series to a sequential data.
 
 In this example, all input sequences are of the same length, the parameter that defines the length is `INPUT_SEQUENCE_LENGTH`. In the code presented we also have parameter `OUTPUT_SEQUENCE_LENGTH` which for this example should remain 1 as we will try to predict only one point in the future. In order to tell how far in the future prediction should be we introduce `OUTPUT_SEQUENCE_STEPS_AHEAD` parameter. In the nutshell, in this stage, we transform the flat-file time series of the shape `[Time Step, Features]` to two sequential data sets. Input set is of the shape `[Batch, INPUT_SEQUENCE_LENGTH, Features]` and the output set has the shape `[Batch, 1, Features]`, and using input feature sequences we try to predict one target point.
 
 Next step as before is a graph construction, but in this tutorial, we going to show how to create variables in the graph, make learning rate to decrease during computations, introduce a dropout layer and, of course, how to create recurrent neural network layers.
 
 #### Graph Construction
+
 As usual we start with *inputs* section, where, as suggested earlier, the shape of the input (`in_seq`) and output (`out_seq`) variables now is `[None, INPUT_SEQUENCE_LENGTH, INPUT_FEATURES]` and `[None, OUTPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES]`, respectively.
+
 ```python
 with tf.variable_scope('inputs'):
     # placeholder for input sequence
@@ -68,6 +74,7 @@ with tf.variable_scope('inputs'):
                                                    decay_rate=LEARNING_RATE_DECAY_RATE, staircase=True,
                                                    name="learning_rate")
 ```
+
 In the code snippet above you can see a few new variables, such as, `training` and everything that is under *learning_rate* variable scope.
 
 So, first things first, `training` is a `tf.placeholder_with_default()` tensor, which is similar to `tf.placeholder()` but has an additional `input` parameter where we can specify a default value in the case if during the graph's execution no value is provided. In this particular case, a default value is set to a boolean `False` value, and it acts as a switch that tells the graph if we are using it to train or test.
@@ -78,6 +85,7 @@ When training a model, it is often recommended to lower the learning rate as the
 
 
 Further, having specified all the necessary variables we can proceed with constructing the recurrent neural network part of the graph.
+
 ```python
 with tf.variable_scope('recurrent_layer'):
     # Create list of GRU unit recurrent network cell
@@ -87,6 +95,7 @@ with tf.variable_scope('recurrent_layer'):
     # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
     rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=in_seq, dtype=tf.float32)
 ```
+
 As we said, in this and what follows we are going to use only the GRU units for RNN. For other type of cells, see [here](https://www.tensorflow.org/api_docs/python/tf/nn/rnn_cell). In TensorFlow GRU cell is [`tf.nn.rnn_cell.GRUCell()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/GRUCell), this function requires one parameter, `num_units`,  which defines a number of hidden units per cell. Next, we combine all the cells into a list which is passed to `tf.nn.rnn_cell.MultiRNNCell()` function that stakes all the single cells. Next function, [`tf.nn.dynamic_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/dynamic_rnn) is responsible for creation of the actual RNN.
 
 > Note: In other tutorials you may have seen another function [`tf.nn.static_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/static_rnn) that creates a recurrent neural network. This function is still available in the API but there have been suggestions that it will be deprecated one day due to its limitation that we will touch on in the following examples.
@@ -113,6 +122,7 @@ with tf.variable_scope('predictions'):
     loss = tf.losses.mean_squared_error(labels=truth, predictions=prediction)
     train_step = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss=loss, global_step=global_step)
 ```
+
 The output of [`tf.nn.dynamic_rnn()`] function is a tuple that contains cell outputs and the states for all timesteps. In order to make a prediction we are using output of the last timestep or in this situation it is also the last RNN state.  The last output tensor then is passed to the dropout layer, which is used to prevent an overfitting. Function [`tf.layers.dropout()`](https://www.tensorflow.org/api_docs/python/tf/layers/dropout) requires only one parameter `inputs`. Dropout has to be applied only during the training phase wnd when we compute predictions or other calculation it has to be switched off. This can be achieved in two ways, first, passing different `rate` values for each phase or as we have done, by passing a `training` boolean.
 
 > Note: In this particular example, the dropout does not have the noticeable impact as our network is small. In the next example, we will show how to apply dropout to RNN cells.
@@ -158,9 +168,11 @@ TensorFlow does not allow us to use standard python `if` statement in the graph,
 As `tf.cond()` function returns only a list of tensors and  `tf.nn.rnn_cell.MultiRNNCell()`, `tf.nn.rnn_cell.DropoutWrapper()` and `tf.nn.rnn_cell.GRUCell()` return objects that are not tensors, all these *ops* have to be wrapped into  `true_fn` or `false_fn` functions. The output of each of the functions equal to the output of `tf.nn.dynamic_rnn()` function.
 
 #### Hyperparameters
+
 In addition to already mentioned hyperparameters in the previous chapters, this model has three more that are associated with the learning rate: `INITIAL_LEARNING_RATE`, `LEARNING_RATE_DECAY_STEPS`, `LEARNING_RATE_DECAY_RATE`.
 
 ### Overfitting
+
 Earlier we mentioned overfitting and introduced dropout layer without explanation. Therefore in this section,  we will spend a little bit more time explaining overfitting and how to deal with it using a dropout.
 
 Increasing the size of the neural network by increasing the number of neurons per layers or/and increasing the number of layers, the network tends to memorize data rather than "find" relationships between data. This leads to overfitting. In order to avoid this effect two techniques are often used: [Regularization](https://en.wikipedia.org/wiki/Regularization_(mathematics)) and [Dropout](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf). This technique can be used together as well as on its own.
@@ -168,65 +180,80 @@ Increasing the size of the neural network by increasing the number of neurons pe
 > Note: It is advisable to use neural networks with many layers that have a small number of neurons per layer.
 
 #### Dropout
+
 Dropout, in the nutshell, is a technique where during the training iterations a number of the neurons in certain layers are randomly deactivated. This forces, remaining neurons in the layer, to compensate the loss of information by learning *concepts* that their colleagues knew before they were deactivated. Normally, the dropout is used after fully-connected layers but is also possible to use the dropout after another type of layers.
 
 It is important to note that dropout, during the evaluation and prediction phases, has to be turned off.
 
 ### TensorBoard
+
 As we mentioned before, in TensorFlow, you collectively call constants, variables, operators as *ops*. TensorFlow is not just a software library, but a suite of software that includes TensorFlow, TensorBoard, and TensorServing. To make the most out of TensorFlow, we should know how to use all of the above in conjunction with one another. In this section, we will introduce TensorBoard.
 
 TensorBoard is a graph visualization software (Web App) included with any standard TensorFlow installation. When a user performs certain operations in a TensorBoard-activated TensorFlow program, these operations are exported to an event file. TensorBoard is able to convert these event files to graphs that can give insight into a model’s behaviour.
 
 In the code that is referenced in this chapter you may see the following lines in the graph construction stage for:
-+ ```inputs``` variables:
++ `inputs` variables:
+
 ```python
 # Add the following variables to log/summary file that is used by TensorBoard
 tf.summary.scalar(name='learning_rate', tensor=learning_rate)
 tf.summary.scalar(name='global_step', tensor=global_step)
 ```
-+ ```predictions``` variables:
++ `predictions` variables:
+
 ```python
 # Add the following variables to log/summary file that is used by TensorBoard
 tf.summary.scalar(name='MSE', tensor=loss)
 tf.summary.scalar(name='RMSE', tensor=tf.sqrt(x=loss))
 ```
+
 In both cases we use [`tf.summary.scalar()`](https://www.tensorflow.org/api_docs/python/tf/summary/scalar). It is a method that exports information about a single scalar value. It requires two parameters `name`, which is a string that helps to identify the tensor value in TensorBoard and `tensor`, which is a tensor value itself.
 
 Further, you will find the following line before the graph execution,
+
 ```python
 # Merge all the summaries
 merged = tf.summary.merge_all()
 ```
+
 This *op* merges all summaries collected in the default graph. Next, during the graph execution stage, you can see,
+
 ```python
 # Write merged summaries out to the graph_path (initialization)
 summary_writer = tf.summary.FileWriter(logdir=graph_path, graph=sess.graph)
 ```
+
 Here FileWriter class provides a mechanism to create an event file in a given directory and add summaries and events to it. The class updates the file contents asynchronously. This allows a training program to call methods to add data to the file directly from the training loop, without slowing down training. As you might guess, it requires two parameters, `logdir` - location of the event file directory, and `graph` which is Graph object that is used in the current session.
 
 After we have initialized the FileWriters, we have to add summaries to the FileWriters as we train and test the model. This is achieved by the following lines,
+
 ```python
 # Evaluate all variables that are contained in summary/log object and write them out into the log file
 summary = merged.eval(feed_dict={in_seq: x_input_val, out_seq: x_output_val, training: False})
 summary_writer.add_summary(summary=summary, global_step=e)
 ```
+
 We first evaluate all tensors in the summaries and then add them to the FileWriter which writes out all the values to the event file.
 
 To visualize these values we have to launch TensorBoard using command line and specifying the location of the event file,
+
 ```bash
 tensorboard --logdir="path/to/event-directory"
 ```
+
 In this particular example `"path/to/event-directory"` is something like this `scripts/data/04/basic/graph`.
 
-
 ### Next
+
 In the [next chapter](rnn_seq.md) we will show how to modify the code presented here in order to make sequential predictions rather then just points at certain time. We will also show how to deal input sequences that do no have the same length.  
 
 ### Code
+
 + [04_01_rnn.py](scripts/04_01_rnn.py)
 + [04_02_rnn.py](scripts/04_02_rnn.py)
 
 ### References
+
 + [Andrej Karpathy blog](http://karpathy.github.io/)
 + [colah's blog](http://colah.github.io/)
 + [CS224n: Natural Language Processing with Deep Learning](http://web.stanford.edu/class/cs224n/)

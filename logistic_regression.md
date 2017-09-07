@@ -1,12 +1,16 @@
 ## Logistic Regression
+
 This chapter presents the first fully fledged example of Logistic Regression that uses commonly utilised TensorFlow structures.
 
 ### Data set
-The dataset that is used in the example comes from [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php):
+
+The data set that is used in the example comes from [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php):
+
 + Name: Breast Cancer Wisconsin (Diagnostic) Data Set (*wdbc.data* and *wdbc.names*)
 + Source: http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
 
 ### Data Preparation
+
 For brevity, we are going to give only a brief overview of how data were prepared and what is the final shape of the data that are passed to the computational graph. So we start by reading in the data file *wdbc.data*, where first two columns names are taken from supplementary the file *wdbc.names* for convenience and the rest are just numbered from 1 to 30 with prefix  *rv_*. After reading in, we split the set into outcome/target and feature/predictors sets, as *ID* does not contain useful information (at least that should be the case) we drop it. At this stage, we have two data frames, one for target values of shape (569 rows x 1 columns) and one for features, which shape is (569 rows x 30 columns).
 
 Further, we one-hot encode target set and convert it to a numpy array. As we have only two categories, *B* for benign and  *M* for malignant, in the set, the shape of the array is (569 rows x 2 columns). Rows here represent a number of observations and 2 columns stand for outcome classes.
@@ -22,8 +26,10 @@ Next, we split both, target and feature sets into training, validation and test 
 In this example, the scaling function outputs numpy array of the same size as input data frame, in this case, it is 569 rows and 30 columns.
 
 ### Graph Construction
+
 As mentioned in the previous chapter, the most differentiating part of the TensorFlow from the other libraries is that a model or "an analysis plan" has to be constructed separately and before it is executed. In TensorFlow models are represented as [graphs](https://www.tensorflow.org/api_guides/python/framework) where operations as nodes and edges carry tensors/weights.
 Our task is to build the following graph:
+
 ```mermaid
   graph TD
     subgraph Logistic Regression Model
@@ -45,10 +51,13 @@ Our task is to build the following graph:
       Target --> loss{Loss}
     end;
 ```
+
 In further explanations are going to follow the same structure as it can be seen in the graph above, therefore we will first define of inputs.
 
 #### Inputs
+
 Lines that define input section of the graph are as follows:
+
 ```python
 # Define inputs to the model
 with tf.variable_scope('inputs'):
@@ -74,8 +83,10 @@ Next section in the graph is the definition of the Logistic Regression Model its
 
 
 #### Logistic Regression Model
+
 In broad terms at this stage we start by defining an operation which first computes predictions when given an input, then it is passed to an appropriate loss function and subsequently, it is passed to an optimisation function.
 In our example this is written as:
+
 ```python
 # Define logistic regression model
 with tf.variable_scope('logistic_regression'):
@@ -87,12 +98,11 @@ with tf.variable_scope('logistic_regression'):
     # Current training is preformed using Adam optimiser which minimizes the loss function as each step
     # train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
-
 ```
-First, [`tf.layers.dense()`](https://www.tensorflow.org/api_docs/python/tf/layers/dense) is, as names suggest, a layer of "neurons" where `units`, which is a required parameter, defines a number of "neurons" in the layer.
- Another required parameter for this function is `inputs` that takes in an input tensors. Again, `name` is an optional parameter.
 
- So in this example, we have only two classes, therefore `units=2=Y_FEATURES` and input tensor is `x` thus `inputs=x`.
+First, [`tf.layers.dense()`](https://www.tensorflow.org/api_docs/python/tf/layers/dense) is, as names suggest, a layer of "neurons" where `units`, which is a required parameter, defines a number of "neurons" in the layer. Another required parameter for this function is `inputs` that takes in an input tensors. Again, `name` is an optional parameter.
+
+So in this example, we have only two classes, therefore `units=2=Y_FEATURES` and input tensor is `x` thus `inputs=x`.
 
 To determine how well our model performs we compute loss/cost, as
 this example is a classification task, we choose [cross-entropy cost function](http://neuralnetworksanddeeplearning.com/chap3.html#the_cross-entropy_cost_function) function. In the script it is achieved by [`tf.losses.softmax_cross_entropy()`](https://www.tensorflow.org/api_docs/python/tf/losses/softmax_cross_entropy), it has two required parameters `onehot_labels` that takes in target input tensor and *logits* is prediction tensor.
@@ -101,15 +111,19 @@ Further, to actually train a model or, in the other words, find "best" values fo
 Next, `minimize(loss)` takes care of both computing the gradients and applying them to the variables. This operation is, by convention, known as the *train_op* and is what must be run by a TensorFlow session in order to induce one full step of training.
 
 ##### Hyperparameters
+
 This model has two parameters that only influence input and output layer shapes, these are, `X_FEATURES` which is a number of input features, and`Y_FEATURES` - the number of output classes or a number of "neurons" in the output layer.
 
 However, other three parameters (hyperparameters) that have to be supplied to the graph during construction, do influence the model and training are:
+
 + `BATCH_SIZE` - length of input array,
 + `LEARNING_RATE` that is a value that corresponds to a step size in gradient descent algorithm,
 + `EPOCHS` - a number of times the model is going to see the whole data set.
 
 #### Metrics
+
 This section is optional and is presented here as an example, showcasing TensorFlow's build in functions.  
+
 ```python
 # Define metric ops
 with tf.variable_scope('metrics'):
@@ -119,12 +133,15 @@ with tf.variable_scope('metrics'):
     _, auc = tf.metrics.auc(labels=labels, predictions=predictions, curve='ROC', name='auc')
     _, precision = tf.metrics.precision(labels=labels, predictions=predictions)
 ```
+
 First, we find indices with the largest value across column axis of logit and target tensors using [`tf.argmax()`](https://www.tensorflow.org/api_docs/python/tf/argmax). This function takes in a tensor and axis that describes which axis of the input tensor to reduce across. Then we use theses values to compute [`accuracy`](https://www.tensorflow.org/api_docs/python/tf/metrics/accuracy), [`auc`](https://www.tensorflow.org/api_docs/python/tf/metrics/auc) and [`precision`](https://www.tensorflow.org/api_docs/python/tf/metrics/precision) for the model. Other metrics can be found [here](https://www.tensorflow.org/api_docs/python/tf/metrics).
 
 ### Model Training
+
 As mentioned earlier, TensorFlow separates model definition and model execution, and we have already seen how to define the model, thus we are left just with training it.
 
 The first step is attaching `Session` to the graph and initializing all variables. This is achieved by these lines of code:
+
 ```python
 # Attaches graph to session
 sess = tf.InteractiveSession()
@@ -133,11 +150,13 @@ init_global = tf.global_variables_initializer()
 init_local = tf.local_variables_initializer()
 sess.run(fetches=[init_global, init_local])
 ```
+
 In this example, we have used `tf.InteractiveSession()` function to attach the `Session` to the graph. This allows us to use model interactively in IDE such as **PyCharm**, **Atom**, etc.  The remaining two lines of the code run the `Session`, meaning execute the graph, by initializing global and local variables. In general, a majority of TensorFlow functions require only global variables to be initialized, however when `tf.metrics` is used local variables also are needed.
 
 > Note: Currently, TensorFlow community tries to change how variable initialization works and for the time being it is advisable to initialize global variables. However, if errors appear during graph's execution, initialize local variables as well.
 
 After initialization we are left only with training the data set which is achieved by creating a loop.
+
 ```python
 for e in range(EPOCHS + 1):
     # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
@@ -166,6 +185,7 @@ for e in range(EPOCHS + 1):
                "Validation loss: {val_ls}, accuracy: {val_acc}; ".format(val_ls=val_loss, val_acc=val_acc))
         print(msg)
 ```
+
 Outer loop is for epochs in which we first shuffle input array indices and then define a [python generator](https://wiki.python.org/moin/Generators) for batch creation. This function takes in a list of indices and creates a slice that contains `BATCH_SIZE` number or less of elements. The inner explicit loop is over number of batches that is computed beforehand. In the loop, [`next()`](https://www.programiz.com/python-programming/methods/built-in/next) function takes in our predefined python generator and returns a list of index values of length `BATCH_SIZE`. Every time this function is executed function retrieves the next item in the iterator.
 
 Having obtained the list of indices, we construct an input `feed` dictionary, where we define which input array is assigned to which placeholder in the graph. In this example, we train our model using batches and thus we provide only slices of whole target and feature data sets. Then we execute the graph, by supplying
@@ -178,6 +198,7 @@ Following `if` statement is optional, as it allows us to follow the training pro
 This concludes the description of all the necessary steps to build and train a model. However, as we have started our `Session` in the interactive mode, we might also test the model and perform an additional computation.
 
 ### Model Testing
+
 For the testing purposes, in addition to *accuracy*, we compute *auc* and *precision* for test data set, which all are also printed to the console.
 
 ```python
@@ -190,6 +211,7 @@ print(msg)
 ```
 
 The remaining code in the script creates the confusion matrix and visualises it.
+
 ```python
 # Evaluate prediction on Test data
 logits_pred = logits.eval(feed_dict={x: X_test})
@@ -216,12 +238,15 @@ plt.yticks(tick_marks, ['B', 'M'])
 ```
 
 ### Next
+
 This concludes the description of the Logistic Regression and in the [example that follows](linear_regression.md) we will see how to modify our existing code in order to perform the Linear Regression. However, if you wish to return to the previous chapter press [here](tensorflow_intro.md).
 
 ### Code
+
 + [01_logistic_regression.py](scripts/01_logistic_regression.py)
 
 ### References
+
 + [Learn Python Programming](https://www.programiz.com/python-programming)
 + [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)
 + [The Python Wiki](https://wiki.python.org/)
