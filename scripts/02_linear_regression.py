@@ -20,6 +20,9 @@ X_train_val, X_test, Y_train_val, Y_test = train_test_split(feature, target, tes
 X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.33, random_state=42)
 
 # Logistic Regression Graph Construction ===============================================================================
+# Resets default graph
+tf.reset_default_graph()
+
 # Parameters
 X_FEATURES = X_train.shape[1]
 Y_FEATURES = Y_train.shape[1]
@@ -33,18 +36,15 @@ idx = list(range(X_train.shape[0]))
 # Determine total number of batches
 n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
 
-# Resets default graph
-tf.reset_default_graph()
-
 # Define inputs to the model
-with tf.variable_scope('inputs'):
+with tf.variable_scope("inputs"):
     # placeholder for input features
-    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name='predictors')
+    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name="predictors")
     # placeholder for true values
-    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='target')
+    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name="target")
 
 # Define logistic regression model
-with tf.variable_scope('linear_regression'):
+with tf.variable_scope("linear_regression"):
     # Predictions are performed by Y_FEATURES neurons in the output layer
     prediction = tf.layers.dense(inputs=x, units=Y_FEATURES, name="prediction")
     # # Define loss function as mean square error (MSE)
@@ -52,7 +52,7 @@ with tf.variable_scope('linear_regression'):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 
 # Define metric ops
-with tf.variable_scope('metrics'):
+with tf.variable_scope("metrics"):
     # Determin total RMSE
     _, rmse = tf.metrics.root_mean_squared_error(labels=y_true, predictions=prediction)
     # Define total r_squared score as 1 - Residual sum of squares (rss) /  Total sum of squares (tss)
@@ -108,25 +108,25 @@ print(msg)
 # Calculates RMSE and R2 metrics using sklearn
 sk_rmse = np.sqrt(mean_squared_error(y_true=Y_test, y_pred=y_pred))
 sk_r2 = r2_score(y_true=Y_test, y_pred=y_pred)
-print('Test sklearn RMSE: {rmse} and R2: {r2}'.format(rmse=sk_rmse, r2=sk_r2))
+print("Test sklearn RMSE: {rmse} and R2: {r2}".format(rmse=sk_rmse, r2=sk_r2))
 
 # Comparison ===========================================================================================================
 # Create array where values are sorted by feature axis.
 dpoints = np.asarray(a=sorted(np.concatenate([X_test, y_pred], axis=1), key=lambda s: s[0]))
 # Create figure
 fig = plt.figure()
-fig.suptitle(t='Prediction vs. Ground truth', fontsize=14, fontweight='bold')
+fig.suptitle(t="Prediction vs. Ground truth", fontsize=14, fontweight="bold")
 # Plot comparison of predicted to ground truth values in the fist column
 plt.subplot(211)
-plt.plot(dpoints[:, 0], dpoints[:, 1], color='orange', linewidth=2, label='prediction')
-plt.scatter(x=X_test, y=Y_test[:, 0], c='black', s=2, label='ground truth')
+plt.plot(dpoints[:, 0], dpoints[:, 1], color="orange", linewidth=2, label="prediction")
+plt.scatter(x=X_test, y=Y_test[:, 0], c="black", s=2, label="ground truth")
 plt.legend()
-plt.ylabel(s='target 1')
+plt.ylabel(s="target 1")
 # Plot comparison of predicted to ground truth values in the second column
 plt.subplot(212)
-plt.plot(dpoints[:, 0], dpoints[:, 2], color='orange', linewidth=2, label='prediction')
-plt.scatter(x=X_test, y=Y_test[:, 1], c='black', s=2, label='ground truth')
+plt.plot(dpoints[:, 0], dpoints[:, 2], color="orange", linewidth=2, label="prediction")
+plt.scatter(x=X_test, y=Y_test[:, 1], c="black", s=2, label="ground truth")
 plt.legend()
-plt.xlabel(s='feature')
-plt.ylabel(s='target 2')
+plt.xlabel(s="feature")
+plt.ylabel(s="target 2")
 fig.show()

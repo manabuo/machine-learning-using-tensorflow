@@ -20,7 +20,7 @@ end
   end
 ```
 
-We shell start with time sequence prediction as it requires only a slight adjustment to the code that we considered in the previous chapter.
+We will start with time sequence prediction as it requires only a slight adjustment to the code that we considered in the previous chapter.
 
 ### Sequence prediction
 
@@ -54,9 +54,9 @@ As you can see we have introduced new variable scope `output_projection`, where 
 
 ### Variable length sequences
 
-In all previous examples that we looked at, input sequences had the same length. However, there are situations when we have  to use data sets that contain variable length sequences or timelines, for example, patient's medical history or company's transaction history.
+In all previous examples that we looked at, input sequences had the same length. However, there are situations when we have to use data sets that contain variable length sequences or timelines, for example, patient's medical history or company's transaction history.
 
-For this example we will use synthetic data set.
+For this example, we will use synthetic data set.
 
 ### Next
 

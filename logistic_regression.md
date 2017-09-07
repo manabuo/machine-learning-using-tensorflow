@@ -60,11 +60,11 @@ Lines that define input section of the graph are as follows:
 
 ```python
 # Define inputs to the model
-with tf.variable_scope('inputs'):
+with tf.variable_scope("inputs"):
     # placeholder for input features
-    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name='predictors')
+    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name="predictors")
     # placeholder for true values
-    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='target')
+    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name="target")
 ```
 
 Here [`tf.variable_scope()`](https://www.tensorflow.org/api_docs/python/tf/variable_scope) is a function that creates namespace for both variables and operators in the default graph. Namespaces is a way to organize names for variables and operators in hierarchical manner, in our example names of `x` and `y_true` are  *inputs/predictors* and *inputs/target*, respectively.
@@ -88,7 +88,7 @@ In our example this is written as:
 
 ```python
 # Define logistic regression model
-with tf.variable_scope('logistic_regression'):
+with tf.variable_scope("logistic_regression"):
     # Predictions are performed by Y_FEATURES neurons in the output layer
     logits = tf.layers.dense(inputs=x, units=Y_FEATURES, name="prediction")
     # Define loss and training
@@ -121,15 +121,15 @@ However, other three parameters (hyperparameters) that have to be supplied to th
 
 #### Metrics
 
-This section is optional and is presented here as an example, showcasing TensorFlow's build in functions.
+This section is optional and is presented here as an example, showcasing TensorFlow's built-in functions.
 
 ```python
 # Define metric ops
-with tf.variable_scope('metrics'):
+with tf.variable_scope("metrics"):
     predictions = tf.argmax(input=logits, axis=1)
     labels = tf.argmax(input=y_true, axis=1)
     _, accuracy = tf.metrics.accuracy(labels=labels, predictions=predictions)
-    _, auc = tf.metrics.auc(labels=labels, predictions=predictions, curve='ROC', name='auc')
+    _, auc = tf.metrics.auc(labels=labels, predictions=predictions, curve="ROC", name="auc")
     _, precision = tf.metrics.precision(labels=labels, predictions=predictions)
 ```
 
@@ -154,7 +154,7 @@ In this example, we have used `tf.InteractiveSession()` function to attach the `
 
 > Note: Currently, TensorFlow community tries to change how variable initialization works and for the time being it is advisable to initialize global variables. However, if errors appear during graph's execution, initialize local variables as well.
 
-After initialization we are left only with training the data set which is achieved by creating a loop.
+After initialization, we are left only with training the data set which is achieved by creating a loop.
 
 ```python
 for e in range(EPOCHS + 1):
@@ -185,7 +185,7 @@ for e in range(EPOCHS + 1):
         print(msg)
 ```
 
-Outer loop is for epochs in which we first shuffle input array indices and then define a [python generator](https://wiki.python.org/moin/Generators) for batch creation. This function takes in a list of indices and creates a slice that contains `BATCH_SIZE` number or less of elements. The inner explicit loop is over number of batches that is computed beforehand. In the loop, [`next()`](https://www.programiz.com/python-programming/methods/built-in/next) function takes in our predefined python generator and returns a list of index values of length `BATCH_SIZE`. Every time this function is executed function retrieves the next item in the iterator.
+The outer loop is for epochs in which we first shuffle input array indices and then define a [Python generator](https://wiki.python.org/moin/Generators) for a batch creation. This function takes in a list of indices and creates a slice that contains `BATCH_SIZE` number or less of elements. The inner explicit loop is over a number of batches that are computed beforehand. In the loop, [`next()`](https://www.programiz.com/python-programming/methods/built-in/next) function takes in our predefined Python generator and returns a list of index values of length `BATCH_SIZE`. Every time this function is executed function retrieves the next item in the iterator.
 
 Having obtained the list of indices, we construct an input `feed` dictionary, where we define which input array is assigned to which placeholder in the graph. In this example, we train our model using batches and thus we provide only slices of whole target and feature data sets. Then we execute the graph, by supplying
 [`run`](https://www.tensorflow.org/api_docs/python/tf/Session#run) method with two parameters, `fetches` which may be a single graph element or list of an arbitrary number of graph elements, `feed_dict` corresponds to input values.
@@ -223,17 +223,17 @@ cm = confusion_matrix(y_true=y_t, y_pred=y_p)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.set_aspect(1)
-res = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+res = ax.imshow(cm, interpolation="nearest", cmap=plt.cm.Blues)
 width, height = cm.shape
 for x in range(width):
     for y in range(height):
         ax.annotate(str(cm[x][y]), xy=(y, x),
-                    horizontalalignment='center',
-                    verticalalignment='center')
+                    horizontalalignment="center",
+                    verticalalignment="center")
 cb = fig.colorbar(res)
 tick_marks = np.arange(2)
-plt.xticks(tick_marks, ['B', 'M'])
-plt.yticks(tick_marks, ['B', 'M'])
+plt.xticks(tick_marks, ["B", "M"])
+plt.yticks(tick_marks, ["B", "M"])
 ```
 
 ### Next

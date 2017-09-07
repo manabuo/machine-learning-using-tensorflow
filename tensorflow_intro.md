@@ -59,8 +59,8 @@ import tensorflow as tf
 matrix1 = tf.constant([[1., 2.]])
 # Create another Constant that produces a 2x1 matrix.
 matrix2 = tf.constant([[3.], [4.]])
-# Create a Matmul op that takes 'matrix1' and 'matrix2' as inputs.
-# The returned value, 'product', represents the result of the matrix
+# Create a Matmul op that takes "matrix1" and "matrix2" as inputs.
+# The returned value, "product", represents the result of the matrix
 # multiplication. Output is a matrix of shape 1x1.
 product = tf.matmul(matrix1, matrix2)
 ```

@@ -23,7 +23,7 @@ train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).mini
 The difference is in the definition of `prediction` tensor, where input parameter now is a tensor `h` instead of `x`.
 
 ```python
-with tf.variable_scope('hidden layers'):
+with tf.variable_scope("hidden layers"):
     # Constructs hidden fully connected layer network
     h = hidden_layers(in_tensor=x, layers=LAYERS)
 ```
@@ -46,11 +46,11 @@ def hidden_layers(in_tensor, layers):
     h_input = in_tensor
     for i, l in enumerate(layers):
         h_input = tf.layers.dense(inputs=h_input, units=l["units"], activation=l["act_fn"],
-                                  name='hidden_{i}'.format(i=i))
+                                  name="hidden_{i}".format(i=i))
     return h_input
 ```
 
-This function combines multiple fully-connected layers of a variable size. The first layer in the stack takes as a input tensor the `in_tensor` parameter. All subsequent layers take in previous layer output until the last layer is reached. The output of the last layer is also a return object of the function, that is `h` tensor. Function `hidden_layers()` has two parameters where the first, `in_tensor` is the node (tensor) to which the hidden layers will be connected to and `layers` parameter is list of dictionaries for each layer describing number of units (neurons) and the type of the activation function per layer.
+This function combines multiple fully-connected layers of a variable size. The first layer in the stack takes as an input tensor the `in_tensor` parameter. All subsequent layers take in previous layer output until the last layer is reached. The output of the last layer is also a return object of the function, that is `h` tensor. Function `hidden_layers()` has two parameters where the first, `in_tensor` is the node (tensor) to which the hidden layers will be connected to and `layers` parameter is the list of dictionaries for each layer describing number of units (neurons) and the type of the activation function per layer.
 
 When visualised the computational graph for this model would look as follows,
 
@@ -88,7 +88,7 @@ save_path = saver.save(sess=sess, save_path=checkpoint_path)
 print("Model saved in file: {path}".format(path=save_path))
 ```
 
-Next, we create new `Seesion` and connect it to the graph. After that we load the previously saved model and continue with training the model.
+Next, we create new `Session` and connect it to the graph. After that, we load the previously saved model and continue with training the model.
 
 ```python
 # Restore model from previously saved model
@@ -104,7 +104,7 @@ The easiest way to [save and restore a model](https://www.tensorflow.org/version
 # Create some variables.
 v1 = tf.Variable(..., name="v1")
 v2 = tf.Variable(..., name="v2")
-# Add ops to save and restore only 'v2' using the name "my_v2"
+# Add ops to save and restore only "v2" using the name "my_v2"
 saver = tf.train.Saver({"my_v2": v2})
 # Use the saver object normally after that.
 ```
@@ -128,7 +128,7 @@ In this particular example, for all hidden layers, we used [Rectified Linear Uni
 
 ### Next
 
-In this chapter we saw how to create *simple* Feedforward Neural Networks using model that we showed in the [previous chapter](linear_regression.md) and just adding an additional neural layer. Hence, current model allows us make predictions for linear and nonlinear processes. However, this network cannot be used if data the we are interested in have temporal dependence. Thus in the [chapter that follows](rnn_intro.md) we will show how to do in this situation.
+In this chapter, we saw how to create *simple* Feedforward Neural Networks using the model that we showed in the [previous chapter](linear_regression.md) and just adding an additional neural layer. Hence, current model allows us to make predictions for linear and nonlinear processes. However, this network cannot be used if data, that we are interested in, have temporal dependencies. Thus in the [chapter that follows](rnn_intro.md), we will show how to do in this situation.
 
 ### Code
 

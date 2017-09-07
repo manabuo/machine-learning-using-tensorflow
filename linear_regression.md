@@ -31,11 +31,11 @@ As the next step, we are going to construct the computational graph.
 Although in this example feature and target arrays have changed the shape when compared with the example for the logistic regression, the inputs in the graph remain the same, as well as the structure of the graph it self.
 
 ```python
-with tf.variable_scope('inputs'):
+with tf.variable_scope("inputs"):
     # placeholder for input features
-    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name='predictors')
+    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name="predictors")
     # placeholder for true values
-    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='target')
+    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name="target")
 ```
 
 Both `X_FEATURES` and `Y_FEATURES` are computed during the script execution, as each numpy array contains a [`shape`](https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.shape.html) option that returns the tuple of array dimensions, therefore we do not need to worry about what values are assigned to these variables. As in the previous example, we use `None` for the first dimension in the shape parameter for both placeholders.
@@ -50,7 +50,7 @@ Further, we create the model, and as we can see apart from the scope name change
 
 ```python
 # Define logistic regression model
-with tf.variable_scope('linear_regression'):
+with tf.variable_scope("linear_regression"):
     # Predictions are performed by Y_FEATURES neurons in the output layer
     prediction = tf.layers.dense(inputs=x, units=Y_FEATURES, name="prediction")
     # Define loss function as mean square error (MSE)
@@ -58,16 +58,16 @@ with tf.variable_scope('linear_regression'):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 ```
 
-As before, in this example we use the gradient descent algorithm to optimize the weights and biases.
+As before, in this example, we use the gradient descent algorithm to optimize the weights and biases.
 
 As this model differs little from the model for the Logistic Regression, the hyperparameters that were used before are also used in this example.
 
 #### Metrics
 
-For completeness we have also kept metrics section, thought we have changed metrics that are actually computed.
+For completeness, we have also kept metrics section, but we have changed metrics that are actually computed.
 
 ```python
-with tf.variable_scope('metrics'):
+with tf.variable_scope("metrics"):
     # Determin total RMSE
     _, rmse = tf.metrics.root_mean_squared_error(labels=y_true, predictions=prediction)
     # Define total r_squared score as 1 - Residual sum of squares (rss) /  Total sum of squares (tss)
@@ -123,7 +123,7 @@ For comparison also compute `mean_squared_error` and `r2_score` using functions 
 # Calculates RMSE and R2 metrics using sklearn
 sk_rmse = np.sqrt(mean_squared_error(y_true=Y_test, y_pred=y_pred))
 sk_r2 = r2_score(y_true=Y_test, y_pred=y_pred)
-print('Test sklearn RMSE: {rmse} and R2: {r2}'.format(rmse=sk_rmse, r2=sk_r2))
+print("Test sklearn RMSE: {rmse} and R2: {r2}".format(rmse=sk_rmse, r2=sk_r2))
 ```
 
 To complete the comparison we visualize both target values by plotting them and overlaying corresponding predictions.

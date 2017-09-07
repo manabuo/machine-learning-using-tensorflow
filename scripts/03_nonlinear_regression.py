@@ -21,18 +21,18 @@ def hidden_layers(in_tensor, layers):
     h_input = in_tensor
     for i, l in enumerate(layers):
         h_input = tf.layers.dense(inputs=h_input, units=l["units"], activation=l["act_fn"],
-                                  name='hidden_{i}'.format(i=i))
+                                  name="hidden_{i}".format(i=i))
     return h_input
 
 
 # Data Location ========================================================================================================
-data_dir = os.path.join('scripts', 'data')
-model_dir = os.path.join(data_dir, '03')
+data_dir = os.path.join("scripts", "data")
+model_dir = os.path.join(data_dir, "03")
 # If path does not exists then create one
 if not os.path.isdir(model_dir):
     os.makedirs(model_dir)
 # Defines path to the model files
-checkpoint_path = os.path.join(model_dir, 'checkpoints')
+checkpoint_path = os.path.join(model_dir, "checkpoints")
 
 # Data Preparation =====================================================================================================
 # Define one-dimensional feature vector
@@ -49,6 +49,9 @@ X_train_val, X_test, Y_train_val, Y_test = train_test_split(feature, target, tes
 X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.33, random_state=42)
 
 # Graph Construction ===================================================================================================
+# Resets default graph
+tf.reset_default_graph()
+
 # Parameters
 X_FEATURES = X_train.shape[1]
 Y_FEATURES = Y_train.shape[1]
@@ -63,21 +66,17 @@ idx = list(range(X_train.shape[0]))
 # Determine total number of batches
 n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
 
-# Resets default graph
-tf.reset_default_graph()
-
 # Define inputs to the model
-with tf.variable_scope('inputs'):
+with tf.variable_scope("inputs"):
     # placeholder for input features
-    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name='predictors')
+    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name="predictors")
     # placeholder for true values
-    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='target')
+    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name="target")
 
 # Define nonlinear regression model
-with tf.variable_scope('nonlinear_regression'):
-
+with tf.variable_scope("nonlinear_regression"):
     # Define hidden layers
-    with tf.variable_scope('hidden_layers'):
+    with tf.variable_scope("hidden_layers"):
         # Constructs hidden fully connected layer network
         h = hidden_layers(in_tensor=x, layers=LAYERS)
 
@@ -89,7 +88,7 @@ with tf.variable_scope('nonlinear_regression'):
     # train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 
 # Define metric ops
-with tf.variable_scope('metrics'):
+with tf.variable_scope("metrics"):
     # Determine total RMSE
     _, rmse = tf.metrics.root_mean_squared_error(labels=y_true, predictions=prediction)
     # Define total r_squared score as 1 - Residual sum of squares (rss) /  Total sum of squares (tss)
@@ -112,7 +111,7 @@ with tf.Session() as sess:
     # Initialize variables
     sess.run(fetches=[init_global, init_local])
     # Training cycle
-    for e in range(1, EPOCHS // 3+1):
+    for e in range(1, EPOCHS // 3 + 1):
         # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
         # input data order.
         np.random.shuffle(idx)
@@ -150,7 +149,7 @@ with tf.Session() as sess:
     saver.restore(sess=sess, save_path=checkpoint_path)
     print("Model restored from file: {path}".format(path=save_path))
     # Resume training
-    for e in range(EPOCHS // 3+1, EPOCHS + 1):
+    for e in range(EPOCHS // 3 + 1, EPOCHS + 1):
         # At the beginning of each epoch the training data set is reshuffled in order to avoid dependence on
         # input data order.
         np.random.shuffle(idx)
@@ -198,9 +197,9 @@ print(msg)
 dpoints = np.asarray(a=sorted(np.concatenate([X_test, y_pred], axis=1), key=lambda s: s[0]))
 # Create figure
 fig = plt.figure()
-fig.suptitle('Prediction vs. Ground truth', fontsize=14, fontweight='bold')
+fig.suptitle("Prediction vs. Ground truth", fontsize=14, fontweight="bold")
 # Plot comparison of predicted to ground truth values
-plt.plot(dpoints[:, 0], dpoints[:, 1], color='orange', linewidth=2, label='prediction')
-plt.scatter(x=X_test, y=Y_test, c='black', s=2, label='ground truth')
+plt.plot(dpoints[:, 0], dpoints[:, 1], color="orange", linewidth=2, label="prediction")
+plt.scatter(x=X_test, y=Y_test, c="black", s=2, label="ground truth")
 plt.legend()
-plt.ylabel('target')
+plt.ylabel("target")

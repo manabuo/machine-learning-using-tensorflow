@@ -2,7 +2,7 @@
 
 In the previous chapters, we presented *simple* [Feedforward Neural Networks](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7) (FNN) that varied in size and purpose. These type of networks work well on structured (fact based) data where both event order information and location relative to other records is irrelevant. However, this, as you might imagine, is not always the case.
 
-For example, consider images, where every pixel has a value and a specific location. This pixel's value by itself does not provide us with much information and it defiantly does not help us to understand the image. Thus in order to *see* the image, the pixel's neighbours and their neighbour have to be considered as well. For these type of problems, the [Convolutional Neural Networks](http://cs231n.github.io/convolutional-networks/) (CNN, *not a news agency!*) are used, as they are created to learn from the information that is contained in the pixel and also around it. In this tutorial, we will not discuss this type of networks as they are not often used on the structured data, like, patient records, transaction records, etc.
+For example, consider images, where every pixel has a value and a specific location. This pixel's value by itself does not provide us with much information and it defiantly does not help us to understand the image. Thus in order to *see* the image, the pixel's neighbours and their neighbour has to be considered as well. For these type of problems, the [Convolutional Neural Networks](http://cs231n.github.io/convolutional-networks/) (CNN, *not a news agency!*) are used, as they are created to learn from the information that is contained in the pixel and also around it. In this tutorial, we will not discuss this type of networks as they are not often used on the structured data, like, patient records, transaction records, etc.
 
 However, the other type of network that is gaining popularity is the [Recurrent Neural Network](http://karpathy.github.io/2015/05/21/rnn-effectiveness/) (RNN).
 
@@ -55,14 +55,14 @@ Next step as before is a graph construction, but in this tutorial, we going to s
 
 #### Graph Construction
 
-As usual we start with *inputs* section, where, as suggested earlier, the shape of the input (`in_seq`) and output (`out_seq`) variables now is `[None, INPUT_SEQUENCE_LENGTH, INPUT_FEATURES]` and `[None, OUTPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES]`, respectively.
+As usual, we start with *inputs* section, where, as suggested earlier, the shape of the input (`in_seq`) and output (`out_seq`) variables now is `[None, INPUT_SEQUENCE_LENGTH, INPUT_FEATURES]` and `[None, OUTPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES]`, respectively.
 
 ```python
-with tf.variable_scope('inputs'):
+with tf.variable_scope("inputs"):
     # placeholder for input sequence
-    in_seq = tf.placeholder(dtype=tf.float32, shape=[None, INPUT_SEQUENCE_LENGTH, INPUT_FEATURES], name='predictors')
+    in_seq = tf.placeholder(dtype=tf.float32, shape=[None, INPUT_SEQUENCE_LENGTH, INPUT_FEATURES], name="predictors")
     # placeholder for output sequence
-    out_seq = tf.placeholder(dtype=tf.float32, shape=[None, OUTPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES], name='target')
+    out_seq = tf.placeholder(dtype=tf.float32, shape=[None, OUTPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES], name="target")
     # placeholder for boolean that controls dropout
     training = tf.placeholder_with_default(input=False, shape=None, name="dropout_switch")
     with tf.variable_scope("learning_rate"):
@@ -86,7 +86,7 @@ When training a model, it is often recommended to lower the learning rate as the
 Further, having specified all the necessary variables we can proceed with constructing the recurrent neural network part of the graph.
 
 ```python
-with tf.variable_scope('recurrent_layer'):
+with tf.variable_scope("recurrent_layer"):
     # Create list of GRU unit recurrent network cell
     gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"], activation=l["act_fn"]) for l in GRU_LAYERS]
     # Connects multiple RNN cells
@@ -95,7 +95,7 @@ with tf.variable_scope('recurrent_layer'):
     rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=in_seq, dtype=tf.float32)
 ```
 
-As we said, in this and what follows we are going to use only the GRU units for RNN. For other type of cells, see [here](https://www.tensorflow.org/api_docs/python/tf/nn/rnn_cell). In TensorFlow GRU cell is [`tf.nn.rnn_cell.GRUCell()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/GRUCell), this function requires one parameter, `num_units`,  which defines a number of hidden units per cell. Next, we combine all the cells into a list which is passed to `tf.nn.rnn_cell.MultiRNNCell()` function that stakes all the single cells. Next function, [`tf.nn.dynamic_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/dynamic_rnn) is responsible for creation of the actual RNN.
+As we said, in this and what follows we are going to use only the GRU units for RNN. For another type of cells, see [here](https://www.tensorflow.org/api_docs/python/tf/nn/rnn_cell). In TensorFlow GRU cell is [`tf.nn.rnn_cell.GRUCell()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/GRUCell), this function requires one parameter, `num_units`,  which defines a number of hidden units per cell. Next, we combine all the cells into a list which is passed to `tf.nn.rnn_cell.MultiRNNCell()` function that takes all single cells. Next function, [`tf.nn.dynamic_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/dynamic_rnn) is responsible for creation of the actual RNN.
 
 > Note: In other tutorials you may have seen another function [`tf.nn.static_rnn()`](https://www.tensorflow.org/api_docs/python/tf/nn/static_rnn) that creates a recurrent neural network. This function is still available in the API but there have been suggestions that it will be deprecated one day due to its limitation that we will touch on in the following examples.
 
@@ -104,7 +104,7 @@ In this particular situation, it only requires three parameters, which are our s
 These lines are everything that is needed to construct a multi-layer RNN. So, next step is to use RNN to make a prediction.
 
 ```python
-with tf.variable_scope('predictions'):
+with tf.variable_scope("predictions"):
     # 1) Select the last relevant RNN output.
     # last_output = rnn_output[:, -1, :]
     # However, the last output is simply equal to the last state.
@@ -114,7 +114,7 @@ with tf.variable_scope('predictions'):
     output = tf.concat(values=rnn_state, axis=1)
 
     # Here prediction is the one feature vector at the time point (not a sequence of the feature vectors)
-    prediction = tf.layers.dense(inputs=output, units=OUTPUT_FEATURES, name='prediction')
+    prediction = tf.layers.dense(inputs=output, units=OUTPUT_FEATURES, name="prediction")
     # Reduce dimension of the input tensor
     truth = tf.squeeze(input=out_seq, axis=1)
     # Define loss function as mean square error (MSE)
@@ -122,7 +122,7 @@ with tf.variable_scope('predictions'):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss=loss, global_step=global_step)
 ```
 
-The output of [`tf.nn.dynamic_rnn()`] function is a tuple that contains cell outputs and the states for all timesteps. In order to make a prediction we are using output of the last timestep or in this situation it is also the last RNN state.  The last output tensor then is passed to the dropout layer, which is used to prevent an overfitting. Function [`tf.layers.dropout()`](https://www.tensorflow.org/api_docs/python/tf/layers/dropout) requires only one parameter `inputs`. Dropout has to be applied only during the training phase wnd when we compute predictions or other calculation it has to be switched off. This can be achieved in two ways, first, passing different `rate` values for each phase or as we have done, by passing a `training` boolean.
+The output of the [`tf.nn.dynamic_rnn()`] function is a tuple that contains cell outputs and the states for all timesteps. In order to make a prediction we are using the output of the last timestep or in this situation, it is also the last RNN state.  The last output tensor then is passed to the dropout layer, which is used to prevent an overfitting. Function [`tf.layers.dropout()`](https://www.tensorflow.org/api_docs/python/tf/layers/dropout) requires only one parameter `inputs`. Dropout has to be applied only during the training phase and when we compute predictions or other calculation it has to be switched off. This can be achieved in two ways, first, passing different `rate` values for each phase or as we have done, by passing a `training` boolean.
 
 > Note: In this particular example, the dropout does not have the noticeable impact as our network is small. In the next example, we will show how to apply dropout to RNN cells.
 
@@ -135,10 +135,10 @@ This chapter has references to two python scripts. The first of which, [04_01_rn
 In the script [04_02_rnn.py](scripts/04_02_rnn.py), we show how to add a dropout layer around RNN cells. To do this we use [`tf.nn.rnn_cell.DropoutWrapper()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/DropoutWrapper). Specifying dropout probabilities for `input_keep_prob` and `output_keep_prob` parameters we can add dropout to inputs and outputs for the given cell. Unfortunately, at this moment, this function does not take the parameter that informs the wrapper if we are training or testing the model, as it was in the case of `tf.layers.dropout()`. To resolve this issue, as mentioned earlier, we can use more than one approach. However, as we have already introduced the boolean switch `training`, we will show how to use it.
 
 ```python
-with tf.variable_scope('recurrent_layer'):
+with tf.variable_scope("recurrent_layer"):
     # Create a list of GRU unit recurrent network cells with dropouts wrapped around each.
     def with_dropout(layers, rnn_input):
-        with tf.variable_scope('with_dropout'):
+        with tf.variable_scope("with_dropout"):
             gru_cells = [tf.nn.rnn_cell.DropoutWrapper(cell=tf.nn.rnn_cell.GRUCell(num_units=l["units"],
                                                                                    activation=l["act_fn"]),
                                                        output_keep_prob=l["keep_prob"]) for l in layers]
@@ -149,7 +149,7 @@ with tf.variable_scope('recurrent_layer'):
 
 
     def without_dropout(layers, rnn_input):
-        with tf.variable_scope('without_dropout'):
+        with tf.variable_scope("without_dropout"):
             gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"], activation=l["act_fn"]) for l in layers]
             # Connects multiple RNN cells
             rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
@@ -196,16 +196,16 @@ In the code that is referenced in this chapter you may see the following lines i
 
 ```python
 # Add the following variables to log/summary file that is used by TensorBoard
-tf.summary.scalar(name='learning_rate', tensor=learning_rate)
-tf.summary.scalar(name='global_step', tensor=global_step)
+tf.summary.scalar(name="learning_rate", tensor=learning_rate)
+tf.summary.scalar(name="global_step", tensor=global_step)
 ```
 
 + `predictions` variables:
 
 ```python
 # Add the following variables to log/summary file that is used by TensorBoard
-tf.summary.scalar(name='MSE', tensor=loss)
-tf.summary.scalar(name='RMSE', tensor=tf.sqrt(x=loss))
+tf.summary.scalar(name="MSE", tensor=loss)
+tf.summary.scalar(name="RMSE", tensor=tf.sqrt(x=loss))
 ```
 
 In both cases we use [`tf.summary.scalar()`](https://www.tensorflow.org/api_docs/python/tf/summary/scalar). It is a method that exports information about a single scalar value. It requires two parameters `name`, which is a string that helps to identify the tensor value in TensorBoard and `tensor`, which is a tensor value itself.
@@ -246,7 +246,7 @@ In this particular example `"path/to/event-directory"` is something like this `s
 
 ### Next
 
-In the [next chapter](rnn_seq.md) we will show how to modify the code presented here in order to make sequential predictions rather then just points at certain time. We will also show how to deal input sequences that do no have the same length.
+In the [next chapter](rnn_seq.md) we will show how to modify the code presented here in order to make sequential predictions rather than just points at a certain time. We will also show how to deal input sequences that do not have the same length.
 
 ### Code
 

@@ -15,27 +15,27 @@ from sklearn.preprocessing import MinMaxScaler
 
 # Data Location ========================================================================================================
 # Define model directory structure
-data_dir = os.path.join('scripts', 'data')
-model_dir = os.path.join(data_dir, '01')
+data_dir = os.path.join("scripts", "data")
+model_dir = os.path.join(data_dir, "01")
 # If path does not exists then create one
 if not os.path.isdir(model_dir):
     os.makedirs(model_dir)
 # Defines path to data file
-data_path = os.path.join(model_dir, 'raw.data')
+data_path = os.path.join(model_dir, "raw.data")
 # Retrieve data
 if not os.path.exists(data_path):
     urllib.request.urlretrieve(
-        url='http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data',
+        url="http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data",
         filename=data_path)
     print("Downloading data set to: {path}".format(path=data_path))
 
 # Data Preparation =====================================================================================================
 # Read in the data
-df = pd.read_csv(filepath_or_buffer=data_path, names=['ID', 'diagnosis'] + ['rv_{i}'.format(i=i) for i in range(30)])
+df = pd.read_csv(filepath_or_buffer=data_path, names=["ID", "diagnosis"] + ["rv_{i}".format(i=i) for i in range(30)])
 
 # Split data set into Target and Features data sets
-target_df = df.filter(like='diagnosis')
-features_df = df.drop(labels=['ID', 'diagnosis'], axis=1)
+target_df = df.filter(like="diagnosis")
+features_df = df.drop(labels=["ID", "diagnosis"], axis=1)
 
 # One hot encode Target date set
 dummy_target = pd.get_dummies(data=target_df).values
@@ -53,6 +53,9 @@ X_val = scaler.transform(unscaled_X_val)
 X_test = scaler.transform(unscaled_X_test)
 
 # Logistic Regression Graph Construction ===============================================================================
+# Resets default graph
+tf.reset_default_graph()
+
 # Parameters
 X_FEATURES = X_train.shape[1]
 Y_FEATURES = Y_train.shape[1]
@@ -66,18 +69,15 @@ idx = list(range(X_train.shape[0]))
 # Determine total number of batches
 n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
 
-# Resets default graph
-tf.reset_default_graph()
-
 # Define inputs to the model
-with tf.variable_scope('inputs'):
+with tf.variable_scope("inputs"):
     # placeholder for input features
-    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name='predictors')
+    x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name="predictors")
     # placeholder for true values
-    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name='target')
+    y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name="target")
 
 # Define logistic regression model
-with tf.variable_scope('logistic_regression'):
+with tf.variable_scope("logistic_regression"):
     # Predictions are performed by Y_FEATURES neurons in the output layer
     logits = tf.layers.dense(inputs=x, units=Y_FEATURES, name="prediction")
     # Define loss and training
@@ -88,11 +88,11 @@ with tf.variable_scope('logistic_regression'):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 
 # Define metric ops
-with tf.variable_scope('metrics'):
+with tf.variable_scope("metrics"):
     predictions = tf.argmax(input=logits, axis=1)
     labels = tf.argmax(input=y_true, axis=1)
     _, accuracy = tf.metrics.accuracy(labels=labels, predictions=predictions)
-    _, auc = tf.metrics.auc(labels=labels, predictions=predictions, curve='ROC', name='auc')
+    _, auc = tf.metrics.auc(labels=labels, predictions=predictions, curve="ROC", name="auc")
     _, precision = tf.metrics.precision(labels=labels, predictions=predictions)
 
 # Model Training =======================================================================================================
@@ -150,14 +150,14 @@ cm = confusion_matrix(y_true=y_t, y_pred=y_p)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.set_aspect(1)
-res = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+res = ax.imshow(cm, interpolation="nearest", cmap=plt.cm.Blues)
 width, height = cm.shape
 for x in range(width):
     for y in range(height):
         ax.annotate(str(cm[x][y]), xy=(y, x),
-                    horizontalalignment='center',
-                    verticalalignment='center')
+                    horizontalalignment="center",
+                    verticalalignment="center")
 cb = fig.colorbar(res)
 tick_marks = np.arange(2)
-plt.xticks(tick_marks, ['B', 'M'])
-plt.yticks(tick_marks, ['B', 'M'])
+plt.xticks(tick_marks, ["B", "M"])
+plt.yticks(tick_marks, ["B", "M"])
