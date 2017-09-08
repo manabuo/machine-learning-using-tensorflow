@@ -106,11 +106,11 @@ You sometimes see `InteractiveSession` instead of `Session`. The only difference
 
 TensorFlow takes in Python native types such as Python boolean values, numeric values (integers, floats), and strings. Single values will be converted to 0-d tensors (or scalars), lists of values will be converted to 1-d tensors (vectors), lists of lists of values will be converted to 2-d tensors (matrices), and so on. However, TensorFlow also has its own data types, such as, `tf.int32`, `tf.float32`, for more detailed description see [here](https://www.tensorflow.org/programmers_guide/dims_types). These types are actually based on those of NumPy and thus, in most cases, they can be used interchangeably.
 
-[Next chapter](logistic_regression.md) will show how to implement logistic regression in TensorFlow, if you wish to return to previous chapter press [here](environment.md).
+[Next chapter](chapter3.md) will show how to implement logistic regression in TensorFlow, if you wish to return to previous chapter press [here](chapter1.md).
 
 ### Code
 
-+ [00_first_step.py](scripts/00_first_step.py)
++ [00_first_step.py](../scripts/00_first_step.py)
 
 ### References
 

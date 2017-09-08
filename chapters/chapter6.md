@@ -130,9 +130,9 @@ Remaining steps in the graph are the same as earlier examples, with one exceptio
 
 Graph execution follows the same steps as in previous examples. The only modification that has been done is for `feed_dict` parameter, as it now allows the third value, `training`, that tells the graph if we perform training or not and that subsequently turns on and off the dropout layer.
 
-This chapter has references to two python scripts. The first of which, [04_01_rnn.py](scripts/04_01_rnn.py). was described in detail above, but as the second scripts have only one change, we will explain only it.
+This chapter has references to two python scripts. The first of which, [04_01_rnn.py](../scripts/04_01_rnn.py). was described in detail above, but as the second scripts have only one change, we will explain only it.
 
-In the script [04_02_rnn.py](scripts/04_02_rnn.py), we show how to add a dropout layer around RNN cells. To do this we use [`tf.nn.rnn_cell.DropoutWrapper()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/DropoutWrapper). Specifying dropout probabilities for `input_keep_prob` and `output_keep_prob` parameters we can add dropout to inputs and outputs for the given cell. Unfortunately, at this moment, this function does not take the parameter that informs the wrapper if we are training or testing the model, as it was in the case of `tf.layers.dropout()`. To resolve this issue, as mentioned earlier, we can use more than one approach. However, as we have already introduced the boolean switch `training`, we will show how to use it.
+In the script [04_02_rnn.py](../scripts/04_02_rnn.py), we show how to add a dropout layer around RNN cells. To do this we use [`tf.nn.rnn_cell.DropoutWrapper()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/DropoutWrapper). Specifying dropout probabilities for `input_keep_prob` and `output_keep_prob` parameters we can add dropout to inputs and outputs for the given cell. Unfortunately, at this moment, this function does not take the parameter that informs the wrapper if we are training or testing the model, as it was in the case of `tf.layers.dropout()`. To resolve this issue, as mentioned earlier, we can use more than one approach. However, as we have already introduced the boolean switch `training`, we will show how to use it.
 
 ```python
 with tf.variable_scope("recurrent_layer"):
@@ -246,12 +246,12 @@ In this particular example `"path/to/event-directory"` is something like this `s
 
 ### Next
 
-In the [next chapter](rnn_seq.md) we will show how to modify the code presented here in order to make sequential predictions rather than just points at a certain time. We will also show how to deal input sequences that do not have the same length.
+In the [next chapter](chapter7.md) we will show how to modify the code presented here in order to make sequential predictions rather than just points at a certain time. We will also show how to deal input sequences that do not have the same length.
 
 ### Code
 
-+ [04_01_rnn.py](scripts/04_01_rnn.py)
-+ [04_02_rnn.py](scripts/04_02_rnn.py)
++ [04_01_rnn.py](../scripts/04_01_rnn.py)
++ [04_02_rnn.py](../scripts/04_02_rnn.py)
 
 ### References
 

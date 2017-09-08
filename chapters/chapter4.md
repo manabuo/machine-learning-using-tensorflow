@@ -130,12 +130,12 @@ To complete the comparison we visualize both target values by plotting them and 
 
 ### Next
 
-In the [next chapter](nonlinear_regression.md) we will also see how to extend the code presented here to fully connected neural network for the regression task.
-However, if you wish to return to the previous chapter press [here](logistic_regression.md).
+In the [next chapter](chapter5.md) we will also see how to extend the code presented here to fully connected neural network for the regression task.
+However, if you wish to return to the previous chapter press [here](chapter3.md).
 
 ### Code
 
-+ [02_linear_regression.py](scripts/02_linear_regression.py)
++ [02_linear_regression.py](../scripts/02_linear_regression.py)
 
 ### References
 

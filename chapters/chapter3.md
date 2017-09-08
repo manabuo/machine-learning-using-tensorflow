@@ -238,11 +238,11 @@ plt.yticks(tick_marks, ["B", "M"])
 
 ### Next
 
-This concludes the description of the Logistic Regression and in the [example that follows](linear_regression.md) we will see how to modify our existing code in order to perform the Linear Regression. However, if you wish to return to the previous chapter press [here](tensorflow_intro.md).
+This concludes the description of the Logistic Regression and in the [example that follows](chapter4.md) we will see how to modify our existing code in order to perform the Linear Regression. However, if you wish to return to the previous chapter press [here](chapter2.md).
 
 ### Code
 
-+ [01_logistic_regression.py](scripts/01_logistic_regression.py)
++ [01_logistic_regression.py](../scripts/01_logistic_regression.py)
 
 ### References
 

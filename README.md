@@ -10,14 +10,14 @@ All code presented in this tutorial is available in the form of the scripts. Eac
 
 This tutorial consists of the following sections:
 
-+ [*Python environment set-up*](environment.md) chapter is a guide to a user on how to install all necessary tools in order to run the provided scripts (feel free to skip this if you know about **conda** and **yml** files).
-+ [*Introduction to TensorFlow*](tensorflow_intro.md) chapters provides a description of basic building blocks and concepts that are utilised for the model building in TensorFlow.
-+ [*Logistic Regression*](logistic_regression.md) - shows how to uses "real" data set and determine the type of the breast cancer.
-+ [*Linear Regression*](linear_regression.md) -  provides a simple example on how to fit a straight line to a data.
-+ [*Nonlinear Regression*](nonlinear_regression.md) - gives description on how to fit a nonlinear equation to a data
-+ [*Introduction to Recurrent Neural Network*](rnn_intro.md) - provides a very brief explanation why we might need to use the Recurrent Neural Networks and what options are available in TensorFlow out of the box.
-+ [*Recurrent Neural Network and Sequences*](rnn_seq.md) chapter shows how to deal with the situation when input sequences of variable length and how to predict sequences.
++ [*Python environment set-up*](chapters/chapter1.md) chapter is a guide to a user on how to install all necessary tools in order to run the provided scripts (feel free to skip this if you know about **conda** and **yml** files).
++ [*Introduction to TensorFlow*](chapters/chapter2.md) chapters provides a description of basic building blocks and concepts that are utilised for the model building in TensorFlow.
++ [*Logistic Regression*](chapters/chapter3.md) - shows how to uses "real" data set and determine the type of the breast cancer.
++ [*Linear Regression*](chapters/chapter4.md) -  provides a simple example on how to fit a straight line to a data.
++ [*Nonlinear Regression*](chapters/chapter5.md) - gives description on how to fit a nonlinear equation to a data
++ [*Introduction to Recurrent Neural Network*](chapters/chapter6.md) - provides a very brief explanation why we might need to use the Recurrent Neural Networks and what options are available in TensorFlow out of the box.
++ [*Recurrent Neural Network and Sequences*](chapters/chapter7.md) chapter shows how to deal with the situation when input sequences of variable length and how to predict sequences.
 
 ### Next
 
-So, if you still feel positive and want to continue, let's [continue](environment.md).
+So, if you still feel positive and want to continue, let's [continue](chapters/chapter1.md).

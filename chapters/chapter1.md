@@ -42,8 +42,8 @@ While in the environment, you can run any python script and it will use only pac
 
 > Note:  It is advisable to create a separate environment and `environment.yml` files for each project. For more information on conda environment management see [here](https://conda.io/docs/commands.html#conda-environment-commands).
 
-[Next chapter](tensorflow_intro.md)  is going give a very brief introduction into TensorFlow, if you wish to return to previous chapter press [here](introduction.md).
+[Next chapter](chapter2.md)  is going give a very brief introduction into TensorFlow, if you wish to return to previous chapter press [here](../README.md).
 
 ### Code
 
-+ [environment.yml](scripts/environment.yml)
++ [environment.yml](../scripts/environment.yml)

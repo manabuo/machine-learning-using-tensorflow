@@ -128,11 +128,11 @@ In this particular example, for all hidden layers, we used [Rectified Linear Uni
 
 ### Next
 
-In this chapter, we saw how to create *simple* Feedforward Neural Networks using the model that we showed in the [previous chapter](linear_regression.md) and just adding an additional neural layer. Hence, current model allows us to make predictions for linear and nonlinear processes. However, this network cannot be used if data, that we are interested in, have temporal dependencies. Thus in the [chapter that follows](rnn_intro.md), we will show how to do in this situation.
+In this chapter, we saw how to create *simple* Feedforward Neural Networks using the model that we showed in the [previous chapter](chapter4.md) and just adding an additional neural layer. Hence, current model allows us to make predictions for linear and nonlinear processes. However, this network cannot be used if data, that we are interested in, have temporal dependencies. Thus in the [chapter that follows](chapter6.md), we will show how to do in this situation.
 
 ### Code
 
-+ [03_nonlinear_regression.py](scripts/03_nonlinear_regression.py)
++ [03_nonlinear_regression.py](../scripts/03_nonlinear_regression.py)
 
 ### References
 
