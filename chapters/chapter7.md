@@ -2,23 +2,7 @@
 
 In this chapter, we are going to cover the case when we have input sequences with variable lengths and the case when we want to predict a time sequence rather just a point in time. Later is achieved by **many to many** type recurrent neural network.
 
-```mermaid
-graph TD
-subgraph RNN
-  r1((h1)) --> r2((h1))
-  r2((h2)) --> r3((h1))
-end
-subgraph OUTPUT
-    r1((h1)) --> o1((y1))
-    r2((h2)) --> o2((y2))
-    r3((h3)) --> o3((y3))
-end
-  subgraph INPUT
-    i1((x1)) --> r1((h1))
-    i2((x2)) --> r2((h2))
-    i3((x3)) --> r3((h3))
-  end
-```
+![Many to many RNN](../assets/image5.svg)
 
 We will start with time sequence prediction as it requires only a slight adjustment to the code that we considered in the previous chapter.
 
@@ -109,7 +93,7 @@ This tensor then is passed to `tf.nn.dynamic_rnn()` _ops_ as an additional `sequ
 rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=input_seq, dtype=tf.float32,
                                             sequence_length=sequence_length)
 ```
-Now RNN outputs zero vectors for every time step past the input sequence length. Moreover, the states tensor contains the final state of each cell (excluding the zero vectors). This allows us to use the final state as before and for that reason the rest of the code in the script and stages are similar to the code described in the previous chapters. 
+Now RNN outputs zero vectors for every time step past the input sequence length. Moreover, the states tensor contains the final state of each cell (excluding the zero vectors). This allows us to use the final state as before and for that reason the rest of the code in the script and stages are similar to the code described in the previous chapters.
 
 ### Next
 
