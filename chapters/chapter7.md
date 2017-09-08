@@ -62,7 +62,7 @@ For this example, we will use synthetic data set.
 
 ### Code
 
-+ [04_03_seq_rnn.py](../scripts/04_03_seq_rnn.py)
-+ [05_variable_seq.py](../scripts/05_variable_seq.py)
+* [04\_03\_seq\_rnn.py](../scripts/04_03_seq_rnn.py)
+* [05\_variable\_seq.py](../scripts/05_variable_seq.py)
 
 ### References

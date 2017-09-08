@@ -1,4 +1,4 @@
-## Linear Regression
+[](/scripts/02_linear_regression.py)[](/scripts/02_linear_regression.py)[](/scripts/02_linear_regression.py)## Linear Regression
 
 In this chapter, we introduce example for Linear Regression and as before we will start with data preparation stage.
 
@@ -83,9 +83,9 @@ The second metric is the [coefficient of determination](https://en.wikipedia.org
 $$
 R^{2} = 1 - \frac{\sum_{i}(y_{i} - \hat{y}_{i})^{2}}{\sum_{i}(y_{i} - \bar{y})^{2}} \quad\text{and}\quad  \bar{y} =\frac{1}{n}\sum_{i=1}^{n}y_{i},
 $$
-where $y_{i}$ stands for observations and $\hat{y}_{i}$ are predictions.
+where $$y_{i}$$ stands for observations and $$\hat{y}_{i}$$ are predictions.
 
-As the names of the functions used in the code are self-explanatory, we will limit explanation to only two functions, `tf.reduce_mean()` and `tf.reduce_sum()`. To begin, `tf.reduce_mean()` function computes a mean value along a given tensor axis, this operation is equivalent to equation for $\bar{y}$. In our situations, this functions yields tensor of rank 1 (vector) which contains two mean values for each target. Next, `tf.reduce_sum()` is equivalent to $\sum_{i}$ operation with option to specify the axis along which it has to  perform summation.
+As the names of the functions used in the code are self-explanatory, we will limit explanation to only two functions, `tf.reduce_mean()` and `tf.reduce_sum()`. To begin, `tf.reduce_mean()` function computes a mean value along a given tensor axis, this operation is equivalent to equation for $$\bar{y}$$. In our situations, this functions yields tensor of rank 1 (vector) which contains two mean values for each target. Next, `tf.reduce_sum()` is equivalent to $$\sum_{i}$$ operation with option to specify the axis along which it has to  perform summation.
 
 ### Model Training and Testing
 
@@ -130,8 +130,8 @@ To complete the comparison we visualize both target values by plotting them and 
 
 ### Next
 
-In the [next chapter](chapter5.md) we will also see how to extend the code presented here to fully connected neural network for the regression task.
-However, if you wish to return to the previous chapter press [here](chapter3.md).
+In the [next chapter](/chapter5.md) we will also see how to extend the code presented here to fully connected neural network for the regression task.
+However, if you wish to return to the previous chapter press [here](/chapter3.md).
 
 ### Code
 
