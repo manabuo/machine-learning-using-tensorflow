@@ -11,7 +11,7 @@ The data set that is used in the example comes from [UC Irvine Machine Learning 
 
 ### Data Preparation
 
-For brevity, we are going to give only a brief overview of how data were prepared and what is the final shape of the data that are passed to the computational graph. So we start by reading in the data file _wdbc.data_, where first two columns names are taken from supplementary the file _wdbc.names_ for convenience and the rest are just numbered from 1 to 30 with prefix  _rv\_\_. After reading in, we split the set into outcome/target and feature/predictors sets, as \_ID_ does not contain useful information \(at least that should be the case\) we drop it. At this stage, we have two data frames, one for target values of shape \(569 rows x 1 columns\) and one for features, which shape is \(569 rows x 30 columns\).
+For brevity, we are going to give only a brief overview of how data were prepared and what is the final shape of the data that are passed to the computational graph. So we start by reading in the data file _wdbc.data_, where first two columns names are taken from supplementary the file _wdbc.names_ for convenience and the rest are just numbered from 1 to 30 with prefix  _rv\_\_. After reading in, we split the set into outcome/target and feature/predictors sets, as \_ID\_ does not contain useful information \(at least that should be the case\) we drop it. At this stage, we have two data frames, one for target values of shape \(569 rows x 1 columns\) and one for features, which shape is \(569 rows x 30 columns\).
 
 Further, we one-hot encode target set and convert it to a numpy array. As we have only two categories, _B_ for benign and  _M_ for malignant, in the set, the shape of the array is \(569 rows x 2 columns\). Rows here represent a number of observations and 2 columns stand for outcome classes.
 
@@ -193,8 +193,7 @@ for e in range(EPOCHS + 1):
 
 The outer loop is for epochs in which we first shuffle input array indices and then define a [Python generator](https://wiki.python.org/moin/Generators) for a batch creation. This function takes in a list of indices and creates a slice that contains `BATCH_SIZE` number or less of elements. The inner explicit loop is over a number of batches that are computed beforehand. In the loop, [`next()`](https://www.programiz.com/python-programming/methods/built-in/next) function takes in our predefined Python generator and returns a list of index values of length `BATCH_SIZE`. Every time this function is executed function retrieves the next item in the iterator.
 
-Having obtained the list of indices, we construct an input `feed` dictionary, where we define which input array is assigned to which placeholder in the graph. In this example, we train our model using batches and thus we provide only slices of whole target and feature data sets. Then we execute the graph, by supplying  
-[`run`](https://www.tensorflow.org/api_docs/python/tf/Session#run) method with two parameters, `fetches` which may be a single graph element or list of an arbitrary number of graph elements, `feed_dict` corresponds to input values.
+Having obtained the list of indices, we construct an input `feed` dictionary, where we define which input array is assigned to which placeholder in the graph. In this example, we train our model using batches and thus we provide only slices of whole target and feature data sets. Then we execute the graph, by supplying the [`run`](https://www.tensorflow.org/api_docs/python/tf/Session#run) method with two parameters, `fetches` which may be a single graph element or list of an arbitrary number of graph elements, `feed_dict` corresponds to input values.
 
 The `run` method runs one step of TensorFlow computation, thus iterating over a number of batches where at each iteration a new input batch is created and supplied to the graph, it has to modify weights and biases in order to find a middle-ground that would satisfy all training input data.
 
@@ -244,11 +243,11 @@ plt.yticks(tick_marks, ["B", "M"])
 
 ### Next
 
-This concludes the description of the Logistic Regression and in the [example that follows](/chapter4.md) we will see how to modify our existing code in order to perform the Linear Regression. However, if you wish to return to the previous chapter press [here](/chapter2.md).
+This concludes the description of the Logistic Regression and in the [example that follows](/chapters/chapter4.md) we will see how to modify our existing code in order to perform the Linear Regression. However, if you wish to return to the previous chapter press [here](/chapters/chapter2.md).
 
 ### Code
 
-* [01\_logistic\_regression.py](../scripts/01_logistic_regression.py)
+* [01\_logistic\_regression.py](/scripts/01_logistic_regression.py)
 
 ### References
 

@@ -6,7 +6,7 @@ First of all, ensure that you have installed **conda** package manager. If you h
 
 > Note: Python version required to run the provided scripts is **3.6.2** and for TensorFlow API it is **1.3.0**.
 
-Further, clone all the scripts that are available in [this repository](https://github.com/satonreb/ml_in_tensorflow) and then using command line switch to the location where the cloned files are. Here you should see `environment.yml` file that specifies the name of the conda environment and packages that will be installed. To create the environment run the following command:
+Further, clone all the scripts that are available in [this repository](https://bitbucket.org/tomasbernotas/machine-learning-using-tensorflow) and then using command line switch to the location where the cloned files are. Here you should see `environment.yml` file that specifies the name of the conda environment and packages that will be installed. To create the environment run the following command:
 
 ```bash
 conda env create -f environment.yml
@@ -44,11 +44,11 @@ While in the environment, you can run any python script and it will use only pac
 
 > Note:  It is advisable to create a separate environment and `environment.yml` files for each project. For more information on _conda_ environment management see [here](https://conda.io/docs/commands.html#conda-environment-commands).
 
-[Next chapter](/chapter2.md)  is going give a very brief introduction into TensorFlow, if you wish to return to previous chapter press [here](../README.md).
+[Next chapter](/chapters/chapter2.md) is going give a very brief introduction into TensorFlow, if you wish to return to previous chapter press [here](../README.md).
 
 ### Code
 
-* [environment.yml](../scripts/environment.yml)
+* [environment.yml](/scripts/environment.yml)
 
 
 

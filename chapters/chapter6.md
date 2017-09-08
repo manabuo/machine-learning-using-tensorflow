@@ -48,7 +48,7 @@ In the first example, we are going to use sequences as inputs and try to predict
 
 #### Data Preparation
 
-We start our data preparation by splitting input data into tree data set: Training, Validation and Test.  Then we separate features, targets and time variable. It has been shown that for some applications leaving time variable as an additional feature is advantageous, but in this particular example, we will neglect it. Further,  we rescale all the values in the training sets so that they lie between 0 and 1, and using training data set statistics we rescale Validation and Test data. Data preparation stage is completed after transforming flat-file time series to a sequential data.
+We start our data preparation by splitting input data into tree data set: Training, Validation and Test.  Then we separate features, targets and time variable. It has been shown that for some applications leaving time variable as an additional feature is advantageous, but in this particular example, we will neglect it. Further,  we rescale all the values in the training sets so that they lie between $$0$$ and $$1$$, and using training data set statistics we rescale Validation and Test data. Data preparation stage is completed after transforming flat-file time series to a sequential data.
 
 In this example, all input sequences are of the same length, the parameter that defines the length is `INPUT_SEQUENCE_LENGTH`. In the code presented we also have parameter `OUTPUT_SEQUENCE_LENGTH` which for this example should remain 1 as we will try to predict only one point in the future. In order to tell how far in the future prediction should be we introduce `OUTPUT_SEQUENCE_STEPS_AHEAD` parameter. In the nutshell, in this stage, we transform the flat-file time series of the shape `[Time Step, Features]` to two sequential data sets. Input set is of the shape `[Batch, INPUT_SEQUENCE_LENGTH, Features]` and the output set has the shape `[Batch, 1, Features]`, and using input feature sequences we try to predict one target point.
 
@@ -131,9 +131,9 @@ Remaining steps in the graph are the same as earlier examples, with one exceptio
 
 Graph execution follows the same steps as in previous examples. The only modification that has been done is for `feed_dict` parameter, as it now allows the third value, `training`, that tells the graph if we perform training or not and that subsequently turns on and off the dropout layer.
 
-This chapter has references to two python scripts. The first of which, [04\_01\_rnn.py](../scripts/04_01_rnn.py). was described in detail above, but as the second scripts have only one change, we will explain only it.
+This chapter has references to two python scripts. The first of which, [04\_01\_rnn.py](/scripts/04_01_rnn.py). was described in detail above, but as the second scripts have only one change, we will explain only it.
 
-In the script [04\_02\_rnn.py](../scripts/04_02_rnn.py), we show how to add a dropout layer around RNN cells. To do this we use [`tf.nn.rnn_cell.DropoutWrapper()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/DropoutWrapper). Specifying dropout probabilities for `input_keep_prob` and `output_keep_prob` parameters we can add dropout to inputs and outputs for the given cell. Unfortunately, at this moment, this function does not take the parameter that informs the wrapper if we are training or testing the model, as it was in the case of `tf.layers.dropout()`. To resolve this issue, as mentioned earlier, we can use more than one approach. However, as we have already introduced the boolean switch `training`, we will show how to use it.
+In the script [04\_02\_rnn.py](/scripts/04_02_rnn.py), we show how to add a dropout layer around RNN cells. To do this we use [`tf.nn.rnn_cell.DropoutWrapper()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/DropoutWrapper). Specifying dropout probabilities for `input_keep_prob` and `output_keep_prob` parameters we can add dropout to inputs and outputs for the given cell. Unfortunately, at this moment, this function does not take the parameter that informs the wrapper if we are training or testing the model, as it was in the case of `tf.layers.dropout()`. To resolve this issue, as mentioned earlier, we can use more than one approach. However, as we have already introduced the boolean switch `training`, we will show how to use it.
 
 ```python
 with tf.variable_scope("recurrent_layer"):
@@ -247,12 +247,12 @@ In this particular example `"path/to/event-directory"` is something like this `/
 
 ### Next
 
-In the [next chapter](/chapter7.md) we will show how to modify the code presented here in order to make sequential predictions rather than just points at a certain time. We will also show how to deal input sequences that do not have the same length.
+In the [next chapter](/chapters/chapter7.md) we will show how to modify the code presented here in order to make sequential predictions rather than just points at a certain time. We will also show how to deal input sequences that do not have the same length.
 
 ### Code
 
-* [04\_01\_rnn.py](../scripts/04_01_rnn.py)
-* [04\_02\_rnn.py](../scripts/04_02_rnn.py)
+* [04\_01\_rnn.py](/scripts/04_01_rnn.py)
+* [04\_02\_rnn.py](/scripts/04_02_rnn.py)
 
 ### References
 
@@ -262,7 +262,7 @@ In the [next chapter](/chapter7.md) we will show how to modify the code presente
 * [CS231n: Convolutional Neural Networks for Visual Recognition.](http://cs231n.github.io/)
 * [Deep Learning: Feedforward Neural Network](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7)
 * [Recurrent Neural Networks Tutorial, Part 1 – Introduction to RNNs](http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/)
-* Wikipedia articles on [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory) and [Gated Recurrent Unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit)
+* Wikipedia articles on [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Gated Recurrent Unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit) and [Regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29)
 
 
 
