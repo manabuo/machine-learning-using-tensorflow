@@ -1,6 +1,6 @@
 ## Nonlinear Regression
 
-In the previous chapters, we dealt with simple models that worked well for linear relationships. However, not everything can be described by linear functions, and therefore, use of the more sophisticated model is required. In this chapter, we will see how to extend the Linear Regression to the Nonlinear Regression Model or, in the other words, to the Feedforward Neural Network.
+In the previous chapters, we dealt with simple models that worked well for linear relationships. However, not everything can be described by linear functions, and therefore, use of the more sophisticated model is required. In this chapter, we will see how to extend the Linear Regression to the Nonlinear Regression Model or, in the other words, to the Feed-forward Neural Network.
 
 For brevity, we will limit our examples to the model that performs the regression task, as just by changing the cost function, it is possible to use the same graph for the classification task.
 
@@ -129,7 +129,7 @@ In this particular example, for all hidden layers, we used [Rectified Linear Uni
 
 ### Next
 
-In this chapter, we saw how to create _simple_ Feedforward Neural Networks using the model that we showed in the [previous chapter](/chapters/chapter4.md) and just adding an additional neural layer. Hence, current model allows us to make predictions for linear and nonlinear processes. However, this network cannot be used if data, that we are interested in, have temporal dependencies. Thus in the [chapter that follows](/chapters/chapter6.md), we will show how to do in this situation.
+In this chapter, we saw how to create _simple_ Feed-forward Neural Networks using the model that we showed in the [previous chapter](/chapters/chapter4.md) and just adding an additional neural layer. Hence, current model allows us to make predictions for linear and nonlinear processes. However, this network cannot be used if data, that we are interested in, have temporal dependencies. Thus in the [chapter that follows](/chapters/chapter6.md), we will show how to do in this situation.
 
 ### Code
 

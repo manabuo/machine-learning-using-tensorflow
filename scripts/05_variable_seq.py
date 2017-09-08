@@ -116,8 +116,6 @@ if not os.path.exists(data_path):
         # Writes data to the pickle file
         pickle.dump(obj={"features": features, "targets": targets, "seq_len": seq_len, "time": time}, file=output)
     print("Saved data to {path}".format(path=data_path))
-
-
 else:
     print("Reading from {path} file.".format(path=data_path))
     # Opens file from which data will be read from

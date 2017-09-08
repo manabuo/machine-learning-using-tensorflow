@@ -1,6 +1,6 @@
 ## Introduction to Recurrent Neural Network
 
-In the previous chapters, we presented _simple_ [Feedforward Neural Networks](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7) \(FNN\) that varied in size and purpose. These type of networks work well on structured \(fact based\) data where both event order information and location relative to other records is irrelevant. However, this, as you might imagine, is not always the case.
+In the previous chapters, we presented _simple_ [Feed-forward Neural Networks](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7) \(FNN\) that varied in size and purpose. These type of networks work well on structured \(fact based\) data where both event order information and location relative to other records is irrelevant. However, this, as you might imagine, is not always the case.
 
 For example, consider images, where every pixel has a value and a specific location. This pixel's value by itself does not provide us with much information and it defiantly does not help us to understand the image. Thus in order to _see_ the image, the pixel's neighbours and their neighbour has to be considered as well. For these type of problems, the [Convolutional Neural Networks](http://cs231n.github.io/convolutional-networks/) \(CNN, _not a news agency!_\) are used, as they are created to learn from the information that is contained in the pixel and also around it. In this tutorial, we will not discuss this type of networks as they are not often used on the structured data, like, patient records, transaction records, etc.
 
@@ -8,12 +8,12 @@ However, the other type of network that is gaining popularity is the [Recurrent 
 
 Recurrent Neural Networks are called recurrent because they perform the same computations for all elements in a sequence of inputs. RNNs are becoming very popular due to their wide utility. Often used example is language, where a word order is as important as the word by itself. Similarly, if we consider a patient medical history, in order to make a _good_ prediction for some condition, it is not only important to know what the patient had before but also when it occurred.
 
-The reason that makes recurrent networks exciting is that they allow us to operate over sequences of vectors or event timelines. This means that we can have sequences in the input or the output, or in the most general case both. Having sequences as inputs or outputs yields that in order to learn from this data efficiently, the network has to remember what it has seen. For that reason, RNN has an internal state, that is like a memory. As the RNN devours a sequence, the essential information about the sequence is maintained in this memory unit \(internal state\), and updated at each time-step. To learn more about RNNs, you can read these [series of articles](http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/) on RNN.
+The reason that makes recurrent networks exciting is that they allow us to operate over sequences of vectors or event timelines. This means that we can have sequences in the input or the output, or in the most general case both. Having sequences as inputs or outputs yields that in order to learn from this data efficiently, the network has to remember what it has seen. For that reason, RNN has an internal state, that is like a memory. As the RNN devours a sequence, the essential information about the sequence is maintained in this memory unit \(internal state\), and updated at each time step. To learn more about RNNs, you can read these [series of articles](http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/) on RNN.
 
 However, if a sequence is long, in practice, the internal state has a very difficult time to store all the information.  The problem lies, especially, with storing the beginning of the sequence. Due to this when we perform a back-propagation in order to update weights, the computed gradients become progressively smaller or larger as we come closer to the beginning of the sequence. This phenomenon is called the [Exploding and Vanishing Gradient](http://web.stanford.edu/class/cs224n/lecture_notes/cs224n-2017-notes5.pdf) problem for RNNs. To solve the problem of exploding gradients, a simple heuristic solution that clips gradients to a small number whenever they explode. That is, whenever they reach a certain threshold, they are set back to a small number. Whereas to solve the problem of vanishing gradients, the following two techniques are often used:
 
 * instead of initializing weights randomly, we start off from an identity matrix initialization,
-* instead of using the sigmoid activation function we can use the Rectified Linear Units \(ReLU\) function. The derivative for the ReLU is either 0 or 1. This way, gradients would flow through the neurons whose derivative is 1 without getting attenuated while propagating back through time-steps.
+* instead of using the sigmoid activation function we can use the Rectified Linear Units \(ReLU\) function. The derivative for the ReLU is either 0 or 1. This way, gradients would flow through the neurons whose derivative is 1 without getting attenuated while propagating back through time steps.
 
 Another approach is to use more sophisticated units, such as [**LSTM** \(Long Short-Term Memory\)](https://en.wikipedia.org/wiki/Long_short-term_memory) or [**GRU** \(Gated Recurrent Unit\)](https://en.wikipedia.org/wiki/Gated_recurrent_unit). These units were explicitly designed to prevent the problem of exploding and vanishing gradients as well as improve long term memory of the RNNs.
 
@@ -123,7 +123,7 @@ with tf.variable_scope("predictions"):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss=loss, global_step=global_step)
 ```
 
-The output of the \[`tf.nn.dynamic_rnn()`\] function is a tuple that contains cell outputs and the states for all timesteps. In order to make a prediction we are using the output of the last timestep or in this situation, it is also the last RNN state.  The last output tensor then is passed to the dropout layer, which is used to prevent an overfitting. Function [`tf.layers.dropout()`](https://www.tensorflow.org/api_docs/python/tf/layers/dropout) requires only one parameter `inputs`. Dropout has to be applied only during the training phase and when we compute predictions or other calculation it has to be switched off. This can be achieved in two ways, first, passing different `rate` values for each phase or as we have done, by passing a `training` boolean.
+The output of the \[`tf.nn.dynamic_rnn()`\] function is a tuple that contains cell outputs and the states for all time steps. In order to make a prediction we are using the output of the last time step or in this situation, it is also the last RNN state.  The last output tensor then is passed to the dropout layer, which is used to prevent an overfitting. Function [`tf.layers.dropout()`](https://www.tensorflow.org/api_docs/python/tf/layers/dropout) requires only one parameter `inputs`. Dropout has to be applied only during the training phase and when we compute predictions or other calculation it has to be switched off. This can be achieved in two ways, first, passing different `rate` values for each phase or as we have done, by passing a `training` boolean.
 
 > Note: In this particular example, the dropout does not have the noticeable impact as our network is small. In the next example, we will show how to apply dropout to RNN cells.
 
@@ -182,6 +182,9 @@ Increasing the size of the neural network by increasing the number of neurons pe
 #### Dropout
 
 Dropout, in the nutshell, is a technique where during the training iterations a number of the neurons in certain layers are randomly deactivated. This forces, remaining neurons in the layer, to compensate the loss of information by learning _concepts_ that their colleagues knew before they were deactivated. Normally, the dropout is used after fully-connected layers but is also possible to use the dropout after another type of layers.
+
+Dropout does tend to significantly slow down convergence, but it usually results in a much better model
+when tuned properly. So, it is generally well worth the extra time and effort.
 
 It is important to note that dropout, during the evaluation and prediction phases, has to be turned off.
 
@@ -263,6 +266,3 @@ In the [next chapter](/chapters/chapter7.md) we will show how to modify the code
 * [Deep Learning: Feedforward Neural Network](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7)
 * [Recurrent Neural Networks Tutorial, Part 1 – Introduction to RNNs](http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/)
 * Wikipedia articles on [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Gated Recurrent Unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit) and [Regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29)
-
-
-
