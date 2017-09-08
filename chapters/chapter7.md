@@ -109,14 +109,11 @@ This tensor then is passed to `tf.nn.dynamic_rnn()` _ops_ as an additional `sequ
 rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=input_seq, dtype=tf.float32,
                                             sequence_length=sequence_length)
 ```
-Now RNN outputs zero vectors for every time step past the input sequence length. Moreover, the states tensor contains the final state of each cell (excluding the zero vectors).
-
-
-
-
+Now RNN outputs zero vectors for every time step past the input sequence length. Moreover, the states tensor contains the final state of each cell (excluding the zero vectors). This allows us to use the final state as before and for that reason the rest of the code in the script and stages are similar to the code described in the previous chapters. 
 
 ### Next
 
+Sadly, these are the last examples that this tutorial will present. In the [next chapter](chapters/chapter8.md), we will just give some random thoughts on TensorFlow.
 
 ### Code
 
