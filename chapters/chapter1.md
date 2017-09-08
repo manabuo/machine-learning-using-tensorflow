@@ -5,7 +5,7 @@ This chapter will describe how to set up a computer in order to run provided scr
 First of all, ensure that you have installed **conda** package manager. If you have not done so, please follows the steps described [here](https://conda.io/docs/user-guide/install/download.html).
 > Note: Python version required to run the provided scripts is **3.6.2** and for TensorFlow API it is **1.3.0**.
 
-Further, clone all the scripts that are available in [this repository](_**PROVIDE LINK TO THE REPOSATORY**_) and then using command line switch to the location where the cloned files are. Here you should see `environment.yml` file that specifies the name of the conda environment and packages that will be installed. To create the environment run the following command:
+Further, clone all the scripts that are available in [this repository](https://bitbucket.org/tomasbernotas/ml_in_tensorflow.git) and then using command line switch to the location where the cloned files are. Here you should see `environment.yml` file that specifies the name of the conda environment and packages that will be installed. To create the environment run the following command:
 
 ```bash
 conda env create -f environment.yml
