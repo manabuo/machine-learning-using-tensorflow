@@ -38,16 +38,13 @@ As you can see we have introduced new variable scope `output_projection`, where 
 
 ### Variable length sequences
 
-So far we have used only fixed-size input sequences. What if the input  
-sequences have variable lengths, like patients medical or companies transaction histories?
+So far we have used only fixed-size input sequences. What if the input sequences have variable lengths, like patients medical or companies transaction histories?
 
 ![Record Sequences](../assets/image6.svg)
 
-This example will consider exactly this situation, see [05\_02\_rnn\_variable\_seq.py] (/scripts/05_02_rnn_variable_seq.py).
+This example will consider exactly this situation, see [05\_02\_rnn\_variable\_seq.py](/scripts/05_02_rnn_variable_seq.py).
 
-As usual, we start with obtaining a data set, that in this case is going to be generated from scratch. For this we are using `get_values()`, `create_features()` and `create_targets()` functions.
-
-Here the output feature array has shape `[Record_count, Max_Sequence_Lenght, Feature_count]` and for the target array it is `[Record_count, 1, Feature_count]`. As you can see the feature array on the input to the graph contains sequences of the same length, it is equal to `Max_Sequence_Lenght`. This is due to the requirement that tensors that are passed to a graph have to have consistent dimensions. However, if we take a closer look at `create_features()` function,
+We start with obtaining a data set, that in this case is going to be generated from scratch. For this we are using `get_values()`, `create_features()` and `create_targets()` functions. Here the feature array output shape is `[Record_count, Max_Sequence_Lenght, Feature_count]` and for the target array it is `[Record_count, 1, Feature_count]`. As you can see the feature array on the input to the graph contains sequences of the same length, it is equal to `Max_Sequence_Lenght`. This is due to the requirement that tensors that are passed to a graph have to have consistent dimensions. However, if we take a closer look at `create_features()` function,
 
 ```python
 def create_features(t, slice_len, max_slice_len):
