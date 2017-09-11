@@ -38,49 +38,58 @@ As you can see we have introduced new variable scope `output_projection`, where 
 
 ### Variable length sequences
 
-So far we have used only fixed-size input sequences. What if the input
+So far we have used only fixed-size input sequences. What if the input  
 sequences have variable lengths, like patients medical or companies transaction histories?
 
-<!-- ```mermaid
-gantt
-    dateFormat  YYYY-MM-DD
-    section Patient 1
-    Record          :today, 20d
-    section Patient 2
-    Record          :today, 7d
-    section Patient 3
-    Record          :today, 12d
-``` -->
+!\[Record Sequences\]\(../assets/image6.svg\)
 
-![Record Sequences](../assets/image6.svg)
+This example will consider exactly this situation, see \[05\\_02\\_rnn\\_variable\\_seq.py\]\(/scripts/05\_02\_rnn\_variable\_seq.py\).
 
-This example will consider exactly this situation, see [05\_02\_rnn\_variable\_seq.py](/scripts/05_02_rnn_variable_seq.py).
+As usual, we start with obtaining a data set, that in this case is going to be generated from scratch. For this we are using \`get\_values\(\)\` \`create\_features\(\)\` and \`create\_targets\(\)\` functions.
 
-As usual, we start with obtaining a data set, that in this case is going to be generated from scratch. For this we are using `get_values()` `create_features()` and `create_targets()` functions.
-Here the output feature array has shape `[Record_count, Max_Sequence_Lenght, Feature_count]` and for the target array it is `[Record_count, 1, Feature_count]`. As you can see the feature array on the input to the graph contains sequences of the same length, it is equal to `Max_Sequence_Lenght`. This is due to the requirement that tensors that are passed to a graph have to have consistent dimensions. However, if we take a closer look at `create_features()` function,
+Here the output feature array has shape \`\[Record\_count, Max\_Sequence\_Lenght, Feature\_count\]\` and for the target array it is \`\[Record\_count, 1, Feature\_count\]\`. As you can see the feature array on the input to the graph contains sequences of the same length, it is equal to \`Max\_Sequence\_Lenght\`. This is due to the requirement that tensors that are passed to a graph have to have consistent dimensions. However, if we take a closer look at \`create\_features\(\)\` function,
 
-```python
-def create_features(t, slice_len, max_slice_len):
-    """
-    Function creates an features array
-    :param t: Array of values sequential values
-    :type t: numpy.array()
-    :param slice_len: length of the sequence
-    :type slice_len: int
-    :param max_slice_len: max length of sequences
-    :type max_slice_len: int
-    :return: Feature array  of shape [1, max_slice_len, feature_number]
-    :rtype: numpy.array()
-    """
-    # Initialize empty list
-    f = list()
-    for val in get_values(t):
-        # Generate list of vectors where each vector is padded with [max_slice_len - slice_len] zeros from the back,
-        # that is [1,2,3,4,0,0,0], in order make all sequences of the same length [max_slice_len].
-        f.append(np.concatenate((val[:slice_len], np.zeros(shape=(max_slice_len - slice_len, 1))), axis=0))
-    # Concatenate all vectors in the resulting list and then add an additional dimension.
-    return np.expand_dims(a=np.concatenate(f, axis=1), axis=0)
-```
+\`\`\`python
+
+`def create_features(t, slice_len, max_slice_len):`
+
+`    """`
+
+`    Function creates an features array`
+
+`    :param t: Array of values sequential values`
+
+`    :type t: numpy.array()`
+
+`    :param slice_len: length of the sequence`
+
+`    :type slice_len: int`
+
+`    :param max_slice_len: max length of sequences`
+
+`    :type max_slice_len: int`
+
+`    :return: Feature array  of shape [1, max_slice_len, feature_number]`
+
+`    :rtype: numpy.array()`
+
+`    """`
+
+`    # Initialize empty list`
+
+`    f = list()`
+
+`    for val in get_values(t):`
+
+`        # Generate list of vectors where each vector is padded with [max_slice_len - slice_len] zeros from the back,`
+
+`        # that is [1,2,3,4,0,0,0], in order make all sequences of the same length [max_slice_len].`
+
+`        f.append(np.concatenate((val[:slice_len], np.zeros(shape=(max_slice_len - slice_len, 1))), axis=0))`
+
+`    # Concatenate all vectors in the resulting list and then add an additional dimension.`
+
+`    return np.expand_dims(a=np.concatenate(f, axis=1), axis=0)`
 
 we can see that indeed each sequence in the data set has variable length but they are padded by zeros, in order to ensure that the final length of the each sequence is `Max_Sequence_Lenght`. In addition, variable `seq_len` keeps a record of the original length value for each sequence in the data set.
 
@@ -92,7 +101,7 @@ The second stage is, as before, graph construction, where we follow the same ste
 sequence_length = tf.placeholder(dtype=tf.float32, shape=[None], name="sequence_length")
 ```
 
-This placeholder will accept each sequence length value which is contained in `seq_len`.
+This placeholder will accept each sequence length value which is contained in `seq_len`.  
 This tensor then is passed to `tf.nn.dynamic_rnn()` _ops_ as an additional `sequence_length` parameter,
 
 ```python
@@ -100,7 +109,7 @@ rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=input_seq, dtyp
                                             sequence_length=sequence_length)
 ```
 
-Now RNN outputs zero vectors for every time step past the input sequence length. Moreover, the states tensor contains the final state of each cell (excluding the zero vectors). This allows us to use the final state as before and for that reason the rest of the code in the script and stages are similar to the code described in the previous chapters.
+Now RNN outputs zero vectors for every time step past the input sequence length. Moreover, the states tensor contains the final state of each cell \(excluding the zero vectors\). This allows us to use the final state as before and for that reason the rest of the code in the script and stages are similar to the code described in the previous chapters.
 
 ### Next
 
@@ -108,7 +117,10 @@ Sadly, these are the last examples that this tutorial will present. In the [next
 
 ### Code
 
-*   [05\_01\_rnn\_seq.py](/scripts/05_01_rnn_seq.py)
-*   [05\_02\_rnn\_variable\_seq.py](/scripts/05_02_rnn_variable_seq.py)
+* [05\_01\_rnn\_seq.py](/scripts/05_01_rnn_seq.py)
+* [05\_02\_rnn\_variable\_seq.py](/scripts/05_02_rnn_variable_seq.py)
 
 ### References
+
+
+
