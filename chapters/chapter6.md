@@ -12,8 +12,8 @@ The reason that makes recurrent networks exciting is that they allow us to opera
 
 However, if a sequence is long, in practice, the internal state has a very difficult time to store all the information.  The problem lies, especially, with storing the beginning of the sequence. Due to this when we perform a back-propagation in order to update weights, the computed gradients become progressively smaller or larger as we come closer to the beginning of the sequence. This phenomenon is called the [Exploding and Vanishing Gradient](http://web.stanford.edu/class/cs224n/lecture_notes/cs224n-2017-notes5.pdf) problem for RNNs. To solve the problem of exploding gradients, a simple heuristic solution that clips gradients to a small number whenever they explode. That is, whenever they reach a certain threshold, they are set back to a small number. Whereas to solve the problem of vanishing gradients, the following two techniques are often used:
 
-*   instead of initializing weights randomly, we start off from an identity matrix initialization,
-*   instead of using the sigmoid activation function we can use the Rectified Linear Units \(ReLU\) function. The derivative for the ReLU is either 0 or 1. This way, gradients would flow through the neurons whose derivative is 1 without getting attenuated while propagating back through time steps.
+* instead of initializing weights randomly, we start off from an identity matrix initialization,
+* instead of using the sigmoid activation function we can use the Rectified Linear Units \(ReLU\) function. The derivative for the ReLU is either 0 or 1. This way, gradients would flow through the neurons whose derivative is 1 without getting attenuated while propagating back through time steps.
 
 Another approach is to use more sophisticated units, such as [**LSTM** \(Long Short-Term Memory\)](https://en.wikipedia.org/wiki/Long_short-term_memory) or [**GRU** \(Gated Recurrent Unit\)](https://en.wikipedia.org/wiki/Gated_recurrent_unit). These units were explicitly designed to prevent the problem of exploding and vanishing gradients as well as improve long term memory of the RNNs.
 
@@ -23,8 +23,8 @@ Another approach is to use more sophisticated units, such as [**LSTM** \(Long Sh
 
 This example we are using the data set that comes from [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php):
 
-*   Name: Appliances energy prediction Data Set
-*   Source: [https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction](https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction)
+* Name: Appliances energy prediction Data Set
+* Source: [https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction](https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction)
 
 This data set will be used in all subsequent examples and, as mentioned in the previous chapter, we are going to consider only regression tasks from now on. In addition, the examples presented here are of the type **many to one**.
 
@@ -75,7 +75,7 @@ Further, having specified all the necessary variables we can proceed with constr
 ```python
 with tf.variable_scope("recurrent_layer"):
     # Create list of GRU unit recurrent network cell
-    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"], activation=l["act_fn"]) for l in GRU_LAYERS]
+    gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in RNN_LAYERS]
     # Connects multiple RNN cells
     rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
     # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
@@ -109,7 +109,7 @@ with tf.variable_scope("predictions"):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss=loss, global_step=global_step)
 ```
 
-The output of the \[`tf.nn.dynamic_rnn()`\] function is a tuple that contains cell outputs and the states for all time steps. In order to make a prediction we are using the output of the last time step or in this situation, it is also the last RNN state.  The last output tensor then is passed to the dropout layer, which is used to prevent an overfitting. Function [`tf.layers.dropout()`](https://www.tensorflow.org/api_docs/python/tf/layers/dropout) requires only one parameter `inputs`. Dropout has to be applied only during the training phase and when we compute predictions or other calculation it has to be switched off. This can be achieved in two ways, first, passing different `rate` values for each phase or as we have done, by passing a `training` boolean.
+The output of the `tf.nn.dynamic_rnn()` function is a tuple that contains cell outputs and the states for all time steps. In order to make a prediction we are using the output of the last time step or in this situation, it is also the last RNN state.  The last output tensor then is passed to the dropout layer, which is used to prevent an overfitting. Function [`tf.layers.dropout()`](https://www.tensorflow.org/api_docs/python/tf/layers/dropout) requires only one parameter `inputs`. Dropout has to be applied only during the training phase and when we compute predictions or other calculation it has to be switched off. This can be achieved in two ways, first, passing different `rate` values for each phase or as we have done, by passing a `training` boolean.
 
 > Note: In this particular example, the dropout does not have the noticeable impact as our network is small. In the next example, we will show how to apply dropout to RNN cells.
 
@@ -126,8 +126,7 @@ with tf.variable_scope("recurrent_layer"):
     # Create a list of GRU unit recurrent network cells with dropouts wrapped around each.
     def with_dropout(layers, rnn_input):
         with tf.variable_scope("with_dropout"):
-            gru_cells = [tf.nn.rnn_cell.DropoutWrapper(cell=tf.nn.rnn_cell.GRUCell(num_units=l["units"],
-                                                                                   activation=l["act_fn"]),
+            gru_cells = [tf.nn.rnn_cell.DropoutWrapper(cell=tf.nn.rnn_cell.GRUCell(num_units=l["units"]),
                                                        output_keep_prob=l["keep_prob"]) for l in layers]
             # Connects multiple RNN cells
             rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
@@ -137,7 +136,7 @@ with tf.variable_scope("recurrent_layer"):
 
     def without_dropout(layers, rnn_input):
         with tf.variable_scope("without_dropout"):
-            gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"], activation=l["act_fn"]) for l in layers]
+            gru_cells = [tf.nn.rnn_cell.GRUCell(num_units=l["units"]) for l in layers]
             # Connects multiple RNN cells
             rnn_cells = tf.nn.rnn_cell.MultiRNNCell(cells=gru_cells)
             # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
@@ -145,8 +144,8 @@ with tf.variable_scope("recurrent_layer"):
 
 
     rnn_output, rnn_state = tf.cond(training,
-                                    true_fn=lambda: with_dropout(layers=GRU_LAYERS, rnn_input=in_seq),
-                                    false_fn=lambda: without_dropout(layers=GRU_LAYERS, rnn_input=in_seq))
+                                    true_fn=lambda: with_dropout(layers=RNN_LAYERS, rnn_input=in_seq),
+                                    false_fn=lambda: without_dropout(layers=RNN_LAYERS, rnn_input=in_seq))
 ```
 
 TensorFlow does not allow us to use standard python `if` statement in the graph, but is has its own implementation for conditional execution, [`tf.cond()`](https://www.tensorflow.org/api_docs/python/tf/cond). This function requires three parameters, `pred` which is `tf.bool` type and determines whether to return the result of functions `true_fn` or `false_fn`. Function `true_fn` is executed if `pred` is true and `false_fn` otherwise.
@@ -155,17 +154,17 @@ As `tf.cond()` function returns only a list of tensors and  `tf.nn.rnn_cell.Mult
 
 #### Hyperparameters
 
-In addition to already mentioned hyperparameters in the previous chapters, this model has three more that are associated with the learning rate: `INITIAL_LEARNING_RATE`, `LEARNING_RATE_DECAY_STEPS`, `LEARNING_RATE_DECAY_RATE`.
+In addition to already mentioned hyperparameters in the previous chapters, this model has a few more that are associated with the learning rate: `INITIAL_LEARNING_RATE`, `LEARNING_RATE_DECAY_STEPS`, `LEARNING_RATE_DECAY_RATE, dropout keep probabilities,`REGULARISATION\_SCALE
 
 ### Overfitting and Underfitting
 
 Earlier we mentioned overfitting and introduced dropout layer without explanation. Therefore in this section,  we will spend a little bit more time explaining overfitting and underfitting.
 
-The most often method that is used in determining if our model underfits (high bias) or overfits (high variance) or even both, is to compare training and validation errors during the training. If the training error is significantly smaller than the validation error, it usually means that out models overfit. Underfitting is when training error is significantly larger than the base error. It is also possible to have a situation when training error is larger than the base error but it is much smaller than validation error which means that we have both high bias and high variance.
+The most often method that is used in determining if our model underfits \(high bias\) or overfits \(high variance\) or even both, is to compare training and validation errors during the training. If the training error is significantly smaller than the validation error, it usually means that out models overfit. Underfitting is when training error is significantly larger than the base error. It is also possible to have a situation when training error is larger than the base error but it is much smaller than validation error which means that we have both high bias and high variance.
 
-In practical applications when using Neural Networks, it is often better to have high variance than high bias.  So, in the case of a high bias, it is advisable that you increase network size and/or train longer. However, the high variance is often resolved by having more data and/or [regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29).  There are two popular regularization methods that are currently employed by many practitioners, [Frobenius  regularization](https://en.wikipedia.org/wiki/Matrix_regularization) (as many incorrectly call it _L2 regularization) and [Dropout](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf)
+In practical applications when using Neural Networks, it is often better to have high variance than high bias.  So, in the case of a high bias, it is advisable that you increase network size and/or train longer. However, the high variance is often resolved by having more data and/or [regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29).  There are two popular regularization methods that are currently employed by many practitioners, [Frobenius  regularization](https://en.wikipedia.org/wiki/Matrix_regularization) \(as many incorrectly call it \_L2 regularization\) and [Dropout](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf)
 
-#### Frobenius (L2) regularization
+#### Frobenius \(L2\) regularization
 
 Frobenius regularisation is similar to L2 regularisation and thus for brevity, we are going to skip the explanations here.
 
@@ -183,7 +182,7 @@ with tf.variable_scope('Frobenius_regularization'):
                           activation=tf.tanh)
 ```
 
-First, we define regularization _op_ using [`tf.contrib.layers.l2_regularizer()`](https://www.tensorflow.org/api_docs/python/tf/contrib/layers/l2_regularizer) function that requires only one parameter, `scale`. This functions is a wrapper function which multiples the output of [`tf.nn.l2_loss()`](https://www.tensorflow.org/api_docs/python/tf/nn/l2_loss) function by the `scale`. Next, regularization _op_ is passed to definition of dense layer (`tf.layers.dense()`) as `kernel_regularizer` argument.
+First, we define regularization _op_ using [`tf.contrib.layers.l2_regularizer()`](https://www.tensorflow.org/api_docs/python/tf/contrib/layers/l2_regularizer) function that requires only one parameter, `scale`. This functions is a wrapper function which multiples the output of [`tf.nn.l2_loss()`](https://www.tensorflow.org/api_docs/python/tf/nn/l2_loss) function by the `scale`. Next, regularization _op_ is passed to definition of dense layer \(`tf.layers.dense()`\) as `kernel_regularizer` argument.
 
 To include the regularization in the loss calculations we fist compute all losses separately and than collect them,
 
@@ -214,7 +213,7 @@ TensorBoard is a graph visualization software \(Web App\) included with any stan
 
 In the code that is referenced in this chapter you may see the following lines in the graph construction stage for:
 
-*   `inputs` variables:
+* `inputs` variables:
 
 ```python
 # Add the following variables to log/summary file that is used by TensorBoard
@@ -222,7 +221,7 @@ tf.summary.scalar(name="learning_rate", tensor=learning_rate)
 tf.summary.scalar(name="global_step", tensor=global_step)
 ```
 
-*   `predictions` variables:
+* `predictions` variables:
 
 ```python
 # Add the following variables to log/summary file that is used by TensorBoard
@@ -272,16 +271,19 @@ In the [next chapter](/chapters/chapter7.md) we will show how to modify the code
 
 ### Code
 
-*   [04\_01\_dropout.py](/scripts/04_01_dropout.py)
-*   [04\_02\_rnn\_dropout.py](/scripts/04_02_rnn_dropout.py)
-*   [04\_03\_rnn\_l2.py](/scripts/04_03_rnn_l2.py)
+* [04\_01\_dropout.py](/scripts/04_01_dropout.py)
+* [04\_02\_rnn\_dropout.py](/scripts/04_02_rnn_dropout.py)
+* [04\_03\_rnn\_l2.py](/scripts/04_03_rnn_l2.py)
 
 ### References
 
-*   [Andrej Karpathy blog](http://karpathy.github.io/)
-*   [colah's blog](http://colah.github.io/)
-*   [CS224n: Natural Language Processing with Deep Learning](http://web.stanford.edu/class/cs224n/)
-*   [CS231n: Convolutional Neural Networks for Visual Recognition.](http://cs231n.github.io/)
-*   [Deep Learning: Feedforward Neural Network](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7)
-*   [Recurrent Neural Networks Tutorial, Part 1 – Introduction to RNNs](http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/)
-*   Wikipedia articles on [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Gated Recurrent Unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit), [Regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29) and [Matrix Regularization](https://en.wikipedia.org/wiki/Matrix_regularization)
+* [Andrej Karpathy blog](http://karpathy.github.io/)
+* [colah's blog](http://colah.github.io/)
+* [CS224n: Natural Language Processing with Deep Learning](http://web.stanford.edu/class/cs224n/)
+* [CS231n: Convolutional Neural Networks for Visual Recognition.](http://cs231n.github.io/)
+* [Deep Learning: Feedforward Neural Network](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7)
+* [Recurrent Neural Networks Tutorial, Part 1 – Introduction to RNNs](http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/)
+* Wikipedia articles on [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Gated Recurrent Unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit), [Regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29) and [Matrix Regularization](https://en.wikipedia.org/wiki/Matrix_regularization)
+
+
+
