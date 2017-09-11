@@ -13,14 +13,13 @@ TensorFlow is an open-source software library from Google for numerical computat
 
 In addition, it has a large community and many projects are already using TensorFlow.
 
-TensorFlow has simplified interfaces, TensorFlow Estimator  \([tf.estimator](https://www.tensorflow.org/api_docs/python/tf/estimator)\) and  
-TensorFlow Learn \([tf.contrib.learn](https://www.tensorflow.org/api_guides/python/contrib.learn)\), that provide readily available models that users can simply call. This was purposely created to mimic `scikit-learn` for deep learning “to smooth the transition" from the `scikit-learn` world of one-liner machine learning into the more open world of building different shapes of machine learning models.
+TensorFlow has simplified interfaces, TensorFlow Estimator  \([tf.estimator](https://www.tensorflow.org/api_docs/python/tf/estimator)\) and TensorFlow Learn \([tf.contrib.learn](https://www.tensorflow.org/api_guides/python/contrib.learn)\), that provide readily available models that users can simply call. This was purposely created to mimic `scikit-learn` for deep learning “to smooth the transition" from the `scikit-learn` world of one-liner machine learning into the more open world of building different shapes of machine learning models.
 
 Both TensorFlow Estimator and TensorFlow Learn allows you to load in data, construct a model, fit your model using the training data, evaluate the accuracy, just using a single line of code. Some models that you can call using one line are  _LinearClassifier, LinearRegressor_ and  _DNNClassifier_.
 
 Google has some good tutorial on how to build model using [TensorFlow Estimator](https://www.tensorflow.org/get_started/estimator).
 
-> Note: TensorFlow Learn was originally an independent project called Scikit Flow \(SKFlow\).  
+> Note: TensorFlow Learn was originally an independent project called Scikit Flow \(SKFlow\).
 > Note: TensorFlow Contrib module, which TensorFlow Learn is part of, contains volatile or experimental code.
 
 Another notable addition to the TensorFlow is the implementation of the [Keras](https://keras.io/) API, that significantly reduces the number of lines and improves readability of the code. See [TensorFlow Contrib Keras](https://www.tensorflow.org/api_docs/python/tf/contrib/keras).
@@ -99,8 +98,7 @@ with tf.Session() as sess:
   print(result)
 ```
 
-You sometimes see `InteractiveSession` instead of `Session`. The only difference is an  
-`InteractiveSession` makes itself the default session so you can call `Tensor.eval()` and/or `Operation.run()` without explicitly call the session. This is convenient in interactive shells and Jupyter Notebooks, as it avoids having to pass an explicit `Session` object to run _ops_. However, it is complicated when you have multiple sessions to run. For more information see [here](https://learningtensorflow.com/lesson5/)
+You sometimes see `InteractiveSession` instead of `Session`. The only difference is an `InteractiveSession` makes itself the default session so you can call `Tensor.eval()` and/or `Operation.run()` without explicitly call the session. This is convenient in interactive shells and Jupyter Notebooks, as it avoids having to pass an explicit `Session` object to run _ops_. However, it is complicated when you have multiple sessions to run. For more information see [here](https://learningtensorflow.com/lesson5/)
 
 ### Data Types in TensorFlow
 
@@ -122,6 +120,3 @@ TensorFlow takes in Python native types such as Python boolean values, numeric v
 * [Keras](https://keras.io/)
 * [LearningTensorFlow.com](https://learningtensorflow.com/)
 * [TensorFlow](/www.tensorflow.org)
-
-
-

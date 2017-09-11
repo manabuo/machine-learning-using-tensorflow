@@ -9,4 +9,3 @@
 * [Introduction to Recurrent Neural Network](chapters/chapter6.md)
 * [Recurrent Neural Network and Sequences](chapters/chapter7.md)
 * [Concluding Remarks](chapters/chapter8.md)
-

@@ -142,6 +142,3 @@ In this chapter, we saw how to create _simple_ Feed-forward Neural Networks usin
 * [Sebastian Ruder blog](http://ruder.io/#open)
 * [Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. \(2014\). Dropout: A Simple Way to Prevent Neural Networks from Overfitting. Journal of Machine Learning Research, 15, 1929–1958.](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf)
 * Wikipedia articles on [Activation Function](https://en.wikipedia.org/wiki/Activation_function) and [Rectified Linear Unit](https://en.wikipedia.org/wiki/Rectifier_%28neural_networks%29)
-
-
-

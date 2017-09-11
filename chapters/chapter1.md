@@ -49,6 +49,3 @@ While in the environment, you can run any python script and it will use only pac
 ### Code
 
 * [environment.yml](/scripts/environment.yml)
-
-
-

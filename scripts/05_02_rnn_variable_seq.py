@@ -84,15 +84,16 @@ def hidden_layers(in_tensor, layers):
 # Data Location ========================================================================================================
 data_dir = os.path.join("scripts", "data")
 model_dir = os.path.join(data_dir, "05")
-# If path does not exists then creates one
-if not os.path.isdir(model_dir):
-    os.makedirs(model_dir)
+model_path = os.path.join(model_dir, "02")
+# If path does not exists then create one
+if not os.path.isdir(model_path):
+    os.makedirs(model_path)
 # Define input data set location
-data_path = os.path.join(model_dir, "data.pkl")
+data_path = os.path.join(model_path, "raw.data")
 # Sets location for model checkpoints
-checkpoint_path = os.path.join(model_dir, "checkpoints")
+checkpoint_path = os.path.join(model_path, "checkpoints")
 # Sets location for graphs
-graph_path = os.path.join(model_dir, "graph")
+graph_path = os.path.join(model_path, "graph")
 
 # Synthetic Data Generation ============================================================================================
 # Creates data set if it does not exits already or retrieves the data set

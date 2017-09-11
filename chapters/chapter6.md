@@ -131,9 +131,9 @@ Remaining steps in the graph are the same as earlier examples, with one exceptio
 
 Graph execution follows the same steps as in previous examples. The only modification that has been done is for `feed_dict` parameter, as it now allows the third value, `training`, that tells the graph if we perform training or not and that subsequently turns on and off the dropout layer.
 
-This chapter has references to two python scripts. The first of which, [04\_01\_rnn.py](/scripts/04_01_rnn.py). was described in detail above, but as the second scripts have only one change, we will explain only it.
+This chapter has references to two python scripts. The first of which, [04\_01\_dropout.py](/scripts/04_01_dropout.py). was described in detail above, but as the second scripts have only one change, we will explain only it.
 
-In the script [04\_02\_rnn.py](/scripts/04_02_rnn.py), we show how to add a dropout layer around RNN cells. To do this we use [`tf.nn.rnn_cell.DropoutWrapper()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/DropoutWrapper). Specifying dropout probabilities for `input_keep_prob` and `output_keep_prob` parameters we can add dropout to inputs and outputs for the given cell. Unfortunately, at this moment, this function does not take the parameter that informs the wrapper if we are training or testing the model, as it was in the case of `tf.layers.dropout()`. To resolve this issue, as mentioned earlier, we can use more than one approach. However, as we have already introduced the boolean switch `training`, we will show how to use it.
+In the script [04\_02\_rnn\_dropout.py](/scripts/04_02_rnn_dropout.py), we show how to add a dropout layer around RNN cells. To do this we use [`tf.nn.rnn_cell.DropoutWrapper()`](https://www.tensorflow.org/api_docs/python/tf/contrib/rnn/DropoutWrapper). Specifying dropout probabilities for `input_keep_prob` and `output_keep_prob` parameters we can add dropout to inputs and outputs for the given cell. Unfortunately, at this moment, this function does not take the parameter that informs the wrapper if we are training or testing the model, as it was in the case of `tf.layers.dropout()`. To resolve this issue, as mentioned earlier, we can use more than one approach. However, as we have already introduced the boolean switch `training`, we will show how to use it.
 
 ```python
 with tf.variable_scope("recurrent_layer"):
@@ -171,22 +171,54 @@ As `tf.cond()` function returns only a list of tensors and  `tf.nn.rnn_cell.Mult
 
 In addition to already mentioned hyperparameters in the previous chapters, this model has three more that are associated with the learning rate: `INITIAL_LEARNING_RATE`, `LEARNING_RATE_DECAY_STEPS`, `LEARNING_RATE_DECAY_RATE`.
 
-### Overfitting
+### Overfitting and Underfitting
 
-Earlier we mentioned overfitting and introduced dropout layer without explanation. Therefore in this section,  we will spend a little bit more time explaining overfitting and how to deal with it using a dropout.
+Earlier we mentioned overfitting and introduced dropout layer without explanation. Therefore in this section,  we will spend a little bit more time explaining overfitting and underfitting.
 
-Increasing the size of the neural network by increasing the number of neurons per layers or/and increasing the number of layers, the network tends to memorize data rather than "find" relationships between data. This leads to overfitting. In order to avoid this effect two techniques are often used: [Regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29) and [Dropout](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf). This technique can be used together as well as on its own.
+The most often method that is used in determining if our model underfits (high bias) or overfits (high variance) or even both, is to compare training and validation errors during the training. If the training error is significantly smaller than the validation error, it usually means that out models overfit. Underfitting is when training error is significantly larger than the base error. It is also possible to have a situation when training error is larger than the base error but it is much smaller than validation error which means that we have both high bias and high variance.
 
-> Note: It is advisable to use neural networks with many layers that have a small number of neurons per layer.
+In practical applications when using Neural Networks, it is often better to have high variance than high bias.  So, in the case of a high bias, it is advisable that you increase network size and/or train longer. However, the high variance is often resolved by having more data and/or [regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29).  There are two popular regularization methods that are currently employed by many practitioners, [Frobenius  regularization](https://en.wikipedia.org/wiki/Matrix_regularization) (as many incorrectly call it _L2 regularization) and [Dropout](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf)
+
+#### Frobenius (L2) regularization
+
+Frobenius regularisation is similar to L2 regularisation and thus for brevity, we are going to skip the explanations here.
+
+In the script, [04\_03\_rnn\_l2.py](/scripts/04_03_rnn_l2.py), Frobenius regularisation is impmendenatin can be found under _Frobenius_regularization_ variable scope,
+
+```python
+# Creates a fully-connected layer with Frobenius (l2) regularization and tanh activation
+with tf.variable_scope('Frobenius_regularization'):
+    # 1) Select the last relevant RNN output.
+    # last_output = rnn_output[:, -1, :]
+    # However, the last output is simply equal to the last state.
+    output = rnn_state[-1]
+    frobenius_reg = tf.contrib.layers.l2_regularizer(scale=REGULARISATION_SCALE)
+    reg = tf.layers.dense(inputs=output, units=RNN_LAYERS[-1]["units"], kernel_regularizer=frobenius_reg,
+                          activation=tf.tanh)
+```
+
+First, we define regularization _op_ using [`tf.contrib.layers.l2_regularizer()`](https://www.tensorflow.org/api_docs/python/tf/contrib/layers/l2_regularizer) function that requires only one parameter, `scale`. This functions is a wrapper function which multiples the output of [`tf.nn.l2_loss()`](https://www.tensorflow.org/api_docs/python/tf/nn/l2_loss) function by the `scale`. Next, regularization _op_ is passed to definition of dense layer (`tf.layers.dense()`) as `kernel_regularizer` argument.
+
+To include the regularization in the loss calculations we fist compute all losses separately and than collect them,
+
+```python
+# Define loss function as mean square error (MSE)
+mse = tf.losses.mean_squared_error(labels=truth, predictions=prediction)
+# Collects all regularization losses
+reg_losses = tf.get_collection(key=tf.GraphKeys.REGULARIZATION_LOSSES)
+# Sums all losses
+loss = tf.add_n(inputs=[mse] + reg_losses)
+```
 
 #### Dropout
 
-Dropout, in the nutshell, is a technique where during the training iterations a number of the neurons in certain layers are randomly deactivated. This forces, remaining neurons in the layer, to compensate the loss of information by learning _concepts_ that their colleagues knew before they were deactivated. Normally, the dropout is used after fully-connected layers but is also possible to use the dropout after another type of layers.
+Dropout, in the nutshell, is a technique where during the training iterations a number of the neurons in certain layers are randomly deactivated. This forces, remaining neurons in the layer, to compensate the loss of information by learning _concepts_ that their colleagues knew before they were deactivated. Normally, the dropout is used after fully-connected layers but is also possible to use the dropout after another type of layers and even input.
 
-Dropout does tend to significantly slow down convergence, but it usually results in a much better model
-when tuned properly. So, it is generally well worth the extra time and effort.
+Dropout does tend to significantly slow down convergence, but it usually results in a much better model when tuned properly. So, it is generally well worth the extra time and effort. It is important to note that dropout, during the evaluation and prediction phases, has to be turned off. Dropout is often used in the Convolutional Neural Networks but for Recurrent Neural Networks, it has not been wildly accepted.
 
-It is important to note that dropout, during the evaluation and prediction phases, has to be turned off.
+Implementation examples can be found in both [04\_01\_dropout.py](/scripts/04_01_dropout.py) and [04\_02\_rnn\_dropout.py](/scripts/04_02_rnn_dropout.py) scripts.
+
+> Note: It is advisable to use neural networks with many layers that have a small number of neurons per layer.
 
 ### TensorBoard
 
@@ -254,8 +286,9 @@ In the [next chapter](/chapters/chapter7.md) we will show how to modify the code
 
 ### Code
 
-* [04\_01\_rnn.py](/scripts/04_01_rnn.py)
-* [04\_02\_rnn.py](/scripts/04_02_rnn.py)
+* [04\_01\_dropout.py](/scripts/04_01_dropout.py)
+* [04\_02\_rnn\_dropout.py](/scripts/04_02_rnn_dropout.py)
+* [04\_03\_rnn\_l2.py](/scripts/04_03_rnn_l2.py)
 
 ### References
 
@@ -265,4 +298,4 @@ In the [next chapter](/chapters/chapter7.md) we will show how to modify the code
 * [CS231n: Convolutional Neural Networks for Visual Recognition.](http://cs231n.github.io/)
 * [Deep Learning: Feedforward Neural Network](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7)
 * [Recurrent Neural Networks Tutorial, Part 1 – Introduction to RNNs](http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/)
-* Wikipedia articles on [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Gated Recurrent Unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit) and [Regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29)
+* Wikipedia articles on [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Gated Recurrent Unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit), [Regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29) and [Matrix Regularization](https://en.wikipedia.org/wiki/Matrix_regularization)

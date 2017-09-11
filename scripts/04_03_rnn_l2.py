@@ -31,6 +31,7 @@ def split_data(frame, split_ratio):
 def transform_to_seq(array, input_seq_len, output_seq_len, output_seq_steps_ahead):
     """
     Splits times series into sequential data set in accordance with supplied parameters.
+
     :param array: times series that hs to be transformed
     :type array: np.array
     :param input_seq_len: Desired input sequence length
@@ -42,6 +43,7 @@ def transform_to_seq(array, input_seq_len, output_seq_len, output_seq_steps_ahea
     :return: Input and Output arrays that contains sequences
     :rtype: np.array, np.array
     """
+
     # Adjusts the output_seq_steps_ahead value in order to ensure that when value 0 is selected the output sequence
     # starts at with the last element of the input sequence.
     steps_ahead = output_seq_steps_ahead - 1
@@ -54,32 +56,6 @@ def transform_to_seq(array, input_seq_len, output_seq_len, output_seq_steps_ahea
         for index in range(seq_number))
 
     return np.array(data_input), np.array(data_output)
-
-
-def recover_orig_values_2(time_set, true, pred, col_names, scaler_obj):
-    """
-    Function recovers values from sequences and converts to original scale
-    :param time_set: RNN input time array
-    :type time_set: numpy.array
-    :param true: RNN input ground truth array
-    :type true: numpy.array
-    :param pred: RNN prediction array
-    :type pred: numpy.array
-    :param col_names: list of feature names
-    :type col_names: list(str)
-    :param scaler_obj: Scikit-learn Prepossessing Scaler object
-    :type scaler_obj: sklearn.prepossessing scaler object
-    :return: Three arrays that contain time and original and predicted values rescaled to original scales
-    :rtype: numpy.array
-    """
-    time = np.expand_dims(a=np.unique(time_set.flatten("F")), axis=1)
-    x_true_tuple = tuple(np.expand_dims(a=true[:, :, i].flatten("F"), axis=1)[:time.shape[0], :] for i in
-                         range(len(col_names)))
-    y_true_tuple = tuple(np.expand_dims(a=pred[:, :, i].flatten("F"), axis=1)[:time.shape[0], :] for i in
-                         range(len(col_names)))
-    true_values = scaler_obj.inverse_transform(np.concatenate(x_true_tuple, axis=1))
-    pred_values = scaler_obj.inverse_transform(np.concatenate(y_true_tuple, axis=1))
-    return time, true_values, pred_values
 
 
 # Data Location ========================================================================================================
@@ -100,12 +76,12 @@ if not os.path.exists(data_path):
     urllib.request.urlretrieve(
         url="https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv",
         filename=data_path)
-    print("Downloaded data set to: {path}".format(path=data_path))
+    print("Downloading data set to: {path}".format(path=data_path))
 
 # Data Preparation =====================================================================================================
 # Define sequence parameters
-INPUT_SEQUENCE_LENGTH = 5
-OUTPUT_SEQUENCE_LENGTH = INPUT_SEQUENCE_LENGTH
+INPUT_SEQUENCE_LENGTH = 10
+OUTPUT_SEQUENCE_LENGTH = 1
 OUTPUT_SEQUENCE_STEPS_AHEAD = 1
 
 # Read in the data
@@ -148,9 +124,9 @@ Y_val = y_scaler.transform(data["target"]["valid"])
 Y_test = y_scaler.transform(data["target"]["test"])
 
 # Transform time variable and time series data sets into sequential data sets
-x_input_test, x_output_test = transform_to_seq(array=X_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
-                                               output_seq_len=OUTPUT_SEQUENCE_LENGTH,
-                                               output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+x_input_test, _ = transform_to_seq(array=X_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                   output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                   output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
 x_input_train, _ = transform_to_seq(array=X_train, input_seq_len=INPUT_SEQUENCE_LENGTH,
                                     output_seq_len=OUTPUT_SEQUENCE_LENGTH,
                                     output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
@@ -158,26 +134,26 @@ x_input_val, _ = transform_to_seq(array=X_val, input_seq_len=INPUT_SEQUENCE_LENG
                                   output_seq_len=OUTPUT_SEQUENCE_LENGTH,
                                   output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
 
-y_input_test, _ = transform_to_seq(array=Y_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
-                                   output_seq_len=OUTPUT_SEQUENCE_LENGTH,
-                                   output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
-y_input_train, _ = transform_to_seq(array=Y_train, input_seq_len=INPUT_SEQUENCE_LENGTH,
+_, y_output_test = transform_to_seq(array=Y_test, input_seq_len=INPUT_SEQUENCE_LENGTH,
                                     output_seq_len=OUTPUT_SEQUENCE_LENGTH,
                                     output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
-y_input_val, _ = transform_to_seq(array=Y_val, input_seq_len=INPUT_SEQUENCE_LENGTH,
-                                  output_seq_len=OUTPUT_SEQUENCE_LENGTH,
-                                  output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
-
-t_input_test, _ = transform_to_seq(array=data["time"]["test"], input_seq_len=INPUT_SEQUENCE_LENGTH,
+_, y_output_train = transform_to_seq(array=Y_train, input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                     output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                     output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+_, y_output_val = transform_to_seq(array=Y_val, input_seq_len=INPUT_SEQUENCE_LENGTH,
                                    output_seq_len=OUTPUT_SEQUENCE_LENGTH,
                                    output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
-t_input_train, _ = transform_to_seq(array=data["time"]["train"], input_seq_len=INPUT_SEQUENCE_LENGTH,
-                                    output_seq_len=OUTPUT_SEQUENCE_LENGTH,
-                                    output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
 
-t_input_val, _ = transform_to_seq(array=data["time"]["valid"], input_seq_len=INPUT_SEQUENCE_LENGTH,
-                                  output_seq_len=OUTPUT_SEQUENCE_LENGTH,
-                                  output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+t_input_test, t_output_test = transform_to_seq(array=data["time"]["test"], input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                               output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                               output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+t_input_train, t_output_train = transform_to_seq(array=data["time"]["train"], input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                                 output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                                 output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
+
+t_input_val, t_output_val = transform_to_seq(array=data["time"]["valid"], input_seq_len=INPUT_SEQUENCE_LENGTH,
+                                             output_seq_len=OUTPUT_SEQUENCE_LENGTH,
+                                             output_seq_steps_ahead=OUTPUT_SEQUENCE_STEPS_AHEAD)
 
 # Graph Construction ===================================================================================================
 # Resets default graph
@@ -185,16 +161,14 @@ tf.reset_default_graph()
 
 # Parameters
 INPUT_FEATURES = x_input_train.shape[2]
-OUTPUT_FEATURES = y_input_train.shape[2]
+OUTPUT_FEATURES = y_output_train.shape[2]
 # Hyperparameters
 BATCH_SIZE = 100
-EPOCHS = 1000
-RNN_LAYERS = [{"units": 8},
-              {"units": 8},
-              {"units": 8}]
-
-LEARNING_RATE = 1e-3
-
+EPOCHS = 500
+RNN_LAYERS = [{"units": 15, "keep_prob": 1.0},
+              {"units": 10, "keep_prob": 1.0}]
+LEARNING_RATE = 1e-2
+REGULARISATION_SCALE = 1e-2
 # Get list of indices in the training set
 idx = list(range(x_input_train.shape[0]))
 # Determine total number of batches
@@ -203,11 +177,9 @@ n_batches = int(np.ceil(len(idx) / BATCH_SIZE))
 # Define inputs to the model
 with tf.variable_scope("inputs"):
     # placeholder for input sequence
-    in_seq = tf.placeholder(dtype=tf.float32, shape=[None, INPUT_SEQUENCE_LENGTH, INPUT_FEATURES],
-                            name="predictors")
+    in_seq = tf.placeholder(dtype=tf.float32, shape=[None, INPUT_SEQUENCE_LENGTH, INPUT_FEATURES], name="predictors")
     # placeholder for output sequence
-    out_seq = tf.placeholder(dtype=tf.float32, shape=[None, INPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES],
-                             name="target")
+    out_seq = tf.placeholder(dtype=tf.float32, shape=[None, OUTPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES], name="target")
     # placeholder for boolean that controls dropout
     training = tf.placeholder_with_default(input=False, shape=None, name="dropout_switch")
 
@@ -220,24 +192,32 @@ with tf.variable_scope("recurrent_layer"):
     # Creates a recurrent neural network by performs fully dynamic unrolling of inputs
     rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=in_seq, dtype=tf.float32)
 
+# Creates a fully-connected layer with Frobenius (l2) regularization and tanh activation
+with tf.variable_scope('Frobenius_regularization'):
+    # 1) Select the last relevant RNN output.
+    # last_output = rnn_output[:, -1, :]
+    # However, the last output is simply equal to the last state.
+    output = rnn_state[-1]
+    frobenius_reg = tf.contrib.layers.l2_regularizer(scale=REGULARISATION_SCALE)
+    reg = tf.layers.dense(inputs=output, units=RNN_LAYERS[-1]["units"], kernel_regularizer=frobenius_reg,
+                          activation=tf.tanh)
 
 with tf.variable_scope("predictions"):
-    with tf.variable_scope("output_projection"):
-        # Stacks all RNN outputs
-        stacked_rnn_outputs = tf.reshape(tensor=rnn_output, shape=[-1, RNN_LAYERS[-1]["units"]])
-        # Passes stacked outputs through dense layer
-        stacked_outputs = tf.layers.dense(inputs=stacked_rnn_outputs, units=OUTPUT_FEATURES)
-        # Reshapes stacked_outputs back to sequences
-        prediction = tf.reshape(tensor=stacked_outputs, shape=[-1, INPUT_SEQUENCE_LENGTH, OUTPUT_FEATURES],
-                                name="prediction")
-
+    # Here prediction is the one feature vector at the time point (not a sequence of the feature vectors)
+    prediction = tf.layers.dense(inputs=reg, units=OUTPUT_FEATURES, name="prediction")
+    # Reduce dimension of the input tensor
+    truth = tf.squeeze(input=out_seq, axis=1)
     # Define loss function as mean square error (MSE)
-    loss = tf.losses.mean_squared_error(labels=out_seq, predictions=prediction)
+    mse = tf.losses.mean_squared_error(labels=truth, predictions=prediction)
+    # Collects all regularization losses
+    reg_losses = tf.get_collection(key=tf.GraphKeys.REGULARIZATION_LOSSES)
+    # Sums all losses
+    loss = tf.add_n(inputs=[mse] + reg_losses)
     train_step = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 
     # Add the following variables to log/summary file that is used by TensorBoard
-    tf.summary.scalar(name="MSE", tensor=loss)
-    tf.summary.scalar(name="RMSE", tensor=tf.sqrt(x=loss))
+    tf.summary.scalar(name="loss", tensor=loss)
+    tf.summary.scalar(name="MSE", tensor=mse)
 
 # Model Training =======================================================================================================
 # Merge all the summaries
@@ -251,7 +231,6 @@ saver = tf.train.Saver()
 
 # Running the session ==================================================================================================
 with tf.Session() as sess:
-
     # Write merged summaries out to the graph_path (initialization)
     summary_writer = tf.summary.FileWriter(logdir=graph_path, graph=sess.graph)
 
@@ -281,22 +260,22 @@ with tf.Session() as sess:
             # Gets a batch of row indices.
             id_batch = next(batch_generator)
             # Defines input dictionary
-            feed = {in_seq: x_input_train[id_batch], out_seq: y_input_train[id_batch], training: True}
+            feed = {in_seq: x_input_train[id_batch], out_seq: y_output_train[id_batch], training: True}
             # Executes the graph
             sess.run(fetches=train_step, feed_dict=feed)
 
         # Evaluate all variables that are contained in summery/log object and write them out into the log file
-        summary = merged.eval(feed_dict={in_seq: x_input_val, out_seq: y_input_val, training: False})
+        summary = merged.eval(feed_dict={in_seq: x_input_val, out_seq: y_output_val, training: False})
         summary_writer.add_summary(summary=summary, global_step=e)
 
-        if e % 50 == 0:
+        if e % 100 == 0:
             # Evaluate metrics on training and validation data sets
-            loss_train = loss.eval(feed_dict={in_seq: x_input_train, out_seq: y_input_train, training: False})
-            loss_val = loss.eval(feed_dict={in_seq: x_input_val, out_seq: y_input_val, training: False})
+            mse_train = mse.eval(feed_dict={in_seq: x_input_train, out_seq: y_output_train, training: False})
+            mse_val = mse.eval(feed_dict={in_seq: x_input_val, out_seq: y_output_val, training: False})
             # Prints the loss to the console
             msg = ("Epoch: {e}/{epochs}; ".format(e=e, epochs=EPOCHS) +
-                   "Train MSE: {tr_ls}; ".format(tr_ls=loss_train) +
-                   "Validation MSE: {val_ls}; ".format(val_ls=loss_val))
+                   "Train MSE: {tr_ls}; ".format(tr_ls=mse_train) +
+                   "Validation MSE: {val_ls}; ".format(val_ls=mse_val))
             print(msg)
 
     # Saves model to disk
@@ -313,26 +292,25 @@ with tf.Session() as sess:
     pred_output_seq_val = prediction.eval(feed_dict={in_seq: x_input_val, training: False})
 
     # Evaluate loss (MSE) and predictions on test data
-    loss_test, pred_output_seq_test = sess.run(fetches=[loss, prediction],
-                                               feed_dict={in_seq: x_input_test, out_seq: y_input_test,
-                                                          training: False})
+    mse_test, pred_output_seq_test = sess.run(fetches=[mse, prediction],
+                                              feed_dict={in_seq: x_input_test, out_seq: y_output_test, training: False})
     # Print Test loss (MSE), total RMSE in console
-    msg = "\nTest MSE: {test_loss} and RMSE: {rmse}".format(test_loss=loss_test, rmse=np.sqrt(loss_test))
+    msg = "\nTest MSE: {test_loss} and RMSE: {rmse}".format(test_loss=mse_test, rmse=np.sqrt(mse_test))
     print(msg)
 
 # Comparison ===========================================================================================================
 # Recover input and predicted values to the original scale and form
-time_val, true_val, pred_val = recover_orig_values_2(time_set=t_input_val, true=y_input_val,
-                                                     pred=pred_output_seq_val, col_names=target_col,
-                                                     scaler_obj=y_scaler)
+time_val = np.squeeze(a=t_output_val, axis=2)
+true_val = y_scaler.inverse_transform(X=np.squeeze(a=y_output_val, axis=1))
+pred_val = y_scaler.inverse_transform(X=pred_output_seq_val)
 
-time_test, true_test, pred_test = recover_orig_values_2(time_set=t_input_test, true=y_input_test,
-                                                        pred=pred_output_seq_test, col_names=target_col,
-                                                        scaler_obj=y_scaler)
+time_test = np.squeeze(a=t_output_test, axis=2)
+true_test = y_scaler.inverse_transform(X=np.squeeze(a=y_output_test, axis=1))
+pred_test = y_scaler.inverse_transform(X=pred_output_seq_test)
 
-time_train, true_train, pred_train = recover_orig_values_2(time_set=t_input_train, true=y_input_train,
-                                                           pred=pred_output_seq_train, col_names=target_col,
-                                                           scaler_obj=y_scaler)
+time_train = np.squeeze(a=t_output_train, axis=2)
+true_train = y_scaler.inverse_transform(X=np.squeeze(a=y_output_train, axis=1))
+pred_train = y_scaler.inverse_transform(X=pred_output_seq_train)
 
 # Create figures that compare tree random features and all date sets
 f_col = target_col

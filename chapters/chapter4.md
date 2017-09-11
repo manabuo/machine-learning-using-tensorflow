@@ -81,11 +81,9 @@ First is the [root mean squared error](https://en.wikipedia.org/wiki/Root-mean-s
 
 The second metric is the [coefficient of determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) \($$R^{2}$$\), this, unfortunately, has not been implemented in TensorFlow yet, thus we do it ourselves. TensorFlow has [implementation of basic mathematical operations](https://www.tensorflow.org/api_guides/python/math_ops) that can be utilised to build more advanced operations. So, our task is to build general definition for the coefficient of determination, which on the paper is written as,
 
-
 $$
 R^{2} = 1 - \frac{\sum_{i}(y_{i} - \hat{y}_{i})^{2}}{\sum_{i}(y_{i} - \bar{y})^{2}} \quad\text{and}\quad  \bar{y} =\frac{1}{n}\sum_{i=1}^{n}y_{i},
 $$
-
 
 where $$y_{i}$$ stands for observations and $$\hat{y}_{i}$$ are predictions.
 
@@ -144,6 +142,3 @@ In the [next chapter](/chapters/chapter5.md) we will also see how to extend the 
 
 * [Numpy Manual](https://docs.scipy.org/doc/numpy/index.html)
 * Wikipedia articles on [Mean Square Error](https://en.wikipedia.org/wiki/Mean_squared_error), [Coefficient of Determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) and [Root Mean Squared Error](https://en.wikipedia.org/wiki/Root-mean-square_deviation)
-
-
-
