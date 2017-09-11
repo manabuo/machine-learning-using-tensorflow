@@ -28,21 +28,7 @@ This example we are using the data set that comes from [UC Irvine Machine Learni
 
 This data set will be used in all subsequent examples and, as mentioned in the previous chapter, we are going to consider only regression tasks from now on. In addition, the examples presented here are of the type **many to one**.
 
-```mermaid
-graph TD
-subgraph RNN
-  r1((h1)) --> r2((h1))
-  r2((h2)) --> r3((h1))
-end
-subgraph OUTPUT
-  r3((h3)) --> o3((y3))
-end
-  subgraph INPUT
-    i1((x1)) --> r1((h1))
-    i2((x2)) --> r2((h2))
-    i3((x3)) --> r3((h3))
-  end
-```
+![Many to One RNN](../assets/image4.svg)
 
 In the first example, we are going to use sequences as inputs and try to predict a point N-steps in the _future_. In what follows we are going to refer to this type of the prediction task as Sequence to Vector prediction, in future examples we will also Sequence to Sequence prediction.
 

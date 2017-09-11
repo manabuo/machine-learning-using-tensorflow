@@ -41,7 +41,7 @@ As you can see we have introduced new variable scope `output_projection`, where 
 So far we have used only fixed-size input sequences. What if the input
 sequences have variable lengths, like patients medical or companies transaction histories?
 
-```mermaid
+<!-- ```mermaid
 gantt
     dateFormat  YYYY-MM-DD
     section Patient 1
@@ -50,7 +50,9 @@ gantt
     Record          :today, 7d
     section Patient 3
     Record          :today, 12d
-```
+``` -->
+
+![Records of Variable Lenght](../assets/image6.svg)
 
 This example will consider exactly this situation, see [05\_02\_rnn\_variable\_seq.py](/scripts/05_02_rnn_variable_seq.py).
 

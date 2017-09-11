@@ -13,7 +13,7 @@ matrix2 = tf.constant([[3.], [4.]])
 # multiplication. Output is a matrix of shape 1x1.
 product = tf.matmul(matrix1, matrix2)
 
-# ==============================================================================
+# ======================================================================================================================
 # Launch the default graph.
 sess = tf.Session()
 # To run the matmul op we call the session "run()" method, passing "product"
@@ -31,7 +31,7 @@ result = sess.run(fetches=product)
 print(result)  # expected value is [[ 11.]]
 # Close the Session when we are done.
 sess.close()
-# ==============================================================================
+# ======================================================================================================================
 # or just to launch the default graph and execute all three ops in the
 # graph
 with tf.Session() as sess:

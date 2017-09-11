@@ -23,4 +23,3 @@ This tutorial consists of the following sections:
 ### Next
 
 So, if you still feel positive and want to continue, let's [continue](/chapters/chapter1.md).
-
