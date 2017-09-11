@@ -6,8 +6,8 @@ This chapter presents the first fully fledged example of Logistic Regression tha
 
 The data set that is used in the example comes from [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php):
 
-* Name: Breast Cancer Wisconsin \(Diagnostic\) Data Set \(_wdbc.data_ and _wdbc.names_\)
-* Source: [http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/](http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/)
+*   Name: Breast Cancer Wisconsin \(Diagnostic\) Data Set \(_wdbc.data_ and _wdbc.names_\)
+*   Source: [http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/](http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/)
 
 ### Data Preparation
 
@@ -120,9 +120,9 @@ This model has two parameters that only influence input and output layer shapes,
 
 However, other three parameters \(hyperparameters\) that have to be supplied to the graph during construction, do influence the model and training are:
 
-* `BATCH_SIZE` - length of input array,
-* `LEARNING_RATE` that is a value that corresponds to a step size in gradient descent algorithm,
-* `EPOCHS` - a number of times the model is going to see the whole data set.
+*   `BATCH_SIZE` - length of input array,
+*   `LEARNING_RATE` that is a value that corresponds to a step size in gradient descent algorithm,
+*   `EPOCHS` - a number of times the model is going to see the whole data set.
 
 #### Metrics
 
@@ -246,13 +246,13 @@ This concludes the description of the Logistic Regression and in the [example th
 
 ### Code
 
-* [01\_logistic\_regression.py](/scripts/01_logistic_regression.py)
+*   [01\_logistic\_regression.py](/scripts/01_logistic_regression.py)
 
 ### References
 
-* [Learn Python Programming](https://www.programiz.com/python-programming)
-* [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)
-* [The Python Wiki](https://wiki.python.org/)
-* [TensorFlow Python API](https://www.tensorflow.org/api_docs/python/)
-* [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php)
-* Wikipedia article on [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent)
+*   [Learn Python Programming](https://www.programiz.com/python-programming)
+*   [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)
+*   [The Python Wiki](https://wiki.python.org/)
+*   [TensorFlow Python API](https://www.tensorflow.org/api_docs/python/)
+*   [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php)
+*   Wikipedia article on [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent)

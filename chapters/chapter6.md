@@ -12,8 +12,8 @@ The reason that makes recurrent networks exciting is that they allow us to opera
 
 However, if a sequence is long, in practice, the internal state has a very difficult time to store all the information.  The problem lies, especially, with storing the beginning of the sequence. Due to this when we perform a back-propagation in order to update weights, the computed gradients become progressively smaller or larger as we come closer to the beginning of the sequence. This phenomenon is called the [Exploding and Vanishing Gradient](http://web.stanford.edu/class/cs224n/lecture_notes/cs224n-2017-notes5.pdf) problem for RNNs. To solve the problem of exploding gradients, a simple heuristic solution that clips gradients to a small number whenever they explode. That is, whenever they reach a certain threshold, they are set back to a small number. Whereas to solve the problem of vanishing gradients, the following two techniques are often used:
 
-* instead of initializing weights randomly, we start off from an identity matrix initialization,
-* instead of using the sigmoid activation function we can use the Rectified Linear Units \(ReLU\) function. The derivative for the ReLU is either 0 or 1. This way, gradients would flow through the neurons whose derivative is 1 without getting attenuated while propagating back through time steps.
+*   instead of initializing weights randomly, we start off from an identity matrix initialization,
+*   instead of using the sigmoid activation function we can use the Rectified Linear Units \(ReLU\) function. The derivative for the ReLU is either 0 or 1. This way, gradients would flow through the neurons whose derivative is 1 without getting attenuated while propagating back through time steps.
 
 Another approach is to use more sophisticated units, such as [**LSTM** \(Long Short-Term Memory\)](https://en.wikipedia.org/wiki/Long_short-term_memory) or [**GRU** \(Gated Recurrent Unit\)](https://en.wikipedia.org/wiki/Gated_recurrent_unit). These units were explicitly designed to prevent the problem of exploding and vanishing gradients as well as improve long term memory of the RNNs.
 
@@ -23,8 +23,8 @@ Another approach is to use more sophisticated units, such as [**LSTM** \(Long Sh
 
 This example we are using the data set that comes from [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php):
 
-* Name: Appliances energy prediction Data Set
-* Source: [https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction](https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction)
+*   Name: Appliances energy prediction Data Set
+*   Source: [https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction](https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction)
 
 This data set will be used in all subsequent examples and, as mentioned in the previous chapter, we are going to consider only regression tasks from now on. In addition, the examples presented here are of the type **many to one**.
 
@@ -214,7 +214,7 @@ TensorBoard is a graph visualization software \(Web App\) included with any stan
 
 In the code that is referenced in this chapter you may see the following lines in the graph construction stage for:
 
-* `inputs` variables:
+*   `inputs` variables:
 
 ```python
 # Add the following variables to log/summary file that is used by TensorBoard
@@ -222,7 +222,7 @@ tf.summary.scalar(name="learning_rate", tensor=learning_rate)
 tf.summary.scalar(name="global_step", tensor=global_step)
 ```
 
-* `predictions` variables:
+*   `predictions` variables:
 
 ```python
 # Add the following variables to log/summary file that is used by TensorBoard
@@ -272,16 +272,16 @@ In the [next chapter](/chapters/chapter7.md) we will show how to modify the code
 
 ### Code
 
-* [04\_01\_dropout.py](/scripts/04_01_dropout.py)
-* [04\_02\_rnn\_dropout.py](/scripts/04_02_rnn_dropout.py)
-* [04\_03\_rnn\_l2.py](/scripts/04_03_rnn_l2.py)
+*   [04\_01\_dropout.py](/scripts/04_01_dropout.py)
+*   [04\_02\_rnn\_dropout.py](/scripts/04_02_rnn_dropout.py)
+*   [04\_03\_rnn\_l2.py](/scripts/04_03_rnn_l2.py)
 
 ### References
 
-* [Andrej Karpathy blog](http://karpathy.github.io/)
-* [colah's blog](http://colah.github.io/)
-* [CS224n: Natural Language Processing with Deep Learning](http://web.stanford.edu/class/cs224n/)
-* [CS231n: Convolutional Neural Networks for Visual Recognition.](http://cs231n.github.io/)
-* [Deep Learning: Feedforward Neural Network](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7)
-* [Recurrent Neural Networks Tutorial, Part 1 – Introduction to RNNs](http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/)
-* Wikipedia articles on [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Gated Recurrent Unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit), [Regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29) and [Matrix Regularization](https://en.wikipedia.org/wiki/Matrix_regularization)
+*   [Andrej Karpathy blog](http://karpathy.github.io/)
+*   [colah's blog](http://colah.github.io/)
+*   [CS224n: Natural Language Processing with Deep Learning](http://web.stanford.edu/class/cs224n/)
+*   [CS231n: Convolutional Neural Networks for Visual Recognition.](http://cs231n.github.io/)
+*   [Deep Learning: Feedforward Neural Network](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7)
+*   [Recurrent Neural Networks Tutorial, Part 1 – Introduction to RNNs](http://www.wildml.com/2015/09/recurrent-neural-networks-tutorial-part-1-introduction-to-rnns/)
+*   Wikipedia articles on [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Gated Recurrent Unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit), [Regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29) and [Matrix Regularization](https://en.wikipedia.org/wiki/Matrix_regularization)

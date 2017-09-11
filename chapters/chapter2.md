@@ -6,10 +6,10 @@ In this chapter, we introduce and give a very brief description of basic buildin
 
 TensorFlow is an open-source software library from Google for numerical computation using data flow graphs. It is the library that allows us to
 
-* use variety of programming languages to build deep learning models, as it has Python, C++, Java and Go APIs,
-* deploy computation to one or more CPUs or GPUs in a desktop, server, or mobile device with a single API,
-* visualise learning, embeddings, graphs and histograms [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard),
-* forget about taking derivatives by hand \(Auto-differentiation\).
+*   use variety of programming languages to build deep learning models, as it has Python, C++, Java and Go APIs,
+*   deploy computation to one or more CPUs or GPUs in a desktop, server, or mobile device with a single API,
+*   visualise learning, embeddings, graphs and histograms [TensorBoard](https://www.tensorflow.org/get_started/summaries_and_tensorboard),
+*   forget about taking derivatives by hand \(Auto-differentiation\).
 
 In addition, it has a large community and many projects are already using TensorFlow.
 
@@ -30,9 +30,9 @@ However, the primary purpose of TensorFlow is not to provide out-of-the-box mach
 
 Most notable difference between TensorFlow and other libraries is that TensorFlow does all its computation in graphs. A TensorFlow graph is a description of computations. That is, TensorFlow program separates the definition of computations from their execution. For more details on computational graphs see the following:
 
-* [Calculus on Computational Graphs: Backpropagation](http://colah.github.io/posts/2015-08-Backprop/)
-* [What is a TensorFlow Session?](http://danijar.com/what-is-a-tensorflow-session/)
-* [Graphs and Sessions](https://www.tensorflow.org/versions/master/programmers_guide/graphs)
+*   [Calculus on Computational Graphs: Backpropagation](http://colah.github.io/posts/2015-08-Backprop/)
+*   [What is a TensorFlow Session?](http://danijar.com/what-is-a-tensorflow-session/)
+*   [Graphs and Sessions](https://www.tensorflow.org/versions/master/programmers_guide/graphs)
 
 A computational graph is a series of TensorFlow operations arranged into a graph of nodes. In the graph, nodes are called _ops_ which is short-hand for _operations_. An _op_ takes zero or more _Tensors_, performs some computation, and produces zero or more _Tensors_. As you might suspect, in TensorFlow _Tensor_ is the basic object and it uses a tensor data structure to represent all data -- only tensors are passed between operations in the computation graph. You can think of a TensorFlow tensor as an n-dimensional array or list. The _Tensor_ has a static type, a rank, and a shape. To learn more about how TensorFlow handles these concepts, see the [Rank, Shape, and Type reference](https://www.tensorflow.org/programmers_guide/dims_types).
 
@@ -110,13 +110,13 @@ TensorFlow takes in Python native types such as Python boolean values, numeric v
 
 ### Code
 
-* [00\_first\_step.py](/scripts/00_first_step.py)
+*   [00\_first\_step.py](/scripts/00_first_step.py)
 
 ### References
 
-* [colah's blog](http://colah.github.io/)
-* [CS 20SI: Tensorflow for Deep Learning Research](http://web.stanford.edu/class/cs20si/index.html)
-* [Danijar Hafner](http://danijar.com/)
-* [Keras](https://keras.io/)
-* [LearningTensorFlow.com](https://learningtensorflow.com/)
-* [TensorFlow](/www.tensorflow.org)
+*   [colah's blog](http://colah.github.io/)
+*   [CS 20SI: Tensorflow for Deep Learning Research](http://web.stanford.edu/class/cs20si/index.html)
+*   [Danijar Hafner](http://danijar.com/)
+*   [Keras](https://keras.io/)
+*   [LearningTensorFlow.com](https://learningtensorflow.com/)
+*   [TensorFlow](/www.tensorflow.org)

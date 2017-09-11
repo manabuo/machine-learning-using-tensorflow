@@ -108,7 +108,7 @@ Sadly, these are the last examples that this tutorial will present. In the [next
 
 ### Code
 
-* [05\_01\_rnn\_seq.py](/scripts/05_01_rnn_seq.py)
-* [05\_02\_rnn\_variable\_seq.py](/scripts/05_02_rnn_variable_seq.py)
+*   [05\_01\_rnn\_seq.py](/scripts/05_01_rnn_seq.py)
+*   [05\_02\_rnn\_variable\_seq.py](/scripts/05_02_rnn_variable_seq.py)
 
 ### References
