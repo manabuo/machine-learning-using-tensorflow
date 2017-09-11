@@ -200,7 +200,7 @@ Dropout, in the nutshell, is a technique where during the training iterations a 
 
 Dropout does tend to significantly slow down convergence, but it usually results in a much better model when tuned properly. So, it is generally well worth the extra time and effort. It is important to note that dropout, during the evaluation and prediction phases, has to be turned off. Dropout is often used in the Convolutional Neural Networks but for Recurrent Neural Networks, it has not been wildly accepted.
 
-Implementation examples can be found in both [04\_01\_dropout.py](/scripts/04_01_dropout.py) and [04\_02\_rnn\_dropout.py](/scripts/04_02_rnn_dropout.py) scripts.
+Dropout implementation example for fully-connected layer can be found in [04\_01\_dropout.py](/scripts/04_01_dropout.py) and for RNN layers in  [04\_02\_rnn\_dropout.py](/scripts/04_02_rnn_dropout.py) script.
 
 > Note: It is advisable to use neural networks with many layers that have a small number of neurons per layer.
 
