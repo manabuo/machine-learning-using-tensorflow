@@ -162,7 +162,7 @@ Earlier we mentioned overfitting and introduced dropout layer without explanatio
 
 The most often method that is used in determining if our model underfits \(high bias\) or overfits \(high variance\) or even both, is to compare training and validation errors during the training. If the training error is significantly smaller than the validation error, it usually means that out models overfit. Underfitting is when training error is significantly larger than the base error. It is also possible to have a situation when training error is larger than the base error but it is much smaller than validation error which means that we have both high bias and high variance.
 
-In practical applications when using Neural Networks, it is often better to have high variance than high bias.  So, in the case of a high bias, it is advisable that you increase network size and/or train longer. However, the high variance is often resolved by having more data and/or [regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29).  There are two popular regularization methods that are currently employed by many practitioners, [Frobenius  regularization](https://en.wikipedia.org/wiki/Matrix_regularization) \(as many incorrectly call it \_L2 regularization\) and [Dropout](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf)
+In practical applications when using Neural Networks, it is often better to have high variance than high bias.  So, in the case of a high bias, it is advisable that you increase network size and/or train longer. However, the high variance is often resolved by having more data and/or [regularization](https://en.wikipedia.org/wiki/Regularization_%28mathematics%29).  There are two popular regularization methods that are currently employed by many practitioners, [Frobenius  regularization](https://en.wikipedia.org/wiki/Matrix_regularization) \(as many incorrectly call it L2 regularization\) and [Dropout](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf)
 
 #### Frobenius \(L2\) regularization
 
@@ -175,8 +175,7 @@ In the script, [04\_03\_rnn\_l2.py](/scripts/04_03_rnn_l2.py), Frobenius regular
 with tf.variable_scope('Frobenius_regularization'):
     # 1) Select the last relevant RNN output.
     # last_output = rnn_output[:, -1, :]
-    # However, the last output is simply equal to the last state.
-    output = rnn_state[-1]
+    # However, the last output is simply equal to the last state.    output = rnn_state[-1]
     frobenius_reg = tf.contrib.layers.l2_regularizer(scale=REGULARISATION_SCALE)
     reg = tf.layers.dense(inputs=output, units=RNN_LAYERS[-1]["units"], kernel_regularizer=frobenius_reg,
                           activation=tf.tanh)
