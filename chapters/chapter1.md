@@ -6,7 +6,7 @@ First of all, ensure that you have installed **conda** package manager. If you h
 
 > Note: Python version required to run the provided scripts is **3.6.2** and for TensorFlow it is **1.3.0**.
 
-Further, clone all the scripts that are available in [this repository](https://bitbucket.org/tomasbernotas/machine-learning-using-tensorflow) and then using command line switch to the location where the cloned files are. Here you should see `environment.yml` file that specifies the name of the conda environment and packages that will be installed. To create the environment run the following command:
+Further, clone all the scripts that are available in [this repository](https://bitbucket.org/tomasbernotas/machine-learning-using-tensorflow) and then using command line to switch to the location where the cloned files are. In `Scripts` directory you should see `environment.yml` file that specifies the name of the conda environment and packages that will be installed. To create the environment run the following command while in `Scripts`directory:
 
 ```bash
 conda env create -f environment.yml
@@ -24,23 +24,23 @@ After environment setup is complete, to activate it on _Unix_ systems run the fo
 source activate tf_tutorial
 ```
 
-or if you run _Windows_ use:
+and if you running _Windows_ use:
 
 ```bash
 activate tf_tutorial
 ```
 
-Here **tf\_tutorial** is a default environment name that is given in `environment.yml` file in the repository, thus if you have replaced it, replace it also in the commands above.
+Here **tf\_tutorial** is a default environment name that is was specified in `environment` file in, thus if you have replaced it, replace it in the commands above.
 
 While in the environment, you can run any python script and it will use only packages that are available in it. This tutorial is using the following packages:
 
-*   [python](https://www.python.org/)
-*   [matplotlib](https://matplotlib.org/)
-*   [scikit-learn](http://scikit-learn.org/stable/)
-*   [numpy](http://www.numpy.org/)
-*   [pandas](http://pandas.pydata.org/)
-*   [pip](https://pip.pypa.io/en/stable/)
-*   [tensorflow](https://www.tensorflow.org/)
+* [python](https://www.python.org/)
+* [matplotlib](https://matplotlib.org/)
+* [scikit-learn](http://scikit-learn.org/stable/)
+* [numpy](http://www.numpy.org/)
+* [pandas](http://pandas.pydata.org/)
+* [pip](https://pip.pypa.io/en/stable/)
+* [tensorflow](https://www.tensorflow.org/)
 
 > Note:  It is advisable to create a separate environment and `environment.yml` files for each project. For more information on _conda_ environment management see [here](https://conda.io/docs/commands.html#conda-environment-commands).
 
@@ -48,4 +48,7 @@ While in the environment, you can run any python script and it will use only pac
 
 ### Code
 
-*   [environment.yml](/scripts/environment.yml)
+* [environment.yml](/scripts/environment.yml)
+
+
+
