@@ -41,57 +41,38 @@ As you can see we have introduced new variable scope `output_projection`, where 
 So far we have used only fixed-size input sequences. What if the input  
 sequences have variable lengths, like patients medical or companies transaction histories?
 
-!\[Record Sequences\]\(../assets/image6.svg\)
+![Record Sequences](../assets/image6.svg)
 
-This example will consider exactly this situation, see \[05\\_02\\_rnn\\_variable\\_seq.py\]\(/scripts/05\_02\_rnn\_variable\_seq.py\).
+This example will consider exactly this situation, see [05\_02\_rnn\_variable\_seq.py] (/scripts/05_02_rnn_variable_seq.py).
 
-As usual, we start with obtaining a data set, that in this case is going to be generated from scratch. For this we are using \`get\_values\(\)\` \`create\_features\(\)\` and \`create\_targets\(\)\` functions.
+As usual, we start with obtaining a data set, that in this case is going to be generated from scratch. For this we are using `get_values()`, `create_features()` and `create_targets()` functions.
 
-Here the output feature array has shape \`\[Record\_count, Max\_Sequence\_Lenght, Feature\_count\]\` and for the target array it is \`\[Record\_count, 1, Feature\_count\]\`. As you can see the feature array on the input to the graph contains sequences of the same length, it is equal to \`Max\_Sequence\_Lenght\`. This is due to the requirement that tensors that are passed to a graph have to have consistent dimensions. However, if we take a closer look at \`create\_features\(\)\` function,
+Here the output feature array has shape `[Record_count, Max_Sequence_Lenght, Feature_count]` and for the target array it is `[Record_count, 1, Feature_count]`. As you can see the feature array on the input to the graph contains sequences of the same length, it is equal to `Max_Sequence_Lenght`. This is due to the requirement that tensors that are passed to a graph have to have consistent dimensions. However, if we take a closer look at `create_features()` function,
 
-\`\`\`python
+```python
+def create_features(t, slice_len, max_slice_len):
+    """
+    Function creates an features array
+    :param t: Array of values sequential values
+    :type t: numpy.array()
+    :param slice_len: length of the sequence
+    :type slice_len: int
+    :param max_slice_len: max length of sequences
+    :type max_slice_len: int
+    :return: Feature array  of shape [1, max_slice_len, feature_number]
+    :rtype: numpy.array()
+    """
+    # Initialize empty list
+    f = list()
+    for val in get_values(t):
+        # Generate list of vectors where each vector is padded with [max_slice_len - slice_len] zeros from the back,
+        # that is [1,2,3,4,0,0,0], in order make all sequences of the same length [max_slice_len].
+        f.append(np.concatenate((val[:slice_len], np.zeros(shape=(max_slice_len - slice_len, 1))), axis=0))
+    # Concatenate all vectors in the resulting list and then add an additional dimension.
+    return np.expand_dims(a=np.concatenate(f, axis=1), axis=0)
+```
 
-`def create_features(t, slice_len, max_slice_len):`
-
-`    """`
-
-`    Function creates an features array`
-
-`    :param t: Array of values sequential values`
-
-`    :type t: numpy.array()`
-
-`    :param slice_len: length of the sequence`
-
-`    :type slice_len: int`
-
-`    :param max_slice_len: max length of sequences`
-
-`    :type max_slice_len: int`
-
-`    :return: Feature array  of shape [1, max_slice_len, feature_number]`
-
-`    :rtype: numpy.array()`
-
-`    """`
-
-`    # Initialize empty list`
-
-`    f = list()`
-
-`    for val in get_values(t):`
-
-`        # Generate list of vectors where each vector is padded with [max_slice_len - slice_len] zeros from the back,`
-
-`        # that is [1,2,3,4,0,0,0], in order make all sequences of the same length [max_slice_len].`
-
-`        f.append(np.concatenate((val[:slice_len], np.zeros(shape=(max_slice_len - slice_len, 1))), axis=0))`
-
-`    # Concatenate all vectors in the resulting list and then add an additional dimension.`
-
-`    return np.expand_dims(a=np.concatenate(f, axis=1), axis=0)`
-
-we can see that indeed each sequence in the data set has variable length but they are padded by zeros, in order to ensure that the final length of the each sequence is `Max_Sequence_Lenght`. In addition, variable `seq_len` keeps a record of the original length value for each sequence in the data set.
+We can see that each sequence in the data set has variable length but they are padded by zeros, in order to ensure that the final length of the each sequence is `Max_Sequence_Lenght`. In addition, variable `seq_len` keeps a record of the original length value for each sequence in the data set.
 
 We conclude the first step by split data set into Training, Validation and Test data sets.
 
