@@ -71,7 +71,7 @@ def create_features(t, slice_len, max_slice_len):
 
 we can see that each sequence in the data set has variable length but they are padded by zero in order to ensure that the final length of each sequence is `Max_Sequence_Lenght.` In addition, variable `seq_len` keeps a record of the original length value for each sequence in the data set.
 
-After creating the data, we split it into Training, Validation and Test data sets. This is follwoen, as ussual, with graph construction, where we follow the same steps as in all previous examples. Here, in addition to already familiar placeholders we introduce one more, 
+After creating the data, we split it into Training, Validation and Test data sets. This is follwoen, as ussual, with graph construction, where we follow the same steps as in all previous examples. Here, in addition to already familiar placeholders we introduce one more,
 
 ```python
 sequence_length = tf.placeholder(dtype=tf.float32, shape=[None], name="sequence_length")
