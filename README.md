@@ -19,6 +19,7 @@ This tutorial consists of the following sections:
 *   [_Nonlinear Regression_](/chapters/chapter5.md) - gives description on how to fit a nonlinear equation to a data
 *   [_Introduction to Recurrent Neural Network_](/chapters/chapter6.md) - provides a very brief explanation why we might need to use the Recurrent Neural Networks and what options are available in TensorFlow out of the box. Also, we touch on issues of overfitting and underifting.
 *   [_Recurrent Neural Network and Sequences_](/chapters/chapter7.md) chapter shows how to deal with the situation when input sequences are variable length and how to predict sequences.
+*   [_Concluding Remarks_](/chapters/chapter8.md) chapter contains a few random thoughts that may or may not be relevant to the rest of the tutorial.
 
 ### Next
 
