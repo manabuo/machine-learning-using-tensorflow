@@ -68,11 +68,7 @@ product = tf.matmul(matrix1, matrix2)
 
 The default graph now has three nodes: two `tf.constant()` _ops_ and one `tf.matmul()` _op_, it can be visualised as:
 
-```mermaid
-graph TD
-  id1((matrix1)) --> id3((product));
-  id2((matrix2)) --> id3((product));
-```
+![Simple Graph](../assets/image1.svg)
 
 To actually multiply the matrices, and get the result of the multiplication, we must launch the graph in a session.
 
