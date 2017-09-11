@@ -104,7 +104,7 @@ Now RNN outputs zero vectors for every time step past the input sequence length.
 
 ### Next
 
-Sadly, these are the last examples that this tutorial will present. In the [next chapter](chapters/chapter8.md), we will just give some random thoughts on TensorFlow.
+Sadly, these are the last examples that this tutorial will present. In the [next chapter](/chapters/chapter8.md), we will just give some random thoughts on TensorFlow.
 
 ### Code
 
