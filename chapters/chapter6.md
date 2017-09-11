@@ -2,7 +2,7 @@
 
 In the previous chapters, we presented _simple_ [Feed-forward Neural Networks](https://medium.com/towards-data-science/deep-learning-feedforward-neural-network-26a6705dbdc7) \(FNN\) that varied in size and purpose. These type of networks work well on structured \(fact based\) data where both event order information and location relative to other records is irrelevant. However, this, as you might imagine, is not always the case.
 
-For example, consider images, where every pixel has a value and a specific location. This pixel's value by itself does not provide us with much information and it defiantly does not help us to understand the image. Thus in order to _see_ the image, the pixel's neighbours and their neighbour has to be considered as well. For these type of problems, the [Convolutional Neural Networks](http://cs231n.github.io/convolutional-networks/) \(CNN, _not a news agency!_\) are used, as they are created to learn from the information that is contained in the pixel and also around it. In this tutorial, we will not discuss this type of networks as they are not often used on the structured data, like, patient records, transaction records, etc.
+For example, consider images, where every pixel has a value and a specific location. This pixel's value by itself does not provide us with much information and it defiantly does not help us to understand the image. Thus in order to _see_ the image, the pixel's neighbours and their neighbour has to be considered as well. For these type of problems, the [Convolutional Neural Networks](http://cs231n.github.io/convolutional-networks/) \(CNN, _not the news agency!_\) are used, as they are created to learn from the information that is contained in the pixel and also around it. In this tutorial, we will not discuss this type of networks as they are not often used on the structured data, like, patient records, transaction records, etc.
 
 However, the other type of network that is gaining popularity is the [Recurrent Neural Network](http://karpathy.github.io/2015/05/21/rnn-effectiveness/) \(RNN\).
 
@@ -169,7 +169,7 @@ In practical applications when using Neural Networks, it is often better to have
 
 Frobenius regularisation is similar to L2 regularisation and thus for brevity, we are going to skip the explanations here.
 
-In the script, [04\_03\_rnn\_l2.py](/scripts/04_03_rnn_l2.py), Frobenius regularisation is impmendenatin can be found under _Frobenius_regularization_ variable scope,
+In the script, [04\_03\_rnn\_l2.py](/scripts/04_03_rnn_l2.py), Frobenius regularisation is impmendenatin can be found under `Frobenius_regularization` variable scope,
 
 ```python
 # Creates a fully-connected layer with Frobenius (l2) regularization and tanh activation

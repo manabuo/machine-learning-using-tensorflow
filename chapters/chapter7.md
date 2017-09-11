@@ -52,7 +52,7 @@ gantt
     Record          :today, 12d
 ``` -->
 
-![Records of Variable Lenght](../assets/image6.svg)
+![Record Sequences](../assets/image6.svg)
 
 This example will consider exactly this situation, see [05\_02\_rnn\_variable\_seq.py](/scripts/05_02_rnn_variable_seq.py).
 

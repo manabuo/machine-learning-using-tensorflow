@@ -19,9 +19,11 @@ Next, we split both, target and feature sets into training, validation and test 
 
 To conclude this stage we transform all three feature sets, more precisely we rescale all value in data sets so that the values are between 0 and 1. In this example, we used `MinMaxScaler()` function from `scikit-learn` package that scales each column individually using the following equation,
 
+
 $$
  x_{scaled} = \frac{x - x_{min}}{x_{max} - x_{min}}.
 $$
+
 
 > Note: Statistics that are used in the scaling functions are computed on the training data and only then are used to scale validation and training sets.
 
@@ -29,7 +31,7 @@ In this example, the scaling function outputs numpy array of the same size as in
 
 ### Graph Construction
 
-As mentioned in the previous chapter, the most differentiating part of the TensorFlow from the other libraries is that a model or "an analysis plan" has to be constructed separately and before it is executed. In TensorFlow models are represented as [graphs](https://www.tensorflow.org/api_guides/python/framework) where operations as nodes and edges carry tensors/weights.
+As mentioned in the previous chapter, the most differentiating part of the TensorFlow from the other libraries is that a model or "an analysis plan" has to be constructed separately and before it is executed. In TensorFlow models are represented as [graphs](https://www.tensorflow.org/api_guides/python/framework) where operations as nodes and edges carry tensors/weights.  
 Our task is to build the following graph:
 
 ```mermaid
@@ -87,7 +89,7 @@ Next section in the graph is the definition of the Logistic Regression Model its
 
 #### Logistic Regression Model
 
-In broad terms at this stage we start by defining an operation which first computes predictions when given an input, then it is passed to an appropriate loss function and subsequently, it is passed to an optimisation function.
+In broad terms at this stage we start by defining an operation which first computes predictions when given an input, then it is passed to an appropriate loss function and subsequently, it is passed to an optimisation function.  
 In our example this is written as:
 
 ```python
@@ -109,7 +111,7 @@ So in this example, we have only two classes, therefore `units=2=Y_FEATURES` and
 
 To determine how well our model performs we compute loss/cost, as this example is a classification task, we choose [cross-entropy cost function](http://neuralnetworksanddeeplearning.com/chap3.html#the_cross-entropy_cost_function) function. In the script it is achieved by [`tf.losses.softmax_cross_entropy()`](https://www.tensorflow.org/api_docs/python/tf/losses/softmax_cross_entropy), it has two required parameters `onehot_labels` that takes in target input tensor and _logits_ is prediction tensor.
 
-Further, to actually train a model or, in the other words, find "best" values for weights and biases, TensorFlow has Optimizer class which provides methods to compute gradients for a loss and apply gradients to variables. It has a large collection of implemented optimization algorithms, see [here](https://www.tensorflow.org/api_guides/python/train). In this example, we used [`tf.train.GradientDescentOptimizer()`](https://www.tensorflow.org/api_docs/python/tf/train/GradientDescentOptimizer) which implements [gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) algorithm. This function requires only one parameter the `learning_rate` which is a step size.
+Further, to actually train a model or, in the other words, find "best" values for weights and biases, TensorFlow has Optimizer class which provides methods to compute gradients for a loss and apply gradients to variables. It has a large collection of implemented optimization algorithms, see [here](https://www.tensorflow.org/api_guides/python/train). In this example, we used [`tf.train.GradientDescentOptimizer()`](https://www.tensorflow.org/api_docs/python/tf/train/GradientDescentOptimizer) which implements [gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) algorithm. This function requires only one parameter the `learning_rate` which is a step size.  
 Next, `minimize(loss)` takes care of both computing the gradients and applying them to the variables. This operation is, by convention, known as the _train\_op_ and is what must be run by a TensorFlow session in order to induce one full step of training.
 
 ##### Hyperparameters

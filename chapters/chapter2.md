@@ -19,7 +19,7 @@ Both TensorFlow Estimator and TensorFlow Learn allows you to load in data, const
 
 Google has some good tutorial on how to build model using [TensorFlow Estimator](https://www.tensorflow.org/get_started/estimator).
 
-> Note: TensorFlow Learn was originally an independent project called Scikit Flow \(SKFlow\).
+> Note: TensorFlow Learn was originally an independent project called Scikit Flow \(SKFlow\).  
 > Note: TensorFlow Contrib module, which TensorFlow Learn is part of, contains volatile or experimental code.
 
 Another notable addition to the TensorFlow is the implementation of the [Keras](https://keras.io/) API, that significantly reduces the number of lines and improves readability of the code. See [TensorFlow Contrib Keras](https://www.tensorflow.org/api_docs/python/tf/contrib/keras).
