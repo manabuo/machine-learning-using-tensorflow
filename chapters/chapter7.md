@@ -69,18 +69,15 @@ def create_features(t, slice_len, max_slice_len):
     return np.expand_dims(a=np.concatenate(f, axis=1), axis=0)
 ```
 
-We can see that each sequence in the data set has variable length but they are padded by zeros, in order to ensure that the final length of the each sequence is `Max_Sequence_Lenght`. In addition, variable `seq_len` keeps a record of the original length value for each sequence in the data set.
+we can see that each sequence in the data set has variable length but they are padded by zero in order to ensure that the final length of each sequence is `Max_Sequence_Lenght.` In addition, variable `seq_len` keeps a record of the original length value for each sequence in the data set.
 
-We conclude the first step by split data set into Training, Validation and Test data sets.
-
-The second stage is, as before, graph construction, where we follow the same steps as in all previous examples. Here, however, in addition to already familiar placeholders we introduce `sequence_length`,
+After creating the data, we split it into Training, Validation and Test data sets. This is follwoen, as ussual, with graph construction, where we follow the same steps as in all previous examples. Here, in addition to already familiar placeholders we introduce one more, 
 
 ```python
 sequence_length = tf.placeholder(dtype=tf.float32, shape=[None], name="sequence_length")
 ```
 
-This placeholder will accept each sequence length value which is contained in `seq_len`.  
-This tensor then is passed to `tf.nn.dynamic_rnn()` _ops_ as an additional `sequence_length` parameter,
+This placeholder will accept sequence length values which are contained in `seq_len variable`. This input tensor then is passed to `tf.nn.dynamic_rnn()` _ops_ as an additional `sequence_length` parameter,
 
 ```python
 rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=input_seq, dtype=tf.float32,
