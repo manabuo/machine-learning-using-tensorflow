@@ -61,7 +61,7 @@ Our task is to build the following graph:
     end;
 ```
 
-In further explanations are going to follow the same structure as it can be seen in the graph above, therefore we will first define of inputs.
+I what follwos we are going to follow the same structure as it can be seen in the graph above, thus we start with seting up inputs.
 
 #### Inputs
 
