@@ -219,7 +219,7 @@ plt.yticks(tick_marks, ["B", "M"])
 
 ### Next
 
-This concludes the description of the Logistic Regression and in the [next chapter](//chapters/chapter4.md) we will see how to modify our existing code in order to perform the Linear Regression. However, if you wish to return to the previous chapter press [here](/chapters/chapter2.md).
+This concludes the description of the Logistic Regression and in the [next chapter](/chapters/chapter4.md) we will see how to modify our existing code in order to perform the Linear Regression. However, if you wish to return to the previous chapter press [here](/chapters/chapter2.md).
 
 ### Code
 
