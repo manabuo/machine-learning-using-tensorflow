@@ -171,17 +171,15 @@ for e in range(EPOCHS + 1):
 
 The outer loop is for epochs in which we first shuffle input array indices and then define a [Python generator](https://wiki.python.org/moin/Generators) for a batch creation. This function takes in a list of indices and creates a slice that contains `BATCH_SIZE` number or less of elements. The inner explicit loop is over a number of batches that are computed beforehand. In the loop, [`next()`](https://www.programiz.com/python-programming/methods/built-in/next) function takes in our predefined Python generator and returns a list of index values of length `BATCH_SIZE`. Every time this function is executed function retrieves the next item in the iterator.
 
-Having obtained the list of indices, we construct an input `feed` dictionary, where we define which input array is assigned to which placeholder in the graph. In this example, we train our model using batches and thus we provide only slices of whole target and feature data sets. Then we execute the graph, by supplying the [`run`](https://www.tensorflow.org/api_docs/python/tf/Session#run) method with two parameters, `fetches` which may be a single graph element or list of an arbitrary number of graph elements, `feed_dict` corresponds to input values.
+Having obtained the list of indices, we construct an input `feed` dictionary, where we define which input array is assigned to which placeholder in the graph. In this example, we train our model using batches and thus we provide only slices of whole target and feature data sets. Then we execute the graph, by supplying the [`run`](https://www.tensorflow.org/api_docs/python/tf/Session#run) method with two parameters, `fetches` which may be a single graph element or list of an arbitrary number of graph elements, and `feed_dict` corresponds to input values.
 
-The `run` method runs one step of TensorFlow computation, thus iterating over a number of batches where at each iteration a new input batch is created and supplied to the graph, it has to modify weights and biases in order to find a middle-ground that would satisfy all training input data.
+The `run` method executes graph only one step at a time, thus iterating over a number of batches where at each iteration a new input batch is created and supplied to the graph, it has to modify weights and biases in order to find a middle-ground that would satisfy all training input data. Following `if` statement is optional, as it allows us to follow the training progress. It states that after every 100 epochs we wish to evaluate_ total_ _loss_ and _accuracy_ for whole training and validation sets, and then print it to the console.
 
-Following `if` statement is optional, as it allows us to follow the training progress. It states that every 100th epoch we wish to evaluate total loss on whole training and validation sets as well as total accuracy for these sets, and then print it to the console.
-
-This concludes the description of all the necessary steps to build and train a model. However, as we have started our `Session` in the interactive mode, we might also test the model and perform an additional computation.
+The code presented above provides all the necessary steps in order to build and train a simple logistic regression model. However, as we have started our `Session` in the interactive mode, we might also test the model and perform an additional computations.
 
 ### Model Testing
 
-For the testing purposes, in addition to _accuracy_, we compute _auc_ and _precision_ for test data set, which all are also printed to the console.
+For the testing purposes, in addition to _accuracy_, we compute _AUC_ and _precision_ for the test data set, and print these results to the console.
 
 ```python
 # Evaluate accuracy, AUC and precision on test data
@@ -221,7 +219,7 @@ plt.yticks(tick_marks, ["B", "M"])
 
 ### Next
 
-This concludes the description of the Logistic Regression and in the [example that follows](/chapters/chapter4.md) we will see how to modify our existing code in order to perform the Linear Regression. However, if you wish to return to the previous chapter press [here](/chapters/chapter2.md).
+This concludes the description of the Logistic Regression and in the [next chapter](//chapters/chapter4.md) we will see how to modify our existing code in order to perform the Linear Regression. However, if you wish to return to the previous chapter press [here](/chapters/chapter2.md).
 
 ### Code
 
