@@ -4,7 +4,7 @@
 
 ## Introduction
 
-The purpose of this tutorial is to be a practical guide in building Neural Networks rather than an in-depth explanation of the ever-changing universe of the Deep Learning. This means that tutorial assumes that a reader is familiar with all the concepts and nomenclature of the Deep Learning. However, for those who did spend hundreds of hours reading blogs and books dedicated to the Deep Learning and those who desire more theoretical/mathematical explanations, the tutorial will try to give one or more links to the websites, that will help you start. 
+The purpose of this tutorial is to provide a practical guide in building Neural Networks rather than an in-depth explanation of the ever-changing universe of the Deep Learning. This means that tutorial assumes that a reader is familiar with all the concepts and nomenclature of the Deep Learning. However, for those who did spend hundreds of hours reading blogs and books dedicated to the Deep Learning and those who desire more theoretical/mathematical explanations, the tutorial will try to give one or more links to the websites, that will help you start.
 
 This tutorial will use [Python](https://www.python.org/) as the main language with, as the title suggests, [TensorFlow](https://www.tensorflow.org/) package. Therefore, it is also assumed that the reader is familiar with at least basic  Python syntax.  At the time of writing the latest Python version is **3.6.2** and for TensorFlow it is **1.3.0**. Explanation on how to set up Python environment and install all the necessatry packages will be provided in the next chapter, so sit tight.
 
