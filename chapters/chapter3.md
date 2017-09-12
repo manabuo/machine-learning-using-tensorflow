@@ -1,6 +1,3 @@
-
----
-
 ## Logistic Regression
 
 This chapter presents the first fully fledged example of Logistic Regression that uses commonly utilised TensorFlow structures.
@@ -60,6 +57,8 @@ Our task is to build the following graph:
       Target --> loss{Loss}
     end;
 ```
+
+
 
 I what follwos we are going to follow the same structure as it can be seen in the graph above, thus we start with seting up inputs.
 
