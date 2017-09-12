@@ -47,9 +47,9 @@ Lines that define input section of the graph are as follows:
 ```python
 # Define inputs to the model
 with tf.variable_scope("inputs"):
-    # placeholder for input features
+    # placeholder for input Feature values
     x = tf.placeholder(dtype=tf.float32, shape=[None, X_FEATURES], name="predictors")
-    # placeholder for true values
+    # placeholder for Target values
     y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name="target")
 ```
 
