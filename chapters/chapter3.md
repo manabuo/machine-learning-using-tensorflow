@@ -11,29 +11,27 @@ For this example the data set comes from [UC Irvine Machine Learning Repository]
 
 ### Data Preparation
 
-As every data is slighty different and every question that we want to answer is different and for brevity, we are going to give only a brief overview on how data were prepared. In order to use presented model, it does not matter how an where you prepare your data but you always have to have final datal in the shape that is equal to the  shape that is passed to the computational graph in this example. 
+As every data is slighty different and every question that we want to answer is different and for brevity, we are going to give only a brief overview on how data were prepared. In order to use presented model, it does not matter how an where you prepare your data but you always have to have final datal in the shape that is equal to the  shape that is passed to the computational graph in this example.
 
-We start by reading in the data file _wdbc.data_, where first two columns names are taken from supplementary the file _wdbc.names_ for convenience the reamining columns are just numbered from 1 to 30 with the prefix _rv\__. After reading in, we split the set into outcome/target and feature/predictors sets, and drop  _ID_ column. At this stage, we have two data frames, one for target values with shape \(569 rows x 1 columns\) and one for features, which shape is \(569 rows x 30 columns\).
+We start by reading in the data file _wdbc.data_, where first two columns names are taken from supplementary the file _wdbc.names_ for convenience the reamining columns are just numbered from 1 to 30 with the prefix _rv\_\_. After reading in, we split the set into outcome/target and feature/predictors sets, and drop  \_ID_ column. At this stage, we have two data frames, one for target values with shape \(569 rows x 1 columns\) and one for features, which shape is \(569 rows x 30 columns\).
 
 Further, we one-hot encode target set and convert it to a numpy array. As we have only two categories, _B_ for benign and  _M_ for malignant, in the set, the shape of the array becomes `[569, 2]`. Here 569 rows represent a number of observations and 2 columns stand for outcome classes.
 
-Next, we split both, target and feature sets into training, validation and test arrays unisg `train_test_split()` function from `scikit-learn` package. Length of the test data set is chosen to be 1/3 of the training and the validation data sets, subsequently, the validations set is 1/3 of the training set.
+Next, we split both, target and feature, sets into training, validation and test arrays using `train_test_split()` function from `scikit-learn` package. Length of the test data set is chosen to be 1/3 of the training and the validation data sets, subsequently, the validations set is 1/3 of the training set.
 
-To conclude this stage we rescale all data sets so that the values are between 0 and 1. In this example, we used `MinMaxScaler()` function from `scikit-learn` package that scales each column individually using the following equation,
+To conclude this stage, we rescale all feature data sets so that the values are between 0 and 1. In this example, we use `MinMaxScaler()` function from `scikit-learn` package that scales each column individually using the following equation,
 
 
 $$
  x_{scaled} = \frac{x - x_{min}}{x_{max} - x_{min}}.
 $$
-
+In this example, the scaling function outputs numpy array of the same size as input data frame, in this case, it is 569 rows and 30 columns when combined.
 
 > Note: Statistics that are used in the scaling functions are computed on the training data and only then are used to scale validation and training sets.
 
-In this example, the scaling function outputs numpy array of the same size as input data frame, in this case, it is 569 rows and 30 columns.
-
 ### Graph Construction
 
-As mentioned in the previous chapter, the most differentiating part of the TensorFlow from the other libraries is that a model or "an analysis plan" has to be constructed separately and before it is executed. In TensorFlow models are represented as [graphs](https://www.tensorflow.org/api_guides/python/framework) where operations as nodes and edges carry tensors/weights.  
+As mentioned in the previous chapter, the most differentiating part of the TensorFlow from the other libraries is that a model or "an analysis plan" has to be constructed before it is accutaly executed. In TensorFlow models are represented as [graphs](https://www.tensorflow.org/api_guides/python/framework) where operations as nodes, and edges carry tensors/weights.  
 Our task is to build the following graph:
 
 ```mermaid
