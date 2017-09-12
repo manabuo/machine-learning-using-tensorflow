@@ -53,15 +53,15 @@ Computational graph for this model can be presented as
 
 ![Graph for Nonlinear Regression](../assets/image3.svg)
 
-We can see that the graph is very similar to the graph presented for the Logistic Regression. In addtion to the _Inputs, Regression Model and Metrics sections _we now have _Hidden Layers_ subsection that contains N number of fully-connected layers stacked layers. The output of this subsection is passed to the _Predictions_ node which then is used to compute `loss` and other quantities in _Metrics_ section.
+We can see that the graph is very similar to the graph presented for the Logistic Regression. In addtion to the _Inputs, Regression Model and Metrics sections \_we now have \_Hidden Layers_ subsection that contains N number of fully-connected layers stacked layers. The output of this subsection is passed to the _Predictions_ node which then is used to compute `loss` and other quantities in _Metrics_ section.
 
-In order to perform computations on the graph, we use same functions as in the previous examples. However, to show how to save and restore trained models we split the training cycle into two stages. To show the latter we are useing 
+In order to perform computations on the graph, we use same functions as in the previous examples. However, to show how to save and restore trained models we split the training cycle into two stages. To show the latter we are useing
 
 ```py
 with tf.Session() as sess:
 ```
 
- to create a `Session` instead of `tf.InteractiveSession()`.
+to create a `Session` instead of `tf.InteractiveSession()`.
 
 So, we start by training model for the first 1/3 of the total training epochs after which we save the model and detached the `Session` from the graph.
 
@@ -70,7 +70,7 @@ save_path = saver.save(sess=sess, save_path=checkpoint_path)
 print("Model saved in file: {path}".format(path=save_path))
 ```
 
-Next, we create new `Session` and connect it to the graph. After that, we load the previously saved model and continue with training the model.
+Next, we create a new `Session` and connect it to the graph again. Then we load the previously saved model and continue to train the model.
 
 ```python
 # Restore model from previously saved model
@@ -91,7 +91,7 @@ saver = tf.train.Saver({"my_v2": v2})
 # Use the saver object normally after that.
 ```
 
-For example, you may have trained a neural net with $$5$$ layers, and you now want to train a new model with 6 layers, restoring the parameters from the $$5$$ layers of the previously trained model into the first $$5$$ layers of the new model.You can easily specify the names and variables to save by passing to the `tf.train.Saver()` constructor a Python dictionary: keys are the names to use, values are the variables to manage.
+For example, you may have trained a neural net with 5 layers, and you now want to train a new model with 6 layers, restoring the parameters from the 5 layers of the previously trained model into the first 5 layers of the new model.You can easily specify the names and variables to save by passing to the `tf.train.Saver()` constructor a Python dictionary: keys are the names to use, values are the variables to manage.
 
 You can create as many _Saver_ operators as you want if you need to save and restore different subsets of the model variables. The same variable can be listed in multiple _Saver_ operator, its value is only changed when the saver `restore()` method is run.
 
@@ -99,15 +99,15 @@ You can create as many _Saver_ operators as you want if you need to save and res
 
 ### Optimizers
 
-As before, in this example, we use the gradient descent algorithm to optimize the weights and biases. However, as mentioned before, TensorFlow has a large collection of implemented optimization algorithms, see [here](https://www.tensorflow.org/api_guides/python/train). A good summary of different types of optimization algorithms is available [here](http://ruder.io/optimizing-gradient-descent/) and [here](https://leonardoaraujosantos.gitbooks.io/artificial-inteligence/content/model_optimization.html).
+As before, in this example, we use the gradient descent algorithm to optimize the weights and biases. However, as mentioned before, TensorFlow has a large collection implemented optimization algorithms, see [here](https://www.tensorflow.org/api_guides/python/train). A good summary of different types of optimization algorithms is available [here](http://ruder.io/optimizing-gradient-descent/) and [here](https://leonardoaraujosantos.gitbooks.io/artificial-inteligence/content/model_optimization.html).
 
 > Note: Right choice of optimization algorithms can significantly reduce training time as well as a quality of the model, therefore the algorithm is an additional hyperparameter that has to be considered.
 
 ### Activation functions
 
-In this example, we introduced a notion of the [activation function](https://en.wikipedia.org/wiki/Activation_function) which has an essential part in the neural networks. It ensures that values in the network have nonlinear characteristics. Similarly to the optimization algorithms, TensorFlow has a collection of activation _ops_, the list of which is available [here](https://www.tensorflow.org/api_guides/python/nn). A good summary of different types of the activations functions is available [here](http://cs231n.github.io/neural-networks-1/)
+In this example, we introduced a notion of the [activation function](https://en.wikipedia.org/wiki/Activation_function) which is essential part of the neural networks. It ensures that values in the network have nonlinear characteristics. Similarly to the optimization algorithms, TensorFlow has a collection of activation _ops_, the list of which is available [here](https://www.tensorflow.org/api_guides/python/nn). A good summary of different types of the activations functions is available [here](http://cs231n.github.io/neural-networks-1/).
 
-In this particular example, for all hidden layers, we used [Rectified Linear Unit](https://en.wikipedia.org/wiki/Rectifier_%28neural_networks%29).
+In this example, for all hidden layers, we used [Rectified Linear Unit](https://en.wikipedia.org/wiki/Rectifier_%28neural_networks%29).
 
 ### Next
 
