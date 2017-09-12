@@ -36,31 +36,9 @@ In this example, the scaling function outputs numpy array of the same size as in
 As mentioned in the previous chapter, the most differentiating part of the TensorFlow from the other libraries is that a model or "an analysis plan" has to be constructed before it is accutaly executed. In TensorFlow models are represented as [graphs](https://www.tensorflow.org/api_guides/python/framework) where operations as nodes, and edges carry tensors/weights.  
 Our task is to build the following graph:
 
-```mermaid
-  graph TD
-    subgraph Logistic Regression Model
-      ts{Optimiser}  -.-> loss{Loss}
-      logits((Logits)) --> loss{Loss}
-    end;
-      subgraph Metrics
-      logits((Logits)) --> Predictions
-      Labels --> accuracy{Accuracy}
-      Labels --> auc{auc}
-      Labels --> precision{Precision}
-      Predictions --> accuracy{Accuracy}
-      Predictions --> auc{AUC}
-      Predictions --> precision{Precision}
-    end;
-    subgraph Inputs
-      Features --> logits((Logits))
-      Target --> Labels
-      Target --> loss{Loss}
-    end;
-```
+![Graph for Logistic Regression task](../assets/image2.svg)
 
-
-
-I what follwos we are going to follow the same structure as it can be seen in the graph above, thus we start with seting up inputs.
+I what follows we are going to follow the same structure as it can be seen in the graph above, thus we start with setting up inputs.
 
 #### Inputs
 
