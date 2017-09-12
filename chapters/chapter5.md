@@ -17,6 +17,8 @@ As already mentioned, the graph presented here is, essentially, just an extensio
 prediction = tf.layers.dense(inputs=h, units=Y_FEATURES, name="prediction")
 ```
 
+Where `h` stands for hidden layers.
+
 ```python
 with tf.variable_scope("hidden layers"):
     # Constructs hidden fully connected layer network
@@ -45,7 +47,7 @@ def hidden_layers(in_tensor, layers):
     return h_input
 ```
 
-This function combines multiple fully-connected layers of a variable size. The first layer in the stack takes as an input tensor the `in_tensor` parameter. All subsequent layers take in previous layer output until the last layer is reached. The output of the last layer is also a return object of the function, that is `h` tensor. Function `hidden_layers()` has two parameters where the first, `in_tensor` is the node \(tensor\) to which the hidden layers will be connected to and `layers` parameter is the list of dictionaries for each layer describing number of units \(neurons\) and the type of the activation function per layer.
+This function combines multiple fully-connected layers of a variable size. The first layer in the stack takes as an input tensor the `in_tensor` parameter, which in our example is `x` tensor. All subsequent layers take in previous layer output until the last layer is reached. The output of the last layer is also a return object of `hidden_layers()` function, that is `h` tensor. Function `hidden_layers()` has two parameters where the first, `in_tensor` is the node \(tensor\) to which the hidden layers will be connected to and `layers` parameter is the list of dictionaries for each layer describing number of units \(neurons\) and the type of the activation function per layer.
 
 When visualised the computational graph for this model would look as follows,
 
