@@ -111,7 +111,7 @@ In this example, for all hidden layers, we used [Rectified Linear Unit](https://
 
 ### Next
 
-In this chapter, we saw how to create _simple_ Feed-forward Neural Networks using the model that we showed in the [previous chapter](/chapters/chapter4.md) and just adding an additional neural layer. Hence, current model allows us to make predictions for linear and nonlinear processes. However, this network cannot be used if data, that we are interested in, have temporal dependencies. Thus in the [chapter that follows](/chapters/chapter6.md), we will show how to do in this situation.
+In this chapter, we saw how to create Feed-forward Neural Network just by adding a few lines of code to the linear regression model that we saw in the [previous chapter](/chapters/chapter4.md). Hence, current model allows us to make predictions for linear and also nonlinear processes. However, this network cannot be used if data, that we are interested in, have temporal dependencies. Thus in the [next chapter](/chapters/chapter6.md), we will show what to do in that situation.
 
 ### Code
 
