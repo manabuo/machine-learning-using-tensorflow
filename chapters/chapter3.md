@@ -71,8 +71,7 @@ Next section in the graph is the definition of the Logistic Regression Model its
 
 #### Logistic Regression Model
 
-At this stage we define an operations which first compute predictions for a given input and then the prediction is passed to a loss function which subsequently is passed to an optimisation function.  
-In our example this is written as:
+At this stage we define an operations which first compute predictions for a given input and then the prediction is passed to a loss function which subsequently is passed to an optimisation function. In our example this is written as:
 
 ```python
 # Define logistic regression model
@@ -87,14 +86,11 @@ with tf.variable_scope("logistic_regression"):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 ```
 
-First, [`tf.layers.dense()`](https://www.tensorflow.org/api_docs/python/tf/layers/dense) is, as names suggest, a layer of "neurons" where `units`, which is a required parameter, defines a number of "neurons" in the layer. Another required parameter for this function is `inputs` that takes in an input tensors. Again, `name` is an optional parameter.
+First, [`tf.layers.dense()`](https://www.tensorflow.org/api_docs/python/tf/layers/dense) is, as names suggest, a  layer of fully-conected "neurons". Here `units`, which is a required parameter, defines a number of "neurons" in the layer. Another required parameter for this function is `inputs` that takes in our input tensor `x`, but  `name` is an optional parameter. As in this example, we have only two target classes, `units`parameter then is equal to `Y_FEATURES` or 2. 
 
-So in this example, we have only two classes, therefore `units=2=Y_FEATURES` and input tensor is `x` thus `inputs=x`.
+ To determine how well our model performs we compute the loss/cost. This example is a classification task, thus we choose [cross-entropy cost function](http://neuralnetworksanddeeplearning.com/chap3.html#the_cross-entropy_cost_function) to be our loss function. In the script it is computed using [`tf.losses.softmax_cross_entropy()`](https://www.tensorflow.org/api_docs/python/tf/losses/softmax_cross_entropy) function. It has two required parameters `onehot_labels` that takes in target input tensor and _logits_ for prediction tensor.
 
-To determine how well our model performs we compute loss/cost, as this example is a classification task, we choose [cross-entropy cost function](http://neuralnetworksanddeeplearning.com/chap3.html#the_cross-entropy_cost_function) function. In the script it is achieved by [`tf.losses.softmax_cross_entropy()`](https://www.tensorflow.org/api_docs/python/tf/losses/softmax_cross_entropy), it has two required parameters `onehot_labels` that takes in target input tensor and _logits_ is prediction tensor.
-
-Further, to actually train a model or, in the other words, find "best" values for weights and biases, TensorFlow has Optimizer class which provides methods to compute gradients for a loss and apply gradients to variables. It has a large collection of implemented optimization algorithms, see [here](https://www.tensorflow.org/api_guides/python/train). In this example, we used [`tf.train.GradientDescentOptimizer()`](https://www.tensorflow.org/api_docs/python/tf/train/GradientDescentOptimizer) which implements [gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) algorithm. This function requires only one parameter the `learning_rate` which is a step size.  
-Next, `minimize(loss)` takes care of both computing the gradients and applying them to the variables. This operation is, by convention, known as the _train\_op_ and is what must be run by a TensorFlow session in order to induce one full step of training.
+Further, to actually train a model or, in the other words, find the "best" values for weights and biases, TensorFlow has Optimizer class which provides methods to compute gradients for a loss function and apply them to variables. TensorFlow contains a large collection of built-in optimization algorithms, see [here](https://www.tensorflow.org/api_guides/python/train). In this particular example we are useing [`tf.train.GradientDescentOptimizer()`](https://www.tensorflow.org/api_docs/python/tf/train/GradientDescentOptimizer) _op_ which implements the [gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) algorithm. This function requires only one parameter and that is the `learning_rate` which is just a step size in the gradien decent algorithm. Next, `minimize(loss)` takes care of both computing the gradients and applying them to the variables. This operation is, by convention, known as the _train\_op_ and is what must be run by a TensorFlow session in order to perform one full training step.
 
 ##### Hyperparameters
 
