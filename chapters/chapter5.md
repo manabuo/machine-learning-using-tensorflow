@@ -51,28 +51,7 @@ This function combines multiple fully-connected layers of a variable size. The f
 
 Computational graph for this model can be presented as
 
-```mermaid
-  graph LR
-  subgraph Non-linear Regression Model
-    subgraph Hidden Layers
-      hl1(Hidden Layer 1) -.- hl2(Hidden Layer 2)
-      hl2(Hidden Layer i) -.- hln(Hidden Layer i)
-      end
-      hln(Hidden Layer N) --> Prediction((Prediction))
-      Prediction((Prediction)) --> loss{Loss}
-      Optimiser -.-> loss{Loss}
-  end
-  subgraph Metrics
-    Prediction((Prediction)) --> rmse{RMSE}
-    Prediction((Prediction)) --> auc{R2}
-  end
-    subgraph Inputs
-      Target --> loss{Loss}
-      Target --> rmse{RMSE}
-      Target --> auc{R2}
-      Features --> hl1(Hidden Layer 1)
-    end
-```
+![Graph for Nonlinear Regression](../assets/image3.svg)
 
 We can see that Graph is very similar to graph presented for the Logistic Regression. In addtion to the _Inputs_ then it is followed by the _Nonlinear Regression Model_ where we find _Hidden Layers_ subsection with N \(number of hidden layers\) fully-connected layers are stacked together. The output of this subsection is passed to the _Prediction_ node which later is used to compute `loss` and other quantities in _Metrics_ section.
 
