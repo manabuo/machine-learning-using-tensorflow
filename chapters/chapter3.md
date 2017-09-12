@@ -86,9 +86,9 @@ with tf.variable_scope("logistic_regression"):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 ```
 
-First, [`tf.layers.dense()`](https://www.tensorflow.org/api_docs/python/tf/layers/dense) is, as names suggest, a  layer of fully-conected "neurons". Here `units`, which is a required parameter, defines a number of "neurons" in the layer. Another required parameter for this function is `inputs` that takes in our input tensor `x`, but  `name` is an optional parameter. As in this example, we have only two target classes, `units`parameter then is equal to `Y_FEATURES` or 2. 
+First, [`tf.layers.dense()`](https://www.tensorflow.org/api_docs/python/tf/layers/dense) is, as names suggest, a  layer of fully-conected "neurons". Here `units`, which is a required parameter, defines a number of "neurons" in the layer. Another required parameter for this function is `inputs` that takes in our input tensor `x`, but  `name` is an optional parameter. As in this example, we have only two target classes, `units`parameter then is equal to `Y_FEATURES` or 2.
 
- To determine how well our model performs we compute the loss/cost. This example is a classification task, thus we choose [cross-entropy cost function](http://neuralnetworksanddeeplearning.com/chap3.html#the_cross-entropy_cost_function) to be our loss function. In the script it is computed using [`tf.losses.softmax_cross_entropy()`](https://www.tensorflow.org/api_docs/python/tf/losses/softmax_cross_entropy) function. It has two required parameters `onehot_labels` that takes in target input tensor and _logits_ for prediction tensor.
+To determine how well our model performs we compute the loss/cost. This example is a classification task, thus we choose [cross-entropy cost function](http://neuralnetworksanddeeplearning.com/chap3.html#the_cross-entropy_cost_function) to be our loss function. In the script it is computed using [`tf.losses.softmax_cross_entropy()`](https://www.tensorflow.org/api_docs/python/tf/losses/softmax_cross_entropy) function. It has two required parameters `onehot_labels` that takes in target input tensor and _logits_ for prediction tensor.
 
 Further, to actually train a model or, in the other words, find the "best" values for weights and biases, TensorFlow has Optimizer class which provides methods to compute gradients for a loss function and apply them to variables. TensorFlow contains a large collection of built-in optimization algorithms, see [here](https://www.tensorflow.org/api_guides/python/train). In this particular example we are useing [`tf.train.GradientDescentOptimizer()`](https://www.tensorflow.org/api_docs/python/tf/train/GradientDescentOptimizer) _op_ which implements the [gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) algorithm. This function requires only one parameter and that is the `learning_rate` which is just a step size in the gradien decent algorithm. Next, `minimize(loss)` takes care of both computing the gradients and applying them to the variables. This operation is, by convention, known as the _train\_op_ and is what must be run by a TensorFlow session in order to perform one full training step.
 
@@ -96,11 +96,12 @@ Further, to actually train a model or, in the other words, find the "best" value
 
 This model has two parameters that only influence input and output layer shapes, these are, `X_FEATURES` which is a number of input features, and`Y_FEATURES` - the number of output classes or a number of "neurons" in the output layer.
 
-However, other three parameters \(hyperparameters\) that have to be supplied to the graph during construction, do influence the model and training are:
+However, other parameters \(hyperparameters\) that have to be supplied to the graph during construction, and they alos influence the model and training, are:
 
 * `BATCH_SIZE` - length of input array,
 * `LEARNING_RATE` that is a value that corresponds to a step size in gradient descent algorithm,
 * `EPOCHS` - a number of times the model is going to see the whole data set.
+* Optimization algorithm 
 
 #### Metrics
 
@@ -116,7 +117,7 @@ with tf.variable_scope("metrics"):
     _, precision = tf.metrics.precision(labels=labels, predictions=predictions)
 ```
 
-First, we find indices with the largest value across column axis of logit and target tensors using [`tf.argmax()`](https://www.tensorflow.org/api_docs/python/tf/argmax). This function takes in a tensor and axis that describes which axis of the input tensor to reduce across. Then we use theses values to compute [`accuracy`](https://www.tensorflow.org/api_docs/python/tf/metrics/accuracy), [`auc`](https://www.tensorflow.org/api_docs/python/tf/metrics/auc) and [`precision`](https://www.tensorflow.org/api_docs/python/tf/metrics/precision) for the model. Other metrics can be found [here](https://www.tensorflow.org/api_docs/python/tf/metrics).
+First, we find indices with the largest value across column axis of logit and target tensors using [`tf.argmax()`](https://www.tensorflow.org/api_docs/python/tf/argmax). This function takes in a tensor and axis that specifies which axis of the input tensor to reduce across. Then we use theses values to compute [`accuracy`](https://www.tensorflow.org/api_docs/python/tf/metrics/accuracy), [`auc`](https://www.tensorflow.org/api_docs/python/tf/metrics/auc) and [`precision`](https://www.tensorflow.org/api_docs/python/tf/metrics/precision) for the model. Other metrics can be found [here](https://www.tensorflow.org/api_docs/python/tf/metrics).
 
 ### Model Training
 
@@ -133,11 +134,11 @@ init_local = tf.local_variables_initializer()
 sess.run(fetches=[init_global, init_local])
 ```
 
-In this example, we have used `tf.InteractiveSession()` function to attach the `Session` to the graph. This allows us to use model interactively in IDE such as **PyCharm**, **Atom**, etc.  The remaining two lines of the code run the `Session`, meaning execute the graph, by initializing global and local variables. In general, a majority of TensorFlow functions require only global variables to be initialized, however when `tf.metrics` is used local variables also are needed.
+Here we use `tf.InteractiveSession()` function to attach the `Session` to the graph. This allows us to use model interactively in  **PyCharm **or **Jupyter Notebooks**.  Later, we  define global and local variables and inisialize them by executing the `Session`. In general, a majority of TensorFlow functions require only global variables to be initialized, however when `tf.metrics` is used local variables also are required.
 
 > Note: Currently, TensorFlow community tries to change how variable initialization works and for the time being it is advisable to initialize global variables. However, if errors appear during graph's execution, initialize local variables as well.
 
-After initialization, we are left only with training the data set which is achieved by creating a loop.
+After initialization, we are left only with training the data set which is achieved by creating a loop \(not all loops in Python are bad\).
 
 ```python
 for e in range(EPOCHS + 1):
