@@ -1,3 +1,6 @@
+
+---
+
 ## Logistic Regression
 
 This chapter presents the first fully fledged example of Logistic Regression that uses commonly utilised TensorFlow structures.
@@ -13,7 +16,7 @@ For this example the data set comes from [UC Irvine Machine Learning Repository]
 
 As every data is slighty different and every question that we want to answer is different and for brevity, we are going to give only a brief overview on how data were prepared. In order to use presented model, it does not matter how an where you prepare your data but you always have to have final datal in the shape that is equal to the  shape that is passed to the computational graph in this example.
 
-We start by reading in the data file _wdbc.data_, where first two columns names are taken from supplementary the file _wdbc.names_ for convenience the reamining columns are just numbered from 1 to 30 with the prefix _rv\_\_. After reading in, we split the set into outcome/target and feature/predictors sets, and drop  \_ID_ column. At this stage, we have two data frames, one for target values with shape \(569 rows x 1 columns\) and one for features, which shape is \(569 rows x 30 columns\).
+We start by reading in the data file _wdbc.data_, where first two columns names are taken from supplementary the file _wdbc.names_ for convenience the reamining columns are just numbered from 1 to 30 with the prefix _rv\_\_. After reading in, we split the set into outcome/target and feature/predictors sets, and drop  \_ID\_ column. At this stage, we have two data frames, one for target values with shape \(569 rows x 1 columns\) and one for features, which shape is \(569 rows x 30 columns\).
 
 Further, we one-hot encode target set and convert it to a numpy array. As we have only two categories, _B_ for benign and  _M_ for malignant, in the set, the shape of the array becomes `[569, 2]`. Here 569 rows represent a number of observations and 2 columns stand for outcome classes.
 
@@ -25,6 +28,8 @@ To conclude this stage, we rescale all feature data sets so that the values are 
 $$
  x_{scaled} = \frac{x - x_{min}}{x_{max} - x_{min}}.
 $$
+
+
 In this example, the scaling function outputs numpy array of the same size as input data frame, in this case, it is 569 rows and 30 columns when combined.
 
 > Note: Statistics that are used in the scaling functions are computed on the training data and only then are used to scale validation and training sets.
