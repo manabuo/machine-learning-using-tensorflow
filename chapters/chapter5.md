@@ -49,7 +49,7 @@ def hidden_layers(in_tensor, layers):
 
 This function combines multiple fully-connected layers of a variable size. The first layer in the stack takes as an input tensor the `in_tensor` parameter, which in our example is `x` tensor. All subsequent layers take in previous layer output until the last layer is reached. The output of the last layer is also a return object of `hidden_layers()` function, that is `h` tensor. Function `hidden_layers()` has two parameters where the first, `in_tensor` is the node \(tensor\) to which the hidden layers will be connected to and `layers` parameter is the list of dictionaries for each layer describing number of units \(neurons\) and the type of the activation function per layer.
 
-When visualised the computational graph for this model would look as follows,
+Computational graph for this model can be presented as
 
 ```mermaid
   graph LR
@@ -74,7 +74,7 @@ When visualised the computational graph for this model would look as follows,
     end
 ```
 
-Here the first section is _Inputs_ then it is followed by the _Nonlinear Regression Model_ where we find _Hidden Layers_ subsection with N \(number of hidden layers\) fully-connected layers are stacked together. The output of this subsection is passed to the _Prediction_ node which later is used to compute `loss` and other quantities in _Metrics_ section.
+We can see that Graph is very similar to graph presented for the Logistic Regression. In addtion to the _Inputs_ then it is followed by the _Nonlinear Regression Model_ where we find _Hidden Layers_ subsection with N \(number of hidden layers\) fully-connected layers are stacked together. The output of this subsection is passed to the _Prediction_ node which later is used to compute `loss` and other quantities in _Metrics_ section.
 
 In order to perform computations on the graph, we use the same functions as in the previous example. However, to show how to save and restore trained models we split the training cycle into two stages. In addition, in this example, we used `with tf.Session() as sess:` to create a `Session` instead of `tf.InteractiveSession()`.
 
