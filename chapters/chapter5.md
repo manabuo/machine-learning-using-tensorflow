@@ -63,7 +63,7 @@ with tf.Session() as sess:
 
  to create a `Session` instead of `tf.InteractiveSession()`.
 
-So, we start by training model for the first $$1/3$$ of the total training epochs after which we save the model and detached the `Session` from the graph.
+So, we start by training model for the first 1/3 of the total training epochs after which we save the model and detached the `Session` from the graph.
 
 ```python
 save_path = saver.save(sess=sess, save_path=checkpoint_path)
