@@ -53,11 +53,17 @@ Computational graph for this model can be presented as
 
 ![Graph for Nonlinear Regression](../assets/image3.svg)
 
-We can see that Graph is very similar to graph presented for the Logistic Regression. In addtion to the _Inputs_ then it is followed by the _Nonlinear Regression Model_ where we find _Hidden Layers_ subsection with N \(number of hidden layers\) fully-connected layers are stacked together. The output of this subsection is passed to the _Prediction_ node which later is used to compute `loss` and other quantities in _Metrics_ section.
+We can see that the graph is very similar to the graph presented for the Logistic Regression. In addtion to the _Inputs, Regression Model and Metrics sections _we now have _Hidden Layers_ subsection that contains N number of fully-connected layers stacked layers. The output of this subsection is passed to the _Predictions_ node which then is used to compute `loss` and other quantities in _Metrics_ section.
 
-In order to perform computations on the graph, we use the same functions as in the previous example. However, to show how to save and restore trained models we split the training cycle into two stages. In addition, in this example, we used `with tf.Session() as sess:` to create a `Session` instead of `tf.InteractiveSession()`.
+In order to perform computations on the graph, we use same functions as in the previous examples. However, to show how to save and restore trained models we split the training cycle into two stages. To show the latter we are useing 
 
-We start by training model for the first $$1/3$$ of the total training epochs after which we save the model and detached the `Session` from the graph.
+```py
+with tf.Session() as sess:
+```
+
+ to create a `Session` instead of `tf.InteractiveSession()`.
+
+So, we start by training model for the first $$1/3$$ of the total training epochs after which we save the model and detached the `Session` from the graph.
 
 ```python
 save_path = saver.save(sess=sess, save_path=checkpoint_path)
