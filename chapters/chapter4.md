@@ -22,9 +22,7 @@ X_train_val, X_test, Y_train_val, Y_test = train_test_split(feature, target, tes
 X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.33, random_state=42)
 ```
 
-features are just a randomly generated numbers in the range $$-1$$ to $$4$$. The shape of the array is  `[1000, 1]`. To make life just a bit more interesting, we also create a random noise with the maximum amplitude of $$0.1$$. Further, we create two target arrays, that are later concatenated into one `[1000, 2]` numpy array. The parameters and coefficients that are used in the example are arbitrary and therefore feel free to play around. However, note that if you select very very small or very very large values you may require to change hyperparameters as otherwise, the model will have difficulties to make a prediction. The final step in the data preparation stage, as before, is splitting the feature and the target arrays into train, validation and test data sets.
-
-As the next step, we are going to construct the computational graph.
+features are just a randomly generated numbers in the range -1 and 4. The shape of the array is`[1000, 1]`. To make life just a bit more interesting, we also create a random noise with the maximum amplitude of 0.1. Further, we create two target arrays, that are later concatenated into one `[1000, 2]` numpy array. The parameters and coefficients that are used in the example are arbitrary and therefore feel free to play around. However, note that if your target or/and feature values are very very small or very very large you may need to resacale them or change hyperparameters. Otherwise it will be very difficult fo the the model to make a good predictions. The final step in the data preparation stage, as before, is splitting the feature and the target arrays into train, validation and test data sets.
 
 ### Graph Construction
 
@@ -38,15 +36,15 @@ with tf.variable_scope("inputs"):
     y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name="target")
 ```
 
-Both `X_FEATURES` and `Y_FEATURES` are computed during the script execution, as each numpy array contains a [`shape`](https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.shape.html) option that returns the tuple of array dimensions, therefore we do not need to worry about what values are assigned to these variables. As in the previous example, we use `None` for the first dimension in the shape parameter for both placeholders.
+Both `X_FEATURES` and `Y_FEATURES` are computed during the script execution, as each numpy array contains a [`shape`](https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.shape.html) option that returns the tuple of array dimensions, therefore we do not need to worry about what values are assigned to these variables. Becasue we used `None` for the first dimension in the shape parameter for both placeholders we do not need to worry about the length of the data eather. .
 
-In general, when we create placeholders for dense neural networks, the shape parameter should be a vector of the form: `[BATCH_SIZE, FEATURE NUMBER]`. As mentioned in the previous example, providing an explicit value for `BATCH_SIZE` could potentially cause problems, thus it is common to use `None` instead. Therefore, as rule of thumb is `shape=[None, FEATURE NUMBER]`.
+In general, when we create placeholders for dense neural networks, the shape parameter should be a vector of the form: `[BATCH_SIZE, FEATURE NUMBER]`. As mentioned in the previous example, providing an explicit value for `BATCH_SIZE` could potentially cause a problem, thus it is common to use `None` instead. Therefore, as rule of thumb is to use the following for the `shape` parameter `[None, FEATURE NUMBER]`.
 
-You might noticed the following command before the input definition, [`tf.reset_default_graph()`](https://www.tensorflow.org/api_docs/python/tf/reset_default_graph). This function, as the name suggests, clears the default graph stack and resets the global default graph, meaning that before we construct our graph we ensure that all previously attached elements to the graph are discarded.
+You might noticed the following command before the input definition, [`tf.reset_default_graph()`](https://www.tensorflow.org/api_docs/python/tf/reset_default_graph). This function, as the name suggests, clears and resets values in the the default graph stack. This meants that every time,  before we construct our graph, we ensure that all previously attached elements to the graph are removed.
 
 #### Linear Regression Model
 
-Further, we create the model, and as we can see apart from the scope name change, only loss function has been changed, when compared with the logistic regression example. In this situation, we use the [mean square error](https://en.wikipedia.org/wiki/Mean_squared_error) as the cost function.
+Further, we create the model, and as we can see apart from the variable scope name change, only the loss function has been changed, when compared with the logistic regression example. In this situation, we use the [mean square error](https://en.wikipedia.org/wiki/Mean_squared_error) as the cost function.
 
 ```python
 # Define logistic regression model
@@ -58,9 +56,7 @@ with tf.variable_scope("linear_regression"):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 ```
 
-As before, in this example, we use the gradient descent algorithm to optimize the weights and biases.
-
-As this model differs little from the model for the Logistic Regression, the hyperparameters that were used before are also used in this example.
+In this example, as as before,  we use the gradient descent algorithm to optimize the weights and biases. In adition, as the changes to the curreent example are minimal, the model hyperparameters reamin the same as in the previous example.
 
 #### Metrics
 
@@ -77,21 +73,21 @@ with tf.variable_scope("metrics"):
     r_squared = tf.reduce_mean(tf.subtract(x=1.0, y=tf.divide(x=rss, y=tss)))
 ```
 
-First is the [root mean squared error](https://en.wikipedia.org/wiki/Root-mean-square_deviation) \(RMSE\) that is already implemented in TensorFlow as `tf.metrics.root_mean_squared_error()`. This function required two parameters `labels` and `predictions`, which in our case are `y_true` and `prediction` tensors, respectively.
+First is the [root mean squared error](https://en.wikipedia.org/wiki/Root-mean-square_deviation) \(RMSE\) that is already implemented in TensorFlow as `tf.metrics.root_mean_squared_error()`. This function required two parameters `labels` and `predictions`, which in our case are `y_true` and `prediction` tensors, respectively. The second metric is the [coefficient of determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) \($$R^{2}$$\), this, unfortunately, has not been implemented in TensorFlow yet. Hence we do it ourselves. TensorFlow has [implementation of basic mathematical operations](https://www.tensorflow.org/api_guides/python/math_ops) that can be utilised to build more advanced operations. So, our task is to build general definition for the coefficient of determination, which is defined as,
 
-The second metric is the [coefficient of determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) \($$R^{2}$$\), this, unfortunately, has not been implemented in TensorFlow yet, thus we do it ourselves. TensorFlow has [implementation of basic mathematical operations](https://www.tensorflow.org/api_guides/python/math_ops) that can be utilised to build more advanced operations. So, our task is to build general definition for the coefficient of determination, which on the paper is written as,
 
 $$
 R^{2} = 1 - \frac{\sum_{i}(y_{i} - \hat{y}_{i})^{2}}{\sum_{i}(y_{i} - \bar{y})^{2}} \quad\text{and}\quad  \bar{y} =\frac{1}{n}\sum_{i=1}^{n}y_{i},
 $$
 
+
 where $$y_{i}$$ stands for observations and $$\hat{y}_{i}$$ are predictions.
 
-As the names of the functions used in the code are self-explanatory, we will limit explanation to only two functions, `tf.reduce_mean()` and `tf.reduce_sum()`. To begin, `tf.reduce_mean()` function computes a mean value along a given tensor axis, this operation is equivalent to equation for $$\bar{y}$$. In our situations, this functions yields tensor of rank 1 \(vector\) which contains two mean values for each target. Next, `tf.reduce_sum()` is equivalent to $$\sum_{i}$$ operation with option to specify the axis along which it has to  perform summation.
+As the names of the operations used in the code above are self-explanatory, we will limit explanation to only two functions, `tf.reduce_mean()` and `tf.reduce_sum()`. To begin, `tf.reduce_mean()` function computes a mean value along given tensor axis, this operation is equivalent to equation for $$\bar{y}$$. In our situations, this functions yields tensor of rank 1 \(vector\) which contains two mean values for each target. Next, `tf.reduce_sum()` is equivalent to $$\sum_{i}$$ operation with option to specify the axis along which it has to  perform summation.
 
 ### Model Training and Testing
 
-Model training or graph execution stage remains exactly the same as for logistic regression example, with the only difference in metrics that are evaluated and printed on the console.
+Model training or graph execution stage remains exactly the same as for the logistic regression example, with the only difference in metrics that are evaluated and printed on the console.
 
 ```python
 if e % 10 == 0:
@@ -105,7 +101,7 @@ if e % 10 == 0:
       print(msg)
 ```
 
-Similarity, model testing,
+Similarly, model testing,
 
 ```python
 # Evaluate loss (MSE), total RMSE and R2 on test data
@@ -119,7 +115,7 @@ msg = "\nTest MSE: {test_loss}, RMSE: {rmse} and R2: {r2}".format(test_loss=test
 print(msg)
 ```
 
-For comparison also compute `mean_squared_error` and `r2_score` using functions from `scikit-learn`,
+For comparison we also compute `mean_squared_error` and `r2_score` using functions from `scikit-learn`,
 
 ```python
 # Calculates RMSE and R2 metrics using sklearn
@@ -128,17 +124,20 @@ sk_r2 = r2_score(y_true=Y_test, y_pred=y_pred)
 print("Test sklearn RMSE: {rmse} and R2: {r2}".format(rmse=sk_rmse, r2=sk_r2))
 ```
 
-To complete the comparison we visualize both target values by plotting them and overlaying corresponding predictions.
+For completness we compare both target and predicted values by plotting them on one plot.
 
 ### Next
 
-In the [next chapter](/chapters/chapter5.md) we will also see how to extend the code presented here to fully connected neural network for the regression task.However, if you wish to return to the previous chapter press [here](/chapters/chapter3.md).
+In the [next chapter](/chapters/chapter5.md) we will see how to modify the code presented here for a fully-connected neural network whihc will allow us to perfome the regression task for nonlinear functions. To return to the previous chapter press [here](/chapters/chapter3.md).
 
 ### Code
 
-*   [02\_linear\_regression.py](/scripts/02_linear_regression.py)
+* [02\_linear\_regression.py](/scripts/02_linear_regression.py)
 
 ### References
 
-*   [Numpy Manual](https://docs.scipy.org/doc/numpy/index.html)
-*   Wikipedia articles on [Mean Square Error](https://en.wikipedia.org/wiki/Mean_squared_error), [Coefficient of Determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) and [Root Mean Squared Error](https://en.wikipedia.org/wiki/Root-mean-square_deviation)
+* [Numpy Manual](https://docs.scipy.org/doc/numpy/index.html)
+* Wikipedia articles on [Mean Square Error](https://en.wikipedia.org/wiki/Mean_squared_error), [Coefficient of Determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) and [Root Mean Squared Error](https://en.wikipedia.org/wiki/Root-mean-square_deviation)
+
+
+
