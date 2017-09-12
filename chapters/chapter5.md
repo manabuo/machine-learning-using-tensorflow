@@ -1,26 +1,21 @@
 ## Nonlinear Regression
 
-In the previous chapters, we dealt with simple models that worked well for linear relationships. However, not everything can be described by linear functions, and therefore, use of the more sophisticated model is required. In this chapter, we will see how to extend the Linear Regression to the Nonlinear Regression Model or, in the other words, to the Feed-forward Neural Network.
+In the previous chapters, we dealt with simple models that worked well for linear relationships. However, not everything can be described using linear functions, and therefore, use of the more sophisticated model is required. In this chapter, we will see how to convert the model for the Linear Regression to the modlet for Nonlinear Regression or, in the other words, to the Feed-forward Neural Network.
 
-For brevity, we will limit our examples to the model that performs the regression task, as just by changing the cost function, it is possible to use the same graph for the classification task.
+For brevity, we will limit our further examples to the model that perform regression tasks, as from previous exampls we saw that only difference between tasks is in the cost function.
 
 ### Graph Construction
 
-In this example, we use the same synthetic data that we were using in the Linear Regression example with one slight modification for the target values. Here we perform an element-wise multiplication of `target_1` and `target_2` arrays instead of concatenating them. As the result, the shape of the final `target` array is `[1000, 1]` instead of `[1000, 2]`.
+In this example, we use the same synthetic data that we were using for the Linear Regression example with one slight modification for the target values. Here we perform an element-wise multiplication of `target_1` and `target_2` arrays instead of concatenating them. As the result, the shape of the final `target` array is `[1000, 1]` instead of `[1000, 2]`.
 
 #### Nonlinear Regression Model
 
-As already mentioned, the graph presented here is, essentially, just an extension of the graph described in the previous chapter. Therefore, definitions of `inputs` and `metrics` variable scopes and of `loss` and `train_step` tensors remain exactly the same as for the Linear Regression graph.
+As already mentioned, the graph presented here is, essentially, just an extension of the graph described in the previous chapter. Therefore, definitions of variables in  `inputs` and `metrics` variable scopes as well as  `loss` and `train_step` operations remain exactly the same as for the Linear Regression graph. The difference is in the definition of `prediction` tensor, where input parameter now has a tensor `h` instead of `x`.
 
 ```python
 # Predictions are performed by Y_FEATURES neurons in the output layer
 prediction = tf.layers.dense(inputs=h, units=Y_FEATURES, name="prediction")
-# Define loss function as root square mean (RMSE) and record its value
-loss = tf.losses.mean_squared_error(labels=y_true, predictions=prediction)
-train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 ```
-
-The difference is in the definition of `prediction` tensor, where input parameter now is a tensor `h` instead of `x`.
 
 ```python
 with tf.variable_scope("hidden layers"):
@@ -133,12 +128,15 @@ In this chapter, we saw how to create _simple_ Feed-forward Neural Networks usin
 
 ### Code
 
-*   [03\_nonlinear\_regression.py](/scripts/03_nonlinear_regression.py)
+* [03\_nonlinear\_regression.py](/scripts/03_nonlinear_regression.py)
 
 ### References
 
-*   [Artificial Intelligence GitBook](https://www.gitbook.com/book/leonardoaraujosantos/artificial-inteligence/details)
-*   [CS231n: Convolutional Neural Networks for Visual Recognition](http://cs231n.github.io/)
-*   [Sebastian Ruder blog](http://ruder.io/#open)
-*   [Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. \(2014\). Dropout: A Simple Way to Prevent Neural Networks from Overfitting. Journal of Machine Learning Research, 15, 1929–1958.](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf)
-*   Wikipedia articles on [Activation Function](https://en.wikipedia.org/wiki/Activation_function) and [Rectified Linear Unit](https://en.wikipedia.org/wiki/Rectifier_%28neural_networks%29)
+* [Artificial Intelligence GitBook](https://www.gitbook.com/book/leonardoaraujosantos/artificial-inteligence/details)
+* [CS231n: Convolutional Neural Networks for Visual Recognition](http://cs231n.github.io/)
+* [Sebastian Ruder blog](http://ruder.io/#open)
+* [Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. \(2014\). Dropout: A Simple Way to Prevent Neural Networks from Overfitting. Journal of Machine Learning Research, 15, 1929–1958.](https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf)
+* Wikipedia articles on [Activation Function](https://en.wikipedia.org/wiki/Activation_function) and [Rectified Linear Unit](https://en.wikipedia.org/wiki/Rectifier_%28neural_networks%29)
+
+
+
