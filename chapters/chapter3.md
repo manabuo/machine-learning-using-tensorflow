@@ -4,20 +4,22 @@ This chapter presents the first fully fledged example of Logistic Regression tha
 
 ### Data set
 
-The data set that is used in the example comes from [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php):
+For this example the data set comes from [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php):
 
-*   Name: Breast Cancer Wisconsin \(Diagnostic\) Data Set \(_wdbc.data_ and _wdbc.names_\)
-*   Source: [http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/](http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/)
+* Name: Breast Cancer Wisconsin \(Diagnostic\) Data Set \(_wdbc.data_ and _wdbc.names_\)
+* Source: [http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/](http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/)
 
 ### Data Preparation
 
-For brevity, we are going to give only a brief overview of how data were prepared and what is the final shape of the data that are passed to the computational graph. So we start by reading in the data file _wdbc.data_, where first two columns names are taken from supplementary the file _wdbc.names_ for convenience and the rest are just numbered from 1 to 30 with prefix  _rv\_\_. After reading in, we split the set into outcome/target and feature/predictors sets, as \_ID\_ does not contain useful information \(at least that should be the case\) we drop it. At this stage, we have two data frames, one for target values of shape \(569 rows x 1 columns\) and one for features, which shape is \(569 rows x 30 columns\).
+As every data is slighty different and every question that we want to answer is different and for brevity, we are going to give only a brief overview on how data were prepared. In order to use presented model, it does not matter how an where you prepare your data but you always have to have final datal in the shape that is equal to the  shape that is passed to the computational graph in this example. 
 
-Further, we one-hot encode target set and convert it to a numpy array. As we have only two categories, _B_ for benign and  _M_ for malignant, in the set, the shape of the array is \(569 rows x 2 columns\). Rows here represent a number of observations and 2 columns stand for outcome classes.
+We start by reading in the data file _wdbc.data_, where first two columns names are taken from supplementary the file _wdbc.names_ for convenience the reamining columns are just numbered from 1 to 30 with the prefix _rv\__. After reading in, we split the set into outcome/target and feature/predictors sets, and drop  _ID_ column. At this stage, we have two data frames, one for target values with shape \(569 rows x 1 columns\) and one for features, which shape is \(569 rows x 30 columns\).
 
-Next, we split both, target and feature sets into training, validation and test arrays. Length of the test data set is chosen to be 1/3 of training and validation data sets and subsequently, the validations set is 1/3 of the training set. For convenience to achieve this we use `train_test_split()` function from `scikit-learn` package.
+Further, we one-hot encode target set and convert it to a numpy array. As we have only two categories, _B_ for benign and  _M_ for malignant, in the set, the shape of the array becomes `[569, 2]`. Here 569 rows represent a number of observations and 2 columns stand for outcome classes.
 
-To conclude this stage we transform all three feature sets, more precisely we rescale all value in data sets so that the values are between 0 and 1. In this example, we used `MinMaxScaler()` function from `scikit-learn` package that scales each column individually using the following equation,
+Next, we split both, target and feature sets into training, validation and test arrays unisg `train_test_split()` function from `scikit-learn` package. Length of the test data set is chosen to be 1/3 of the training and the validation data sets, subsequently, the validations set is 1/3 of the training set.
+
+To conclude this stage we rescale all data sets so that the values are between 0 and 1. In this example, we used `MinMaxScaler()` function from `scikit-learn` package that scales each column individually using the following equation,
 
 
 $$
@@ -120,9 +122,9 @@ This model has two parameters that only influence input and output layer shapes,
 
 However, other three parameters \(hyperparameters\) that have to be supplied to the graph during construction, do influence the model and training are:
 
-*   `BATCH_SIZE` - length of input array,
-*   `LEARNING_RATE` that is a value that corresponds to a step size in gradient descent algorithm,
-*   `EPOCHS` - a number of times the model is going to see the whole data set.
+* `BATCH_SIZE` - length of input array,
+* `LEARNING_RATE` that is a value that corresponds to a step size in gradient descent algorithm,
+* `EPOCHS` - a number of times the model is going to see the whole data set.
 
 #### Metrics
 
@@ -246,13 +248,16 @@ This concludes the description of the Logistic Regression and in the [example th
 
 ### Code
 
-*   [01\_logistic\_regression.py](/scripts/01_logistic_regression.py)
+* [01\_logistic\_regression.py](/scripts/01_logistic_regression.py)
 
 ### References
 
-*   [Learn Python Programming](https://www.programiz.com/python-programming)
-*   [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)
-*   [The Python Wiki](https://wiki.python.org/)
-*   [TensorFlow Python API](https://www.tensorflow.org/api_docs/python/)
-*   [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php)
-*   Wikipedia article on [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent)
+* [Learn Python Programming](https://www.programiz.com/python-programming)
+* [Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)
+* [The Python Wiki](https://wiki.python.org/)
+* [TensorFlow Python API](https://www.tensorflow.org/api_docs/python/)
+* [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php)
+* Wikipedia article on [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent)
+
+
+
