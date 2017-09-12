@@ -71,7 +71,7 @@ Next section in the graph is the definition of the Logistic Regression Model its
 
 #### Logistic Regression Model
 
-In broad terms at this stage we start by defining an operation which first computes predictions when given an input, then it is passed to an appropriate loss function and subsequently, it is passed to an optimisation function.  
+At this stage we define an operations which first compute predictions for a given input and then the prediction is passed to a loss function which subsequently is passed to an optimisation function.  
 In our example this is written as:
 
 ```python
