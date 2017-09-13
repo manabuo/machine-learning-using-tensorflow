@@ -11,9 +11,9 @@ For this example the data set comes from [UC Irvine Machine Learning Repository]
 
 ### Data Preparation
 
-As every data is slighty different and every question that we want to answer is different and for brevity, we are going to give only a brief overview on how data were prepared. In order to use presented model, it does not matter how an where you prepare your data but you always have to have final datal in the shape that is equal to the  shape that is passed to the computational graph in this example.
+As every data is slightly different and every question that we want to answer is different and for brevity, we are going to give only a brief overview on how data were prepared. In order to use presented model, it does not matter how an where you prepare your data but you always have to have final data in the shape that is equal to the shape that is passed to the computational graph in this example.
 
-We start by reading in the data file _wdbc.data_, where first two columns names are taken from supplementary the file _wdbc.names_ for convenience the reamining columns are just numbered from 1 to 30 with the prefix `rv_`. After reading in, we split the set into outcome/target and feature/predictors sets, and drop  `ID` column. At this stage, we have two data frames, one for target values with shape \(569 rows x 1 columns\) and one for features, which shape is \(569 rows x 30 columns\).
+We start by reading in the data file _wdbc.data_, where first two columns names are taken from supplementary the file _wdbc.names_ for convenience the remaining columns are just numbered from 1 to 30 with the prefix `rv_`. After reading in, we split the set into outcome/target and feature/predictors sets, and drop  `ID` column. At this stage, we have two data frames, one for target values with shape \(569 rows x 1 columns\) and one for features, which shape is \(569 rows x 30 columns\).
 
 Further, we one-hot encode target set and convert it to a numpy array. As we have only two categories, _B_ for benign and  _M_ for malignant, in the set, the shape of the array becomes `[569, 2]`. Here 569 rows represent a number of observations and 2 columns stand for outcome classes.
 
@@ -21,11 +21,9 @@ Next, we split both, target and feature, sets into training, validation and test
 
 To conclude this stage, we rescale all feature data sets so that the values are between 0 and 1. In this example, we use `MinMaxScaler()` function from `scikit-learn` package that scales each column individually using the following equation,
 
-
 $$
  x_{scaled} = \frac{x - x_{min}}{x_{max} - x_{min}}.
 $$
-
 
 In this example, the scaling function outputs numpy array of the same size as input data frame, in this case, it is 569 rows and 30 columns when combined.
 
@@ -33,7 +31,7 @@ In this example, the scaling function outputs numpy array of the same size as in
 
 ### Graph Construction
 
-As mentioned in the previous chapter, the most differentiating part of the TensorFlow from the other libraries is that a model or "an analysis plan" has to be constructed before it is accutaly executed. In TensorFlow models are represented as [graphs](https://www.tensorflow.org/api_guides/python/framework) where operations as nodes, and edges carry tensors/weights.  
+As mentioned in the previous chapter, the most differentiating part of the TensorFlow from the other libraries is that a model or "an analysis plan" has to be constructed before it is actually executed. In TensorFlow models are represented as [graphs](https://www.tensorflow.org/api_guides/python/framework) where operations as nodes and edges carry tensors/weights.  
 Our task is to build the following graph:
 
 ![Graph for Logistic Regression task](../assets/image2.svg)
@@ -53,7 +51,7 @@ with tf.variable_scope("inputs"):
     y_true = tf.placeholder(dtype=tf.float32, shape=[None, Y_FEATURES], name="target")
 ```
 
-Here [`tf.variable_scope()`](https://www.tensorflow.org/api_docs/python/tf/variable_scope) is a function that creates namespace for both variables and operators in the default graph. Namespaces is a way to organize names for variables and operators in hierarchical manner, in our example names of `x` and `y_true`are  _inputs/predictors_ and _inputs/target_, respectively.
+Here [`tf.variable_scope()`](https://www.tensorflow.org/api_docs/python/tf/variable_scope) is a function that creates namespace for both variables and operators in the default graph. Namespaces are a way to organize names for variables and operators in a hierarchical manner, in our example names of `x` and `y_true`are  _inputs/predictors_ and _inputs/target_, respectively.
 
 > Note: Aanother function that creates namespace only for operators in the default graph is[`tf.name_scope()`](https://www.tensorflow.org/api_docs/python/tf/name_scope).
 
@@ -61,9 +59,9 @@ Further, [`tf.placeholder()`](https://www.tensorflow.org/api_docs/python/tf/plac
 
 > Note: This is equivalent to writing a function on the paper, for example, $$f(x) = x^{2}$$ where $$x$$ is just a placeholder for the actual values.
 
-To define a placeholder, it is necessary to define `dtype` parameter that specifies the data type of the vlaues that it is going to contain. The second required parameter is `shape` which specifies the shape of the placheloder tensor and the shape that will be passed to the placheholder. If `shape = None` , this means that tensors of any shape will be accepted. Using `shape = None` it is easy to construct the graphs, but nightmarish for debugging. You should always define the shape of your placeholders as detailed as possible.
+To define a placeholder, it is necessary to define `dtype` parameter that specifies the data type of the values that it is going to contain. The second required parameter is `shape` which specifies the shape of the placeholder tensor and the shape that will be passed to the placeholder. If `shape = None`, this means that tensors of any shape will be accepted. Using `shape = None` it is easy to construct the graphs, but nightmarish for debugging. You should always define the shape of your placeholders as detailed as possible.
 
-In this example, we know that our features data set shape is 569 by 30. This means that when we create a placeholder for `x` the shape should be `[569, 30]`. However, as it is computationally more efficient to feed to the graph a small batches rather than a full data set at once, we will split 569 samples into smaller chunks. The size of each chunk/batch in the script is given by `BATCH_SIZE` value. Therefore  the placeholder's shape is  `[BATCH_SIZE, 30]`. In some situations, the last batch may be shorter than `BATCH_SIZE` value and this could potentialy "break the code". In odrer to avoid this situation, we write `[None, X_FEATURES]`, where `X_FEATURES = 30` for convenience and `None` stands for arbitrary number. Similarly, we define placeholder for `y_true`, which shape is `[None, Y_FEATURES]` where in our case `Y_FEATURES = 2` .
+In this example, we know that our features data set shape is 569 by 30. This means that when we create a placeholder for `x` the shape should be `[569, 30]`. However, as it is computationally more efficient to feed to the graph small batches rather than a full data set at once, we will split 569 samples into smaller chunks. The size of each chunk/batch in the script is given by `BATCH_SIZE` value. Therefore the placeholder's shape is  `[BATCH_SIZE, 30]`. In some situations, the last batch may be shorter than `BATCH_SIZE` value and this could potentially "break the code". In order to avoid this situation, we write `[None, X_FEATURES]`, where `X_FEATURES = 30` for convenience and `None` stands for an arbitrary number. Similarly, we define the placeholder for `y_true`, which shape is `[None, Y_FEATURES]` where in our case `Y_FEATURES = 2`.
 
 > Note: You can also give your placeholder a name as you can any other _op_ in TensorFlow.
 
@@ -86,17 +84,17 @@ with tf.variable_scope("logistic_regression"):
     train_step = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss=loss)
 ```
 
-First, [`tf.layers.dense()`](https://www.tensorflow.org/api_docs/python/tf/layers/dense) is, as names suggest, a  layer of fully-conected "neurons". Here `units`, which is a required parameter, defines a number of "neurons" in the layer. Another required parameter for this function is `inputs` that takes in our input tensor `x`, but  `name` is an optional parameter. As in this example, we have only two target classes, `units`parameter then is equal to `Y_FEATURES` or 2.
+First, [`tf.layers.dense()`](https://www.tensorflow.org/api_docs/python/tf/layers/dense) is, as names suggest, a  layer of fully-connected "neurons". Here `units`, which is a required parameter, defines a number of "neurons" in the layer. Another required parameter for this function is `inputs` that takes in our input tensor `x`, but  `name` is an optional parameter. As in this example, we have only two target classes, `units`parameter then is equal to `Y_FEATURES` or 2.
 
 To determine how well our model performs we compute the loss/cost. This example is a classification task, thus we choose [cross-entropy cost function](http://neuralnetworksanddeeplearning.com/chap3.html#the_cross-entropy_cost_function) to be our loss function. In the script it is computed using [`tf.losses.softmax_cross_entropy()`](https://www.tensorflow.org/api_docs/python/tf/losses/softmax_cross_entropy) function. It has two required parameters `onehot_labels` that takes in target input tensor and _logits_ for prediction tensor.
 
-Further, to actually train a model or, in the other words, find the "best" values for weights and biases, TensorFlow has Optimizer class which provides methods to compute gradients for a loss function and apply them to variables. TensorFlow contains a large collection of built-in optimization algorithms, see [here](https://www.tensorflow.org/api_guides/python/train). In this particular example we are useing [`tf.train.GradientDescentOptimizer()`](https://www.tensorflow.org/api_docs/python/tf/train/GradientDescentOptimizer) _op_ which implements the [gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) algorithm. This function requires only one parameter and that is the `learning_rate` which is just a step size in the gradien decent algorithm. Next, `minimize(loss)` takes care of both computing the gradients and applying them to the variables. This operation is, by convention, known as the _train\_op_ and is what must be run by a TensorFlow session in order to perform one full training step.
+Further, to actually train a model or, in the other words, find the "best" values for weights and biases, TensorFlow has Optimizer class which provides methods to compute gradients for a loss function and apply them to variables. TensorFlow contains a large collection of built-in optimization algorithms, see [here](https://www.tensorflow.org/api_guides/python/train). In this particular example we are using [`tf.train.GradientDescentOptimizer()`](https://www.tensorflow.org/api_docs/python/tf/train/GradientDescentOptimizer) _op_ which implements the [gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) algorithm. This function requires only one parameter and that is the `learning_rate` which is just a step size in the gradient descent algorithm. Next, `minimize(loss)` takes care of both computing the gradients and applying them to the variables. This operation is, by convention, known as the _train\_op_ and is what must be run by a TensorFlow session in order to perform one full training step.
 
 ##### Hyperparameters
 
 This model has two parameters that only influence input and output layer shapes, these are, `X_FEATURES` which is a number of input features, and`Y_FEATURES` - the number of output classes or a number of "neurons" in the output layer.
 
-However, other parameters \(hyperparameters\) that have to be supplied to the graph during construction, and they alos influence the model and training, are:
+However, other parameters \(hyperparameters\) that have to be supplied to the graph during construction, and they also influence the model and training, are:
 
 * `BATCH_SIZE` - length of input array,
 * `LEARNING_RATE` that is a value that corresponds to a step size in gradient descent algorithm,
@@ -134,7 +132,7 @@ init_local = tf.local_variables_initializer()
 sess.run(fetches=[init_global, init_local])
 ```
 
-Here we use `tf.InteractiveSession()` function to attach the `Session` to the graph. This allows us to use model interactively in  **PyCharm **or **Jupyter Notebooks**.  Later, we  define global and local variables and inisialize them by executing the `Session`. In general, a majority of TensorFlow functions require only global variables to be initialized, however when `tf.metrics` is used local variables also are required.
+Here we use `tf.InteractiveSession()` function to attach the `Session` to the graph. This allows us to use model interactively in  **PyCharm ** or **Jupyter Notebooks**.  Later, we define global and local variables and initialize them by executing the `Session`. In general, a majority of TensorFlow functions require only global variables to be initialized, however when `tf.metrics` is used local variables also are required.
 
 > Note: Currently, TensorFlow community tries to change how variable initialization works and for the time being it is advisable to initialize global variables. However, if errors appear during graph's execution, initialize local variables as well.
 
@@ -175,11 +173,11 @@ Having obtained the list of indices, we construct an input `feed` dictionary, wh
 
 The `run` method executes graph only one step at a time, thus iterating over a number of batches where at each iteration a new input batch is created and supplied to the graph, it has to modify weights and biases in order to find a middle-ground that would satisfy all training input data. Following `if` statement is optional, as it allows us to follow the training progress. It states that after every 100 epochs we wish to evaluate_ total_ _loss_ and _accuracy_ for whole training and validation sets, and then print it to the console.
 
-The code presented above provides all the necessary steps in order to build and train a simple logistic regression model. However, as we have started our `Session` in the interactive mode, we might also test the model and perform an additional computations.
+The code presented above provides all the necessary steps in order to build and train a simple logistic regression model. However, as we have started our `Session` in the interactive mode, we might also test the model and perform additional computations.
 
 ### Model Testing
 
-For the testing purposes, in addition to _accuracy_, we compute _AUC_ and _precision_ for the test data set, and print these results to the console.
+For the testing purposes, in addition to _accuracy_, we compute _AUC_ and _precision_ for the test data set and print these results to the console.
 
 ```python
 # Evaluate accuracy, AUC and precision on test data

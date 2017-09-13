@@ -1,8 +1,8 @@
 ## Nonlinear Regression
 
-In the previous chapters, we dealt with simple models that worked well for linear relationships. However, not everything can be described using linear functions, and therefore, use of the more sophisticated model is required. In this chapter, we will see how to convert the model for the Linear Regression to the modlet for Nonlinear Regression or, in the other words, to the Feed-forward Neural Network.
+In the previous chapters, we dealt with simple models that worked well for linear relationships. However, not everything can be described using linear functions, and therefore, use of the more sophisticated model is required. In this chapter, we will see how to convert the model for the Linear Regression to the modules for Nonlinear Regression or, in the other words, to the Feed-forward Neural Network.
 
-For brevity, we will limit our further examples to the model that perform regression tasks, as from previous exampls we saw that only difference between tasks is in the cost function.
+For brevity, we will limit our further examples to the model that perform regression tasks, as from previous examples we saw that only difference between tasks is in the cost function.
 
 ### Graph Construction
 
@@ -53,9 +53,9 @@ Computational graph for this model can be presented as
 
 ![Graph for Nonlinear Regression](../assets/image3.svg)
 
-We can see that the graph is very similar to the graph presented for the Logistic Regression. In addtion to the _Inputs, Regression Model and Metrics sections \_we now have \_Hidden Layers_ subsection that contains N number of fully-connected layers stacked layers. The output of this subsection is passed to the _Predictions_ node which then is used to compute `loss` and other quantities in _Metrics_ section.
+We can see that the graph is very similar to the graph presented for the Logistic Regression. In addition to the _Inputs, Regression Model and Metrics sections \_we now have \_Hidden Layers_ subsection that contains N number of fully-connected layers stacked layers. The output of this subsection is passed to the _Predictions_ node which then is used to compute `loss` and other quantities in _Metrics_ section.
 
-In order to perform computations on the graph, we use same functions as in the previous examples. However, to show how to save and restore trained models we split the training cycle into two stages. To show the latter we are useing
+In order to perform computations on the graph, we use same functions as in the previous examples. However, to show how to save and restore trained models we split the training cycle into two stages. To show the latter we are using
 
 ```py
 with tf.Session() as sess:
@@ -80,7 +80,7 @@ print("Model restored from file: {path}".format(path=save_path))
 
 ### Saving and Restoring Models
 
-The easiest way to [save and restore a model](https://www.tensorflow.org/versions/master/programmers_guide/saved_model) is to use a [`tf.train.Saver()`](https://www.tensorflow.org/api_docs/python/tf/train/Saver) operator in TensorFlow. The constructor adds save and restore _ops_ to the graph for all, or a specified list, of the variables in the graph. The _Saver_ operator provides methods to run these _ops_, specifying paths for the checkpoint files to write to or read from. Variables are saved in binary files that, roughly, contain a map from variable names to tensor values. When you create a _Saver_ operator, you can optionally choose names for the variables in the checkpoint files. By default, it uses the value of the `Variable.name` property for each variable. To understand what variables are in a checkpoint, you can use the `inspect_checkpoint` library, and in particular, the `tf.print_tensors_in_checkpoint_file()` function. If you do not pass any argument to `tf.train.Saver()` the saver handles all variables in the graph. Each one of them is saved under the name that was passed when the variable was created. It is sometimes useful to explicitly specify names for variables in the checkpoint files. For example, you may have trained a model with a variable named _weights_ whose value you want to restore in a new variable named _params_. It is also sometimes useful to only save or restore a subset of the variables used by a model.
+The easiest way to [save and restore a model](https://www.tensorflow.org/versions/master/programmers_guide/saved_model) is to use a [`tf.train.Saver()`](https://www.tensorflow.org/api_docs/python/tf/train/Saver) operator in TensorFlow. The constructor adds save and restore _ops_ to the graph for all, or a specified list, of the variables in the graph. The _Saver_ operator provides methods to run these _ops_, specifying paths for the checkpoint files to write to or read from. Variables are saved in binary files that, roughly, contain a map from variable names to tensor values. When you create a _Saver_ operator, you can optionally choose names for the variables in the checkpoint files. By default, it uses the value of the `Variable.name` property for each variable. To understand what variables are in a checkpoint, you can use the `inspect_checkpoint` library, and in particular, the `tf.print_tensors_in_checkpoint_file()` function. If you do not pass any argument to `tf.train.Saver()` the saver handles all variables in the graph. Each one of them is saved under the name that was passed when the variable was created. It is sometimes useful to specify names for variables in the checkpoint files explicitly. For example, you may have trained a model with a variable named _weights_ whose value you want to restore in a new variable named _params_. It is also useful to only save or restore a subset of the variables used by a model.
 
 ```python
 # Create some variables.
@@ -93,7 +93,7 @@ saver = tf.train.Saver({"my_v2": v2})
 
 For example, you may have trained a neural net with 5 layers, and you now want to train a new model with 6 layers, restoring the parameters from the 5 layers of the previously trained model into the first 5 layers of the new model.You can easily specify the names and variables to save by passing to the `tf.train.Saver()` constructor a Python dictionary: keys are the names to use, values are the variables to manage.
 
-You can create as many _Saver_ operators as you want if you need to save and restore different subsets of the model variables. The same variable can be listed in multiple _Saver_ operator, its value is only changed when the saver `restore()` method is run.
+You can create as many _Saver_ operators as you want if you need to save and restore different subsets of the model variables. The same variable can be listed in multiple _Saver_ operators, its value is only changed when the saver `restore()` method is run.
 
 > Note: When you restore all variables from a file you do not have to initialize them beforehand, but if you only restore a subset of the model variables at the start of a `Session`, you have to run an initialize _op_ for the other variables.
 
@@ -105,7 +105,7 @@ As before, in this example, we use the gradient descent algorithm to optimize th
 
 ### Activation functions
 
-In this example, we introduced a notion of the [activation function](https://en.wikipedia.org/wiki/Activation_function) which is essential part of the neural networks. It ensures that values in the network have nonlinear characteristics. Similarly to the optimization algorithms, TensorFlow has a collection of activation _ops_, the list of which is available [here](https://www.tensorflow.org/api_guides/python/nn). A good summary of different types of the activations functions is available [here](http://cs231n.github.io/neural-networks-1/).
+In this example, we introduced a notion of the [activation function](https://en.wikipedia.org/wiki/Activation_function) which is the essential part of the neural networks. It ensures that values in the network have nonlinear characteristics. Similarly to the optimization algorithms, TensorFlow has a collection of activation _ops_, the list of which is available [here](https://www.tensorflow.org/api_guides/python/nn). A good summary of different types of the activations functions is available [here](http://cs231n.github.io/neural-networks-1/).
 
 In this example, for all hidden layers, we used [Rectified Linear Unit](https://en.wikipedia.org/wiki/Rectifier_%28neural_networks%29).
 

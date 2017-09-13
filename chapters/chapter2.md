@@ -1,6 +1,6 @@
 ## Introduction to TensorFlow
 
-In this chapter, we provide a very brief description of TensorFlow's basic building blocks and concepts that are used in building sofisticated models. Here we also give an overview on how the models should be structured.
+In this chapter, we provide a very brief description of TensorFlow's basic building blocks and concepts that are used in building sophisticated models. Here we also give an overview on how the models should be structured.
 
 ### Why TensorFlow
 
@@ -25,7 +25,7 @@ Google has some good tutorial on how to build model using [TensorFlow Estimator]
 
 Another notable addition to the TensorFlow is the implementation of the [Keras](https://keras.io/) API, that significantly reduces the number of lines and improves readability of the code. See [TensorFlow Keras](https://www.tensorflow.org/api_docs/python/tf/contrib/keras).
 
-However, the primary purpose of TensorFlow is not to provide out-of-the-box machine learning solutions. Instead, TensorFlow provides an extensive suite of functions and classes that allow users to define models from scratch. This is more complicated but offers much more flexibility. You can build almost any architecture you can think of in TensorFlow. For that reaseon, we will not use TensorFlow Estimator,  Learn and Keras interfaces, but stick with basic TensorFlow. In addtition, we will avoid using Python classes and functons where possible as it might confuse some readers if they are new to Python. However, note it is often better to define models as class.  
+However, the primary purpose of TensorFlow is not to provide out-of-the-box machine learning solutions. Instead, TensorFlow provides an extensive suite of functions and classes that allow users to define models from scratch. This is more complicated but offers much more flexibility. You can build almost any architecture you can think of in TensorFlow. For that reason, we will not use TensorFlow Estimator,  Learn and Keras interfaces, but stick with basic TensorFlow. In addition, we will avoid using Python classes and functions where possible as it might confuse some readers if they are new to Python. However, note it is often better to define models as a class.  
 
 ### What is TensorFlow
 
