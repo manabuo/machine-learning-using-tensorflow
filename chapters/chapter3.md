@@ -21,9 +21,11 @@ Next, we split both, target and feature, sets into training, validation and test
 
 To conclude this stage, we rescale all feature data sets so that the values are between 0 and 1. In this example, we use `MinMaxScaler()` function from `scikit-learn` package that scales each column individually using the following equation,
 
+
 $$
  x_{scaled} = \frac{x - x_{min}}{x_{max} - x_{min}}.
 $$
+
 
 In this example, the scaling function outputs numpy array of the same size as input data frame, in this case, it is 569 rows and 30 columns when combined.
 
@@ -221,7 +223,7 @@ This concludes the description of the Logistic Regression and in the [next chapt
 
 ### Code
 
-* [01\_logistic\_regression.py](/scripts/01_logistic_regression.py)
+* [01\_logistic\_regression.py](https://github.com/satonreb/machine-learning-using-tensorflow/blob/master/scripts/01_logistic_regression.py)
 
 ### References
 
