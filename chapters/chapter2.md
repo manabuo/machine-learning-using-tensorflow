@@ -17,7 +17,7 @@ As TensorFlow matures it simplifies its interfaces, for example, TensorFlow Esti
 
 > Note: TensorFlow Learn was originally an independent project called Scikit Flow \(SKFlow\).
 
-Both TensorFlow Estimator and Learn allows you to load in data, construct a model, fit your model using the training data, evaluate the accuracy, just using a single line of code. Some models that you can call using one line are  _LinearClassifier, LinearRegressor_ and _DNNClassifier_. 
+Both TensorFlow Estimator and Learn allows you to load in data, construct a model, fit your model using the training data, evaluate the accuracy, just using a single line of code. Some models that you can call using one line are  _LinearClassifier, LinearRegressor_ and _DNNClassifier_.
 
 Google has some good tutorial on how to build model using [TensorFlow Estimator](https://www.tensorflow.org/get_started/estimator).
 
@@ -25,7 +25,7 @@ Google has some good tutorial on how to build model using [TensorFlow Estimator]
 
 Another notable addition to the TensorFlow is the implementation of the [Keras](https://keras.io/) API, that significantly reduces the number of lines and improves readability of the code. See [TensorFlow Keras](https://www.tensorflow.org/api_docs/python/tf/contrib/keras).
 
-However, the primary purpose of TensorFlow is not to provide out-of-the-box machine learning solutions. Instead, TensorFlow provides an extensive suite of functions and classes that allow users to define models from scratch. This is more complicated but offers much more flexibility. You can build almost any architecture you can think of in TensorFlow. For that reason, we will not use TensorFlow Estimator,  Learn and Keras interfaces, but stick with basic TensorFlow. In addition, we will avoid using Python classes and functions where possible as it might confuse some readers if they are new to Python. However, note it is often better to define models as a class.  
+However, the primary purpose of TensorFlow is not to provide out-of-the-box machine learning solutions. Instead, TensorFlow provides an extensive suite of functions and classes that allow users to define models from scratch. This is more complicated but offers much more flexibility. You can build almost any architecture you can think of in TensorFlow. For that reason, we will not use TensorFlow Estimator,  Learn and Keras interfaces, but stick with basic TensorFlow. In addition, we will avoid using Python classes and functions where possible as it might confuse some readers if they are new to Python. However, note it is often better to define models as a class.
 
 ### What is TensorFlow
 
@@ -37,7 +37,7 @@ Most notable difference between TensorFlow and other libraries is that TensorFlo
 
 So, a computational graph is a series of TensorFlow operations arranged in a graph of nodes. In the graph, nodes are called _ops_ which is short-hand for _operations_. An _op_ takes zero or more _Tensors_, performs some computation, and then again produces zero or more _Tensors_. As you might suspect, in TensorFlow, _Tensor_ is the basic object and it uses a[ tensor](https://en.wikipedia.org/wiki/Tensor) data structure to represent all data - only tensors are passed between operations in the computation graph. You can think of a _Tensor_ as an n-dimensional array or list. The _Tensor_ has a static type, a rank, and a shape. To learn more about how TensorFlow handles these concepts, see the [Rank, Shape, and Type reference](https://www.tensorflow.org/programmers_guide/dims_types).
 
-For example, in the case of the patient records, _Tensor _could be a three-dimensional array with dimensions **\[patients, record\_lengh, events\]** or in case of images it is a four-dimensional array with dimensions **\[images, height, width, colors\]**.
+For example, in the case of the patient records, \_Tensor \_could be a three-dimensional array with dimensions **\[patients, record\_lengh, events\]** or in case of images it is a four-dimensional array with dimensions **\[images, height, width, colors\]**.
 
 ### How does TensorFlow works
 
@@ -101,7 +101,7 @@ TensorFlow takes in Python native types such as Python boolean, numeric values \
 
 ### Code
 
-* [00\_first\_step.py](/scripts/00_first_step.py)
+* [00\_first\_step.py](https://github.com/satonreb/machine-learning-using-tensorflow/blob/master/scripts/00_first_step.py)
 
 ### References
 
