@@ -132,9 +132,12 @@ In the [next chapter](/chapters/chapter5.md) we will see how to modify the code 
 
 ### Code
 
-* [02\_linear\_regression.py](/scripts/02_linear_regression.py)
+* [02\_linear\_regression.py](https://github.com/satonreb/machine-learning-using-tensorflow/blob/master/scripts/02_linear_regression.py)
 
 ### References
 
 * [Numpy Manual](https://docs.scipy.org/doc/numpy/index.html)
 * Wikipedia articles on [Mean Square Error](https://en.wikipedia.org/wiki/Mean_squared_error), [Coefficient of Determination](https://en.wikipedia.org/wiki/Coefficient_of_determination) and [Root Mean Squared Error](https://en.wikipedia.org/wiki/Root-mean-square_deviation)
+
+
+
