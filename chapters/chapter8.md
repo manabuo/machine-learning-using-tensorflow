@@ -4,5 +4,4 @@ As it was mentioned in the Introduction, this tutorial contains a brief descript
 
 For this reason, do not assume that the code presented here is the best and only model for the particular problem. The scripts here are provided in order to show how to combine different things in TensorFlow and gives hints where to look for more. Note, TensorFlow is very young and it is rapidly evolving, therefore there are many ways how to perform the same operation and there might be situations that as TensorFlow matures some things will stop working and will be substituted by something else.
 
-
 Good luck and enjoy building your own models, and do not forget that if your data is bad your model will never perform well. So the more information you have more things you can do.

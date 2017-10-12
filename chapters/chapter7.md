@@ -8,7 +8,7 @@ We will start with time sequence prediction as it requires only a slight adjustm
 
 ### Sequence prediction
 
-The data set used in this example is the same as before. The only difference in the data preparation step is that instead of having one target vector for each input sequence, we have a sequence of target vectors with the same length as the input sequence. See [05\_01\_rnn\_seq.py](https://github.com/satonreb/machine-learning-using-tensorflow/blob/master/scripts/05_01_rnn_seq.py) script.
+The dataset used in this example is the same as before. The only difference in the data preparation step is that instead of having one target vector for each input sequence, we have a sequence of target vectors with the same length as the input sequence. See [05\_01\_rnn\_seq.py](https://github.com/satonreb/machine-learning-using-tensorflow/blob/master/scripts/05_01_rnn_seq.py) script.
 
 > Note: Restriction of having equal input and output sequence lengths is set for convenience rather than necessity, thus feel free to play around.
 
@@ -69,9 +69,9 @@ def create_features(t, slice_len, max_slice_len):
     return np.expand_dims(a=np.concatenate(f, axis=1), axis=0)
 ```
 
-we can see that each sequence in the data set has variable length but they are padded by zero in order to ensure that the final length of each sequence is `Max_Sequence_Lenght.` In addition, variable `seq_len` keeps a record of the original length value for each sequence in the data set.
+we can see that each sequence in the data set has variable length but they are padded by zero in order to ensure that the final length of each sequence is `Max_Sequence_Lenght.` In addition, variable `seq_len` keeps a record of the original length value for each sequence in the dataset.
 
-After creating the data, we split it into Training, Validation and Test data sets. This is follwoen, as ussual, with graph construction, where we follow the same steps as in all previous examples. Here, in addition to already familiar placeholders we introduce one more,
+After creating the data, we split it into Training, Validation and Test data sets. This is followed, as usual, with graph construction, where we follow the same steps as in all previous examples. Here, in addition to already familiar placeholders, we introduce one more,
 
 ```python
 sequence_length = tf.placeholder(dtype=tf.float32, shape=[None], name="sequence_length")
@@ -84,7 +84,7 @@ rnn_output, rnn_state = tf.nn.dynamic_rnn(cell=rnn_cells, inputs=input_seq, dtyp
                                             sequence_length=sequence_length)
 ```
 
-Now RNN outputs zero vectors for every time step past the input sequence length. Moreover, the states tensor contains the final state of each cell \(excluding the zero vectors\). This allows us to use the final state as before and for that reason the rest of the code in the script and stages are similar to the code described in the previous chapters.
+Now RNN outputs zero vectors for every time step past the input sequence length. Moreover, the states tensor contains the final state of each cell \(excluding the zero vectors\). This allows us to use the final state as before and for that reason, the rest of the code in the script and stages are similar to the code described in the previous chapters.
 
 ### Next
 

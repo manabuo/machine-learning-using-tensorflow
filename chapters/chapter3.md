@@ -1,6 +1,6 @@
 ## Logistic Regression
 
-This chapter presents the first fully fledged example of Logistic Regression that uses commonly utilised TensorFlow structures.
+This chapter presents the first fully-fledged example of Logistic Regression that uses commonly utilised TensorFlow structures.
 
 ### Data set
 
@@ -63,7 +63,7 @@ Further, [`tf.placeholder()`](https://www.tensorflow.org/api_docs/python/tf/plac
 
 To define a placeholder, it is necessary to define `dtype` parameter that specifies the data type of the values that it is going to contain. The second required parameter is `shape` which specifies the shape of the placeholder tensor and the shape that will be passed to the placeholder. If `shape = None`, this means that tensors of any shape will be accepted. Using `shape = None` it is easy to construct the graphs, but nightmarish for debugging. You should always define the shape of your placeholders as detailed as possible.
 
-In this example, we know that our features data set shape is 569 by 30. This means that when we create a placeholder for `x` the shape should be `[569, 30]`. However, as it is computationally more efficient to feed to the graph small batches rather than a full data set at once, we will split 569 samples into smaller chunks. The size of each chunk/batch in the script is given by `BATCH_SIZE` value. Therefore the placeholder's shape is  `[BATCH_SIZE, 30]`. In some situations, the last batch may be shorter than `BATCH_SIZE` value and this could potentially "break the code". In order to avoid this situation, we write `[None, X_FEATURES]`, where `X_FEATURES = 30` for convenience and `None` stands for an arbitrary number. Similarly, we define the placeholder for `y_true`, which shape is `[None, Y_FEATURES]` where in our case `Y_FEATURES = 2`.
+In this example, we know that our features dataset shape is 569 by 30. This means that when we create a placeholder for `x` the shape should be `[569, 30]`. However, as it is computationally more efficient to feed to the graph small batches rather than a full data set at once, we will split 569 samples into smaller chunks. The size of each chunk/batch in the script is given by `BATCH_SIZE` value. Therefore the placeholder's shape is  `[BATCH_SIZE, 30]`. In some situations, the last batch may be shorter than `BATCH_SIZE` value and this could potentially "break the code". In order to avoid this situation, we write `[None, X_FEATURES]`, where `X_FEATURES = 30` for convenience and `None` stands for an arbitrary number. Similarly, we define the placeholder for `y_true`, which shape is `[None, Y_FEATURES]` where in our case `Y_FEATURES = 2`.
 
 > Note: You can also give your placeholder a name as you can any other _op_ in TensorFlow.
 
@@ -94,7 +94,7 @@ Further, to actually train a model or, in the other words, find the "best" value
 
 ##### Hyperparameters
 
-This model has two parameters that only influence input and output layer shapes, these are, `X_FEATURES` which is a number of input features, and`Y_FEATURES` - the number of output classes or a number of "neurons" in the output layer.
+This model has two parameters that only influence input and output layer shapes, these are, `X_FEATURES` which is a number of input features, and `Y_FEATURES` - the number of output classes or a number of "neurons" in the output layer.
 
 However, other parameters \(hyperparameters\) that have to be supplied to the graph during construction, and they also influence the model and training, are:
 
@@ -117,7 +117,7 @@ with tf.variable_scope("metrics"):
     _, precision = tf.metrics.precision(labels=labels, predictions=predictions)
 ```
 
-First, we find indices with the largest value across column axis of logit and target tensors using [`tf.argmax()`](https://www.tensorflow.org/api_docs/python/tf/argmax). This function takes in a tensor and axis that specifies which axis of the input tensor to reduce across. Then we use theses values to compute [`accuracy`](https://www.tensorflow.org/api_docs/python/tf/metrics/accuracy), [`auc`](https://www.tensorflow.org/api_docs/python/tf/metrics/auc) and [`precision`](https://www.tensorflow.org/api_docs/python/tf/metrics/precision) for the model. Other metrics can be found [here](https://www.tensorflow.org/api_docs/python/tf/metrics).
+First, we find indices with the largest value across column axis of logit and target tensors using [`tf.argmax()`](https://www.tensorflow.org/api_docs/python/tf/argmax). This function takes in a tensor and axis that specifies which axis of the input tensor to reduce across. Then we use these values to compute [`accuracy`](https://www.tensorflow.org/api_docs/python/tf/metrics/accuracy), [`auc`](https://www.tensorflow.org/api_docs/python/tf/metrics/auc) and [`precision`](https://www.tensorflow.org/api_docs/python/tf/metrics/precision) for the model. Other metrics can be found [here](https://www.tensorflow.org/api_docs/python/tf/metrics).
 
 ### Model Training
 
@@ -134,7 +134,7 @@ init_local = tf.local_variables_initializer()
 sess.run(fetches=[init_global, init_local])
 ```
 
-Here we use `tf.InteractiveSession()` function to attach the `Session` to the graph. This allows us to use model interactively in  **PyCharm ** or **Jupyter Notebooks**.  Later, we define global and local variables and initialize them by executing the `Session`. In general, a majority of TensorFlow functions require only global variables to be initialized, however when `tf.metrics` is used local variables also are required.
+Here we use `tf.InteractiveSession()` function to attach the `Session` to the graph. This allows us to use model interactively in  **PyCharm** or **Jupyter Notebooks**.  Later, we define global and local variables and initialize them by executing the `Session`. In general, a majority of TensorFlow functions require only global variables to be initialized, however when `tf.metrics` is used local variables also are required.
 
 > Note: Currently, TensorFlow community tries to change how variable initialization works and for the time being it is advisable to initialize global variables. However, if errors appear during graph's execution, initialize local variables as well.
 
@@ -171,7 +171,7 @@ for e in range(EPOCHS + 1):
 
 The outer loop is for epochs in which we first shuffle input array indices and then define a [Python generator](https://wiki.python.org/moin/Generators) for a batch creation. This function takes in a list of indices and creates a slice that contains `BATCH_SIZE` number or less of elements. The inner explicit loop is over a number of batches that are computed beforehand. In the loop, [`next()`](https://www.programiz.com/python-programming/methods/built-in/next) function takes in our predefined Python generator and returns a list of index values of length `BATCH_SIZE`. Every time this function is executed function retrieves the next item in the iterator.
 
-Having obtained the list of indices, we construct an input `feed` dictionary, where we define which input array is assigned to which placeholder in the graph. In this example, we train our model using batches and thus we provide only slices of whole target and feature data sets. Then we execute the graph, by supplying the [`run`](https://www.tensorflow.org/api_docs/python/tf/Session#run) method with two parameters, `fetches` which may be a single graph element or list of an arbitrary number of graph elements, and `feed_dict` corresponds to input values.
+Having obtained the list of indices, we construct an input `feed` dictionary, where we define which input array is assigned to which placeholder in the graph. In this example, we train our model using batches and thus we provide only slices of whole target and feature datasets. Then we execute the graph, by supplying the [`run`](https://www.tensorflow.org/api_docs/python/tf/Session#run) method with two parameters, `fetches` which may be a single graph element or list of an arbitrary number of graph elements, and `feed_dict` corresponds to input values.
 
 The `run` method executes graph only one step at a time, thus iterating over a number of batches where at each iteration a new input batch is created and supplied to the graph, it has to modify weights and biases in order to find a middle-ground that would satisfy all training input data. Following `if` statement is optional, as it allows us to follow the training progress. It states that after every 100 epochs we wish to evaluate_ total_ _loss_ and _accuracy_ for whole training and validation sets, and then print it to the console.
 

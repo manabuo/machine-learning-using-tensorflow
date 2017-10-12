@@ -29,7 +29,7 @@ However, the primary purpose of TensorFlow is not to provide out-of-the-box mach
 
 ### What is TensorFlow
 
-Most notable difference between TensorFlow and other libraries is that TensorFlow does all its computation in graphs. A TensorFlow graph is a description of operands and operations that are required to preform a task. This meas, that TensorFlow programs separate the definition of computations from their execution. For more details on computational graphs see the following:
+Most notable difference between TensorFlow and other libraries is that TensorFlow does all its computation in graphs. A TensorFlow graph is a description of operands and operations that are required to perform a task. This means, that TensorFlow programs separate the definition of computations from their execution. For more details on computational graphs see the following:
 
 * [Calculus on Computational Graphs: Backpropagation](http://colah.github.io/posts/2015-08-Backprop/)
 * [What is a TensorFlow Session?](http://danijar.com/what-is-a-tensorflow-session/)
@@ -37,7 +37,7 @@ Most notable difference between TensorFlow and other libraries is that TensorFlo
 
 So, a computational graph is a series of TensorFlow operations arranged in a graph of nodes. In the graph, nodes are called _ops_ which is short-hand for _operations_. An _op_ takes zero or more _Tensors_, performs some computation, and then again produces zero or more _Tensors_. As you might suspect, in TensorFlow, _Tensor_ is the basic object and it uses a[ tensor](https://en.wikipedia.org/wiki/Tensor) data structure to represent all data - only tensors are passed between operations in the computation graph. You can think of a _Tensor_ as an n-dimensional array or list. The _Tensor_ has a static type, a rank, and a shape. To learn more about how TensorFlow handles these concepts, see the [Rank, Shape, and Type reference](https://www.tensorflow.org/programmers_guide/dims_types).
 
-For example, in the case of the patient records, \_Tensor \_could be a three-dimensional array with dimensions **\[patients, record\_lengh, events\]** or in case of images it is a four-dimensional array with dimensions **\[images, height, width, colors\]**.
+For example, in the case of the patient records, _Tensor_could be a three-dimensional array with dimensions **\[patients, record\_lengh, events\]** or in case of images it is a four-dimensional array with dimensions **\[images, height, width, colors\]**.
 
 ### How does TensorFlow works
 
@@ -67,7 +67,7 @@ The default graph now has three nodes: two `tf.constant()` _ops_ and one `tf.mat
 
 ![Simple Graph](../assets/image1.svg)
 
-If we try to execute the code presented above, we, unfortunatly, will not get useful answer. In Tenserflow to actually perform the computatuion and get the result, we have to launch the graph in a session. Thus, to multiply the matrices and get the result of the multiplication, we have to create a `Session` object without arguments, which launches the default graph.
+If we try to execute the code presented above, we, unfortunately, will not get a useful answer. In Tenserflow to actually perform the computation and get the result, we have to launch the graph in a session. Thus, to multiply the matrices and get the result of the multiplication, we have to create a `Session` object without arguments, which launches the default graph.
 
 ```python
 # Launch the default graph.
@@ -89,7 +89,7 @@ with tf.Session() as sess:
   print(result)
 ```
 
-You sometimes see `InteractiveSession()` instead of `Session()`. The only difference is that `InteractiveSession()` makes itself the default `Session` and thus can call `Tensor.eval()` and/or `Operation.run()` without explicitly calling the `Session` every time you want to compute somting. This is convenient feature in interactive shells, such as [Jupyter Notebooks](http://jupyter.org/), as it avoids having to pass an explicit `Session` object to run _ops evry time_. However, it is complicated when you have multiple `Sessions` objects to run. For more information see [here](https://learningtensorflow.com/lesson5/)
+You sometimes see `InteractiveSession()` instead of `Session()`. The only difference is that `InteractiveSession()` makes itself the default `Session` and thus can call `Tensor.eval()` and/or `Operation.run()` without explicitly calling the `Session` every time you want to compute something. This is a convenient feature in interactive shells, such as [Jupyter Notebooks](http://jupyter.org/), as it avoids having to pass an explicit `Session` object to run _ops_ every time. However, it is complicated when you have multiple `Sessions` objects to run. For more information see [here](https://learningtensorflow.com/lesson5/)
 
 ### Data Types in TensorFlow
 

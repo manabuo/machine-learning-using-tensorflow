@@ -22,11 +22,11 @@ X_train_val, X_test, Y_train_val, Y_test = train_test_split(feature, target, tes
 X_train, X_val, Y_train, Y_val = train_test_split(X_train_val, Y_train_val, test_size=0.33, random_state=42)
 ```
 
-features are just a randomly generated numbers in the range -1 and 4. The shape of the array is`[1000, 1]`. To make life just a bit more interesting, we also create a random noise with the maximum amplitude of 0.1. Further, we create two target arrays, that are later concatenated into one `[1000, 2]` numpy array. The parameters and coefficients that are used in the example are arbitrary and therefore feel free to play around. However, note that if your target or/and feature values are very very small or very very large you may need to rescale them or change hyperparameters. Otherwise, it will be very difficult for the model to make good predictions. The final step in the data preparation stage, as before, is splitting the feature and the target arrays into train, validation and test data sets.
+features are just a randomly generated numbers in the range -1 and 4. The shape of the array is `[1000, 1]`. To make life just a bit more interesting, we also create a random noise with the maximum amplitude of 0.1. Further, we create two target arrays, that are later concatenated into one `[1000, 2]` numpy array. The parameters and coefficients that are used in the example are arbitrary and therefore feel free to play around. However, note that if your target or/and feature values are very very small or very very large you may need to rescale them or change hyperparameters. Otherwise, it will be very difficult for the model to make good predictions. The final step in the data preparation stage, as before, is splitting the feature and the target arrays into train, validation and test datasets.
 
 ### Graph Construction
 
-Although in this example feature and target arrays have changed the shape when compared with the example for the logistic regression, the inputs in the graph remain the same, as well as the structure of the graph it self.
+Although in this example feature and target arrays have changed the shape when compared with the example for the logistic regression, the inputs in the graph remain the same, as well as the structure of the graph itself.
 
 ```python
 with tf.variable_scope("inputs"):
@@ -38,7 +38,7 @@ with tf.variable_scope("inputs"):
 
 Both `X_FEATURES` and `Y_FEATURES` are computed during the script execution, as each numpy array contains a [`shape`](https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.shape.html) option that returns the tuple of array dimensions, therefore we do not need to worry about what values are assigned to these variables. Because we used `None` for the first dimension in the shape parameter for both placeholders we do not need to worry about the length of the data either.
 
-In general, when we create placeholders for dense neural networks, the shape parameter should be a vector of the form: `[BATCH_SIZE, FEATURE NUMBER]`. As mentioned in the previous example, providing an explicit value for `BATCH_SIZE` could potentially cause a problem, thus it is common to use `None` instead. Therefore, as rule of thumb is to use the following for the `shape` parameter `[None, FEATURE NUMBER]`.
+In general, when we create placeholders for dense neural networks, the shape parameter should be a vector of the form: `[BATCH_SIZE, FEATURE NUMBER]`. As mentioned in the previous example, providing an explicit value for `BATCH_SIZE` could potentially cause a problem, thus it is common to use `None` instead. Therefore, a rule of thumb is to use the following for the `shape` parameter `[None, FEATURE NUMBER]`.
 
 You might noticed the following command before the input definition, [`tf.reset_default_graph()`](https://www.tensorflow.org/api_docs/python/tf/reset_default_graph). This function, as the name suggests, clears and resets values in the default graph stack. This means that every time before we construct our graph, we ensure that all previously attached elements to the graph are removed.
 
